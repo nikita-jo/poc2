@@ -1,0 +1,8 @@
+{
+  "status": "SKIPPED",
+  "projectKey": "",
+  "host": "https://sonarcloud.io",
+  "qualityGate": "UNKNOWN",
+  "metrics": {},
+  "issues": []
+}

@@ -1,0 +1,17 @@
+diff --git a/src/main/resources/application.properties b/src/main/resources/application.properties
+index cde4df7..766f80a 100644
+--- a/src/main/resources/application.properties
++++ b/src/main/resources/application.properties
+@@ -22,9 +22,9 @@ spring.h2.console.enabled=true
+ spring.h2.console.path=/h2-console
+ 
+ # VULNERABILITY: hardcoded "secret" key in source code (A02:2021 / A05:2021)
+-app.secret.api.key=AKIA-INTENTIONALLY-EXPOSED-SECRET-KEY-DO-NOT-USE-IN-PROD
+-app.secret.db.password=P@ssw0rd123_plaintext_intentionally_exposed
+-app.secret.jwt.signing.key=this-is-a-hardcoded-jwt-signing-key-for-demo-only
++
++
++
+ 
+ # JPA / Hibernate
+ spring.jpa.hibernate.ddl-auto=create
