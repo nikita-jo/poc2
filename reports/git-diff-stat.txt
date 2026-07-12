@@ -1,0 +1,4 @@
+ .../java/com/owasp/lab/config/SecurityConfig.java  |  3 ++-
+ .../java/com/owasp/lab/service/UserService.java    | 27 +++++++++++++++-------
+ src/main/resources/application.properties          |  6 ++---
+ 3 files changed, 24 insertions(+), 12 deletions(-)

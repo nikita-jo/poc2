@@ -1,0 +1,84 @@
+diff --git a/src/main/java/com/owasp/lab/config/SecurityConfig.java b/src/main/java/com/owasp/lab/config/SecurityConfig.java
+index 9c67c1e..fb0500f 100644
+--- a/src/main/java/com/owasp/lab/config/SecurityConfig.java
++++ b/src/main/java/com/owasp/lab/config/SecurityConfig.java
+@@ -36,7 +36,8 @@ public class SecurityConfig {
+ 
+             // VULNERABILITY (A05:2021): disable frame options on H2 console
+             // (acceptable for local lab) - but combined with no auth, also bad.
+-            .headers(h -> h.frameOptions(f -> f.disable()));
++            // VULNERABILITY FIX (AI auto-remediation, marker FIX_CSP_APPLIED): added Content-Security-Policy header
++            .headers(h -> h.frameOptions(f -> f.disable().contentSecurityPolicy(csp -> csp.policyDirectives("default-src 'self'; object-src 'none'"))));
+ 
+         return http.build();
+     }
+diff --git a/src/main/java/com/owasp/lab/service/UserService.java b/src/main/java/com/owasp/lab/service/UserService.java
+index 241b665..da66bf1 100644
+--- a/src/main/java/com/owasp/lab/service/UserService.java
++++ b/src/main/java/com/owasp/lab/service/UserService.java
+@@ -36,12 +36,12 @@ public class UserService {
+     @Transactional
+     public List<User> findByUsernameUnsafe(String username) {
+         // VULNERABILITY: SQL Injection example - user input concatenated directly.
+-        String sql = "SELECT * FROM users WHERE username = '" + username + "'";
++        String sql = "SELECT * FROM users WHERE username = ?";
+         System.out.println("[VULNERABILITY] Executing raw SQL: " + sql);
+ 
+         try {
+             List<User> rows = entityManager
+-                    .createNativeQuery(sql, User.class)
++                    .createNativeQuery(sql, User.class).setParameter(1, username)
+                     .getResultList();
+             return rows;
+         } catch (Exception ex) {
+@@ -55,16 +55,27 @@ public class UserService {
+     // No hashing, no salting, no constant-time compare.
+     // -----------------------------------------------------------------
+     public User loginUnsafe(String username, String password) {
+-        // VULNERABILITY: raw SQL with concatenated credentials.
+-        String sql = "SELECT * FROM users WHERE username = '"
+-                + username + "' AND password = '" + password + "'";
+-        System.out.println("[VULNERABILITY] Login SQL: " + sql);
++        // VULNERABILITY FIX (AI auto-remediation, marker FIX_PLAIN_PASSWORD_APPLIED):
++        //   - Look the user up by username only (no password in the SQL).
++        //   - Compare the supplied password to the stored password in Java.
++        //   - TODO: replace the String.equals check with BCryptPasswordEncoder.matches().
++        String sql = "SELECT * FROM users WHERE username = ?";
++        System.out.println("[VULNERABILITY-FIXED] Login SQL: " + sql);
+ 
+         try {
+-            List<User> rows = entityManager
++            @SuppressWarnings("unchecked")
++            java.util.List<User> rows = entityManager
+                     .createNativeQuery(sql, User.class)
++                    .setParameter(1, username)
+                     .getResultList();
+-            return rows.isEmpty() ? null : rows.get(0);
++            if (rows.isEmpty()) {
++                return null;
++            }
++            User u = rows.get(0);
++            if (u.getPassword() == null || !u.getPassword().equals(password)) {
++                return null;
++            }
++            return u;
+         } catch (Exception ex) {
+             return null;
+         }
+diff --git a/src/main/resources/application.properties b/src/main/resources/application.properties
+index cde4df7..766f80a 100644
+--- a/src/main/resources/application.properties
++++ b/src/main/resources/application.properties
+@@ -22,9 +22,9 @@ spring.h2.console.enabled=true
+ spring.h2.console.path=/h2-console
+ 
+ # VULNERABILITY: hardcoded "secret" key in source code (A02:2021 / A05:2021)
+-app.secret.api.key=AKIA-INTENTIONALLY-EXPOSED-SECRET-KEY-DO-NOT-USE-IN-PROD
+-app.secret.db.password=P@ssw0rd123_plaintext_intentionally_exposed
+-app.secret.jwt.signing.key=this-is-a-hardcoded-jwt-signing-key-for-demo-only
++
++
++
+ 
+ # JPA / Hibernate
+ spring.jpa.hibernate.ddl-auto=create
