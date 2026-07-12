@@ -296,7 +296,7 @@ def fix_add_csp(repo_root: Path) -> list[dict]:
 # ---------------------------------------------------------------------
 
 
-def _load_json(path: Path) -> Any:
+def _load_json(path: Path) -> dict:
     if not path.exists():
         return {}
     try:
