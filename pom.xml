@@ -25,8 +25,12 @@
     <description>OWASP Top 10 vulnerability learning lab (intentionally insecure)</description>
 
     <properties>
-        <java.version>17</java.version>
+        <!-- Pinned to Java 21 per the DevSecOps pipeline spec (Spring Boot 3.3.13 BOM supports it). -->
+        <java.version>21</java.version>
+        <maven.compiler.release>21</maven.compiler.release>
         <jacoco.version>0.8.12</jacoco.version>
+        <!-- Default JaCoCo XML report path so SonarCloud can read coverage without extra config. -->
+        <jacoco.reportPath>${project.build.directory}/site/jacoco/jacoco.xml</jacoco.reportPath>
     </properties>
 
     <dependencies>
@@ -82,6 +86,25 @@
                             <artifactId>lombok</artifactId>
                         </exclude>
                     </excludes>
+                </configuration>
+            </plugin>
+            <!-- SonarCloud scanner — used by the security-ai-review pipeline. -->
+            <plugin>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
+                <version>3.11.0.3922</version>
+            </plugin>
+            <!-- JUnit 5 Surefire — produces junit.xml files the pipeline uploads. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <includes>
+                        <include>**/*Test.java</include>
+                        <include>**/*Tests.java</include>
+                        <include>**/Test*.java</include>
+                        <include>**/*IT.java</include>
+                    </includes>
                 </configuration>
             </plugin>
         </plugins>

@@ -1,0 +1,1002 @@
+name: CI/CD — DevSecOps Pipeline (Build → Test → Scan → AI Review → Remediate → Re-Scan → Deploy)
+
+# Required repository secrets (Settings → Secrets and variables → Actions):
+#   SONAR_TOKEN         - SonarCloud account token (https://sonarcloud.io/account/security)
+#   SONAR_ORGANIZATION  - SonarCloud organisation key
+#   SONAR_PROJECT_KEY   - SonarCloud project key (must already exist in the org)
+#   NVIDIA_API_KEY      - NVIDIA build / integrate API key (https://build.nvidia.com)
+#
+# Optional:
+#   DEPLOY_SSH_KEY, KUBE_CONFIG, AWS_*  - whatever your real deploy step needs
+#   MIN_COVERAGE (workflow var)         - default 70
+#   ALLOW_CRITICAL (workflow var)       - default false
+#   ALLOW_HIGH (workflow var)           - default false
+#
+# GitHub Environments to create (Settings → Environments):
+#   dev        - typically no required reviewers
+#   qa         - 1 required reviewer from the QA team
+#   production - 2 required reviewers, wait timer, branch restriction = main only
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Deployment environment"
+        required: true
+        type: choice
+        default: dev
+        options:
+          - dev
+          - qa
+          - production
+      skip_remediation:
+        description: "Skip AI remediation stage (use with caution)"
+        required: false
+        type: boolean
+        default: false
+
+# Tightest possible default; jobs widen as needed.
+permissions:
+  contents: read
+
+env:
+  SONAR_HOST_URL: https://sonarcloud.io
+  SONAR_PROJECT_KEY: ${{ vars.SONAR_PROJECT_KEY || secrets.SONAR_PROJECT_KEY }}
+  SONAR_ORGANIZATION: ${{ vars.SONAR_ORGANIZATION || secrets.SONAR_ORGANIZATION }}
+  MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository -Dorg.slf4j.simpleLogger.showDateTime=false"
+  MIN_COVERAGE: ${{ vars.MIN_COVERAGE || '70' }}
+  ALLOW_CRITICAL: ${{ vars.ALLOW_CRITICAL || 'false' }}
+  ALLOW_HIGH: ${{ vars.ALLOW_HIGH || 'false' }}
+  REPORT_DIR: reports
+  DEPLOY_ENV: ${{ github.event.inputs.environment || 'dev' }}
+
+# ---------------------------------------------------------------
+# 1. BUILD  (Maven, Java 21, cached)
+# ---------------------------------------------------------------
+jobs:
+  build:
+    name: "1. Build (Maven, Java 21)"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21 (Temurin)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Cache Maven repository
+        uses: actions/cache@v4
+        with:
+          path: .m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml', '**/pom.xml.versionsBackup') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Build (compile only)
+        run: mvn -B -ntp -DskipTests -Dmaven.javadoc.skip=true package
+        # Hard-fail on compile error (the default for `run:`).
+
+      - name: Verify build artifacts exist
+        run: ls -la target/ | tee target/.build-ok
+
+      - name: Upload build outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: |
+            target/classes
+            target/*.jar
+            target/.build-ok
+          if-no-files-found: warn
+          retention-days: 7
+
+  # ---------------------------------------------------------------
+  # 2. UNIT TEST  +  3. TEST COVERAGE  (JaCoCo via -Pcoverage)
+  # ---------------------------------------------------------------
+  unit-test:
+    name: "2. Unit Tests (JUnit 5)"
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21 (Temurin)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Cache Maven repository
+        uses: actions/cache@v4
+        with:
+          path: .m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Run unit tests (Surefire)
+        run: mvn -B -ntp test
+      - name: Verify tests ran
+        run: |
+          set -e
+          if [ ! -d target/surefire-reports ]; then
+            echo "::error::No surefire-reports directory found"
+            exit 1
+          fi
+          echo "Surefire reports:"
+          ls -la target/surefire-reports/
+
+      - name: Upload JUnit + Surefire reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-reports
+          path: |
+            target/surefire-reports/
+          if-no-files-found: warn
+          retention-days: 30
+
+  coverage:
+    name: "3. Test Coverage (JaCoCo)"
+    runs-on: ubuntu-latest
+    needs: [unit-test]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21 (Temurin)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Cache Maven repository
+        uses: actions/cache@v4
+        with:
+          path: .m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Build with coverage profile
+        run: mvn -B -ntp -Pcoverage verify
+      - name: Produce coverage summary CSV
+        if: always() && hashFiles('target/site/jacoco/jacoco.xml') != ''
+        run: |
+          set -e
+          python3 - <<'PY'
+          import csv, re, sys, xml.etree.ElementTree as ET
+          from pathlib import Path
+          src = Path("target/site/jacoco/jacoco.xml")
+          out = Path("target/site/jacoco/coverage-summary.csv")
+          if not src.exists():
+              print("No jacoco.xml found; writing empty summary")
+              out.write_text("element,missed,covered,total,coverage_pct\n", encoding="utf-8")
+              sys.exit(0)
+          root = ET.parse(src).getroot()
+          rows = [("package", "missed", "covered", "total", "pct")]
+          for pkg in root.iter("package"):
+              name = pkg.get("name") or "(root)"
+              missed = covered = 0
+              for c in pkg.iter("counter"):
+                  if c.get("type") == "LINE":
+                      missed += int(c.get("missed", 0))
+                      covered += int(c.get("covered", 0))
+              total = missed + covered
+              pct = round(covered / total * 100, 2) if total else 0.0
+              rows.append((name, missed, covered, total, pct))
+          with out.open("w", newline="", encoding="utf-8") as f:
+              w = csv.writer(f)
+              w.writerows(rows)
+          print("Coverage summary:")
+          for r in rows[-10:]:
+              print(" ", r)
+          PY
+
+      - name: Upload coverage artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-build-output
+          path: |
+            target/site/jacoco/jacoco.xml
+            target/site/jacoco/coverage-summary.csv
+            target/surefire-reports/
+          if-no-files-found: warn
+          retention-days: 30
+
+  # ---------------------------------------------------------------
+  # 4. SONARCLOUD SCAN
+  # ---------------------------------------------------------------
+  sonarcloud-scan:
+    name: "4. SonarCloud Scan"
+    runs-on: ubuntu-latest
+    needs: [coverage]
+    permissions:
+      contents: read
+      pull-requests: read
+      security-events: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 21 (Temurin)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Cache Maven repository
+        uses: actions/cache@v4
+        with:
+          path: .m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Build (no tests; coverage job already did this)
+        run: mvn -B -ntp -DskipTests package
+
+      - name: Download coverage artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-build-output
+          path: target/
+
+      - name: SonarCloud scan
+        if: env.SONAR_TOKEN != '' && env.SONAR_PROJECT_KEY != '' && env.SONAR_ORGANIZATION != ''
+        id: sonar
+        continue-on-error: false
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        uses: sonarsource/sonarqube-scan-action@v3
+        with:
+          projectBaseDir: .
+          args: >
+            -Dsonar.projectKey=${SONAR_PROJECT_KEY}
+            -Dsonar.organization=${SONAR_ORGANIZATION}
+            -Dsonar.host.url=${SONAR_HOST_URL}
+            -Dsonar.sources=src/main/java
+            -Dsonar.tests=src/test/java
+            -Dsonar.java.binaries=target/classes
+            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+            -Dsonar.junit.reportPaths=target/surefire-reports
+
+      - name: SonarCloud scan (skipped — missing secrets)
+        if: env.SONAR_TOKEN == '' || env.SONAR_PROJECT_KEY == '' || env.SONAR_ORGANIZATION == ''
+        run: |
+          mkdir -p "$REPORT_DIR"
+          echo "SKIPPED" > "$REPORT_DIR/sonar-quality-gate.txt"
+          echo "::warning::SonarCloud scan skipped: SONAR_TOKEN, SONAR_PROJECT_KEY or SONAR_ORGANIZATION not set."
+
+      - name: Generate Sonar report (JSON + TXT)
+        if: always()
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          mkdir -p "$REPORT_DIR"
+          python3 scripts/generate-sonar-report.py \
+            --output-dir "$REPORT_DIR" \
+            --host "${SONAR_HOST_URL}" \
+            --project-key "${SONAR_PROJECT_KEY}" \
+            --token "${SONAR_TOKEN}" \
+            --page-size 500
+
+      - name: Upload SonarCloud reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sonar-report
+          path: |
+            reports/sonar-report.json
+            reports/sonar-report.txt
+            reports/sonar-quality-gate.txt
+          if-no-files-found: warn
+          retention-days: 90
+
+  # ---------------------------------------------------------------
+  # 5. TRIVY SECURITY SCAN
+  # ---------------------------------------------------------------
+  trivy-scan:
+    name: "5. Trivy Security Scan"
+    runs-on: ubuntu-latest
+    needs: [coverage]
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run Trivy filesystem scan (JSON / SARIF / TXT)
+        env:
+          TRIVY_SEVERITY: "CRITICAL,HIGH,MEDIUM,LOW,UNKNOWN"
+        run: |
+          bash scripts/generate-trivy-report.sh "$REPORT_DIR" .
+
+      - name: Upload Trivy SARIF to Security tab
+        if: always() && hashFiles('reports/trivy-fs.sarif') != ''
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: reports/trivy-fs.sarif
+          category: trivy-fs
+
+      - name: Upload Trivy reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-report
+          path: |
+            reports/trivy-report.json
+            reports/trivy-report.txt
+            reports/trivy-fs.sarif
+            reports/trivy-report.raw.json
+          if-no-files-found: warn
+          retention-days: 90
+
+  # ---------------------------------------------------------------
+  # 6. AI SECURITY REVIEW (NVIDIA)
+  # ---------------------------------------------------------------
+  security-ai-review:
+    name: "6. AI Security Review (NVIDIA)"
+    runs-on: ubuntu-latest
+    needs: [sonarcloud-scan, trivy-scan, coverage]
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Download Sonar report
+        uses: actions/download-artifact@v4
+        with:
+          name: sonar-report
+          path: reports/
+          if-no-files-found: warn
+      - name: Download Trivy report
+        uses: actions/download-artifact@v4
+        with:
+          name: trivy-report
+          path: reports/
+          if-no-files-found: warn
+      - name: Download coverage artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-build-output
+          path: target/
+
+      - name: Stage jacoco + junit for the AI agent
+        run: |
+          set -e
+          mkdir -p reports
+          if [ -f target/site/jacoco/jacoco.xml ]; then
+            cp target/site/jacoco/jacoco.xml reports/jacoco.xml
+          fi
+          if compgen -G "target/surefire-reports/*.xml" > /dev/null; then
+            cp target/surefire-reports/*.xml reports/ || true
+            # Provide a junit.xml alias for the AI agent
+            FIRST_REPORT=$(ls target/surefire-reports/TEST-*.xml 2>/dev/null | head -n 1 || echo "")
+            if [ -n "$FIRST_REPORT" ] && [ -f "$FIRST_REPORT" ]; then
+              cp "$FIRST_REPORT" reports/junit.xml
+            fi
+          fi
+
+      - name: Run AI Security Review agent
+        if: always()
+        env:
+          NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
+        run: |
+          set -e
+          python3 scripts/ai-security-review.py --reports reports
+
+      - name: Upload security review reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-review
+          path: |
+            reports/security-review.json
+            reports/security-review.md
+            reports/security-summary.txt
+          if-no-files-found: warn
+          retention-days: 90
+
+  # ---------------------------------------------------------------
+  # 7. AI REMEDIATION (NVIDIA)
+  # ---------------------------------------------------------------
+  security-ai-remediate:
+    name: "7. AI Remediation Agent (NVIDIA)"
+    runs-on: ubuntu-latest
+    needs: [security-ai-review]
+    if: ${{ always() && needs.security-ai-review.result == 'success' && !inputs.skip_remediation }}
+    permissions:
+      contents: write
+      pull-requests: write
+    outputs:
+      remediation_branch: ${{ steps.remediation.outputs.remediation_branch || '' }}
+      remediation_pr_url: ${{ steps.remediation.outputs.remediation_pr_url || '' }}
+      has_fixes: ${{ steps.remediation.outputs.has_fixes || 'false' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Download security review
+        uses: actions/download-artifact@v4
+        with:
+          name: security-review
+          path: reports/
+          if-no-files-found: warn
+
+      - name: Download Sonar report
+        uses: actions/download-artifact@v4
+        with:
+          name: sonar-report
+          path: reports/
+          if-no-files-found: warn
+
+      - name: Download Trivy report
+        uses: actions/download-artifact@v4
+        with:
+          name: trivy-report
+          path: reports/
+          if-no-files-found: warn
+
+      - name: Install GitHub CLI
+        run: |
+          if ! command -v gh >/dev/null 2>&1; then
+            curl -fsSL https://cli.github.com/github-cli-archive-keyring.gpg \
+              | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+            chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
+            echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
+              > /etc/apt/sources.list.d/github-cli.list
+            apt-get update && apt-get install -y gh
+          fi
+          gh --version
+
+      - name: Run AI Remediation agent
+        id: remediation
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
+          REMEDIATION_BRANCH: ai-remediation/${{ github.sha }}
+          REMEDIATION_TARGET: ${{ github.event.pull_request.base.ref || 'main' }}
+          SKIP_PR: ${{ github.event_name == 'pull_request' && 'true' || '' }}
+        run: |
+          set -e
+          python3 scripts/ai-remediation.py --repo-root . --reports reports
+          # Read back the remediation branch + PR URL for downstream jobs
+          if [ -f reports/remediation-report.json ]; then
+            BRANCH=$(python3 -c "import json; r=json.load(open('reports/remediation-report.json')); print(r.get('branch',''))")
+            PR=$(python3 -c "import json; r=json.load(open('reports/remediation-report.json')); print(r.get('pr_url') or '')")
+            HAS_FIXES=$(python3 -c "import json; r=json.load(open('reports/remediation-report.json')); print('true' if r.get('fixes') else 'false')")
+          else
+            BRANCH=""
+            PR=""
+            HAS_FIXES="false"
+          fi
+          echo "remediation_branch=${BRANCH}" >> "$GITHUB_OUTPUT"
+          echo "remediation_pr_url=${PR}" >> "$GITHUB_OUTPUT"
+          echo "has_fixes=${HAS_FIXES}" >> "$GITHUB_OUTPUT"
+
+      - name: Stage remediation outputs
+        if: always()
+        run: |
+          set -e
+          # Make sure all expected files exist (the remediation step may have
+          # not produced any changes; that's fine).
+          touch reports/remediation-summary.md
+          touch reports/remediation-report.json
+          touch reports/changed-files.txt
+          touch reports/ai-patch.diff
+          touch reports/git-diff-stat.txt
+
+      - name: Validate build after remediation
+        if: always()
+        run: |
+          set -e
+          if [ ! -f target/.rebuild-ok ] && [ ! -d target/classes ]; then
+            echo "::warning::No build output found; the next job will rebuild."
+          fi
+
+      - name: Upload remediation artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: remediation
+          path: |
+            reports/remediation-summary.md
+            reports/remediation-report.json
+            reports/changed-files.txt
+            reports/ai-patch.diff
+            reports/git-diff-stat.txt
+          if-no-files-found: warn
+          retention-days: 90
+
+  # ---------------------------------------------------------------
+  # 8. REBUILD & RETEST
+  # ---------------------------------------------------------------
+  rebuild-and-retest:
+    name: "8. Rebuild & Retest (post-remediation)"
+    runs-on: ubuntu-latest
+    needs: [security-ai-remediate]
+    if: ${{ always() && (needs.security-ai-remediate.result == 'success' || needs.security-ai-remediate.result == 'skipped') }}
+    outputs:
+      ref: ${{ steps.set_ref.outputs.ref }}
+    steps:
+      - name: Decide which ref to check out
+        id: set_ref
+        run: |
+          # Prefer the remediation branch (already pushed by the AI agent) when
+          # the previous job produced one. Otherwise stay on the workflow ref.
+          if [ -n "${{ needs.security-ai-remediate.outputs.remediation_branch }}" ]; then
+            echo "ref=${{ needs.security-ai-remediate.outputs.remediation_branch }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "ref=${{ github.ref }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.set_ref.outputs.ref }}
+          fetch-depth: 50
+
+      - name: Set up JDK 21 (Temurin)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Cache Maven repository
+        uses: actions/cache@v4
+        with:
+          path: .m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Build (compile)
+        run: mvn -B -ntp -DskipTests -Dmaven.javadoc.skip=true package
+      - name: Run unit tests
+        run: mvn -B -ntp test
+      - name: Aggregate coverage
+        run: mvn -B -ntp -Pcoverage verify
+      - name: Mark rebuild success
+        run: mkdir -p target && touch target/.rebuild-ok
+
+      - name: Re-stage coverage summary
+        if: always()
+        run: |
+          set -e
+          if [ -f target/site/jacoco/jacoco.xml ]; then
+            python3 - <<'PY'
+          import csv, sys, xml.etree.ElementTree as ET
+          from pathlib import Path
+          src = Path("target/site/jacoco/jacoco.xml")
+          out = Path("target/site/jacoco/coverage-summary.csv")
+          if not src.exists():
+              sys.exit(0)
+          root = ET.parse(src).getroot()
+          rows = [("package", "missed", "covered", "total", "pct")]
+          for pkg in root.iter("package"):
+              name = pkg.get("name") or "(root)"
+              missed = covered = 0
+              for c in pkg.iter("counter"):
+                  if c.get("type") == "LINE":
+                      missed += int(c.get("missed", 0))
+                      covered += int(c.get("covered", 0))
+              total = missed + covered
+              pct = round(covered / total * 100, 2) if total else 0.0
+              rows.append((name, missed, covered, total, pct))
+          out.parent.mkdir(parents=True, exist_ok=True)
+          with out.open("w", newline="", encoding="utf-8") as f:
+              w = csv.writer(f); w.writerows(rows)
+          PY
+          fi
+
+      - name: Upload rebuild artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rebuild-output
+          path: |
+            target/
+          if-no-files-found: warn
+          retention-days: 30
+
+  # ---------------------------------------------------------------
+  # 9. SONARCLOUD RE-SCAN
+  # ---------------------------------------------------------------
+  sonarcloud-rescan:
+    name: "9. SonarCloud Re-Scan"
+    runs-on: ubuntu-latest
+    needs: [rebuild-and-retest]
+    permissions:
+      contents: read
+      pull-requests: read
+      security-events: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.rebuild-and-retest.outputs.ref || '' }}
+          fetch-depth: 0
+
+      - name: Set up JDK 21 (Temurin)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Cache Maven repository
+        uses: actions/cache@v4
+        with:
+          path: .m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Build (post-fix)
+        run: mvn -B -ntp -DskipTests package
+
+      - name: Download rebuilt coverage
+        uses: actions/download-artifact@v4
+        with:
+          name: rebuild-output
+          path: target/
+
+      - name: SonarCloud re-scan
+        if: env.SONAR_TOKEN != '' && env.SONAR_PROJECT_KEY != '' && env.SONAR_ORGANIZATION != ''
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        uses: sonarsource/sonarqube-scan-action@v3
+        with:
+          projectBaseDir: .
+          args: >
+            -Dsonar.projectKey=${SONAR_PROJECT_KEY}
+            -Dsonar.organization=${SONAR_ORGANIZATION}
+            -Dsonar.host.url=${SONAR_HOST_URL}
+            -Dsonar.sources=src/main/java
+            -Dsonar.tests=src/test/java
+            -Dsonar.java.binaries=target/classes
+            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+            -Dsonar.junit.reportPaths=target/surefire-reports
+
+      - name: SonarCloud re-scan (skipped)
+        if: env.SONAR_TOKEN == '' || env.SONAR_PROJECT_KEY == '' || env.SONAR_ORGANIZATION == ''
+        run: |
+          mkdir -p reports
+          echo "::warning::SonarCloud re-scan skipped (missing secrets)."
+
+      - name: Generate post-fix Sonar report
+        if: always()
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          mkdir -p reports
+          python3 scripts/generate-sonar-report.py \
+            --output-dir reports \
+            --host "${SONAR_HOST_URL}" \
+            --project-key "${SONAR_PROJECT_KEY}" \
+            --token "${SONAR_TOKEN}" \
+            --page-size 500
+          # Rename for clarity
+          if [ -f reports/sonar-report.json ]; then
+            cp reports/sonar-report.json reports/sonar-report-after-fix.json
+          fi
+          if [ -f reports/sonar-report.txt ]; then
+            cp reports/sonar-report.txt reports/sonar-report-after-fix.txt
+          fi
+
+      - name: Download pre-fix Sonar report
+        uses: actions/download-artifact@v4
+        with:
+          name: sonar-report
+          path: reports/
+          if-no-files-found: warn
+
+      - name: Generate Sonar diff report
+        if: always() && hashFiles('reports/sonar-report.json') != '' && hashFiles('reports/sonar-report-after-fix.json') != ''
+        run: |
+          python3 scripts/generate-sonar-diff.py \
+            --before reports/sonar-report.json \
+            --after  reports/sonar-report-after-fix.json \
+            --output reports/sonar-diff-report.md
+
+      - name: Upload post-fix Sonar artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sonar-report-after-fix
+          path: |
+            reports/sonar-report-after-fix.json
+            reports/sonar-report-after-fix.txt
+            reports/sonar-diff-report.md
+          if-no-files-found: warn
+          retention-days: 90
+
+  # ---------------------------------------------------------------
+  # 10. TRIVY RE-SCAN
+  # ---------------------------------------------------------------
+  trivy-rescan:
+    name: "10. Trivy Re-Scan"
+    runs-on: ubuntu-latest
+    needs: [rebuild-and-retest]
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.rebuild-and-retest.outputs.ref }}
+          fetch-depth: 0
+
+      - name: Run Trivy re-scan
+        env:
+          TRIVY_SEVERITY: "CRITICAL,HIGH,MEDIUM,LOW,UNKNOWN"
+        run: |
+          # Write to a separate dir so we don't overwrite the pre-fix report.
+          bash scripts/generate-trivy-report.sh reports-after-fix .
+
+      - name: Rename Trivy re-scan outputs
+        if: always()
+        run: |
+          if [ -f reports-after-fix/trivy-report.json ]; then
+            mv reports-after-fix/trivy-report.json reports/trivy-report-after-fix.json
+          fi
+          if [ -f reports-after-fix/trivy-report.txt ]; then
+            mv reports-after-fix/trivy-report.txt reports/trivy-report-after-fix.txt
+          fi
+          if [ -f reports-after-fix/trivy-fs.sarif ]; then
+            mv reports-after-fix/trivy-fs.sarif reports/trivy-fs-after-fix.sarif
+          fi
+          rm -rf reports-after-fix
+
+      - name: Download pre-fix Trivy report
+        uses: actions/download-artifact@v4
+        with:
+          name: trivy-report
+          path: reports/
+          if-no-files-found: warn
+
+      - name: Generate Trivy diff report
+        if: always() && hashFiles('reports/trivy-report.json') != '' && hashFiles('reports/trivy-report-after-fix.json') != ''
+        run: |
+          python3 scripts/generate-trivy-diff.py \
+            --before reports/trivy-report.json \
+            --after  reports/trivy-report-after-fix.json \
+            --output reports/trivy-diff.md
+
+      - name: Upload Trivy re-scan SARIF to Security tab
+        if: always() && hashFiles('reports/trivy-fs-after-fix.sarif') != ''
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: reports/trivy-fs-after-fix.sarif
+          category: trivy-fs-after-fix
+
+      - name: Upload Trivy re-scan artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-report-after-fix
+          path: |
+            reports/trivy-report-after-fix.json
+            reports/trivy-report-after-fix.txt
+            reports/trivy-fs-after-fix.sarif
+            reports/trivy-diff.md
+          if-no-files-found: warn
+          retention-days: 90
+
+  # ---------------------------------------------------------------
+  # GATEKEEPER — runs before deploy
+  # ---------------------------------------------------------------
+  check-deploy-gates:
+    name: "Pre-Deploy Gates"
+    runs-on: ubuntu-latest
+    needs: [rebuild-and-retest, sonarcloud-rescan, trivy-rescan, security-ai-remediate]
+    if: ${{ always() }}
+    outputs:
+      deploy_recommended: ${{ steps.gates.outputs.deploy_recommended }}
+      ref: ${{ steps.set_ref.outputs.ref }}
+    steps:
+      - name: Decide which ref to track
+        id: set_ref
+        run: |
+          if [ -n "${{ needs.security-ai-remediate.outputs.remediation_branch }}" ]; then
+            echo "ref=${{ needs.security-ai-remediate.outputs.remediation_branch }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "ref=${{ github.ref }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.set_ref.outputs.ref }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Download all post-fix artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: rebuild-output
+          path: target/
+          if-no-files-found: warn
+      - name: Download post-fix Sonar
+        uses: actions/download-artifact@v4
+        with:
+          name: sonar-report-after-fix
+          path: reports/
+          if-no-files-found: warn
+      - name: Download post-fix Trivy
+        uses: actions/download-artifact@v4
+        with:
+          name: trivy-report-after-fix
+          path: reports/
+          if-no-files-found: warn
+      - name: Download remediation report
+        uses: actions/download-artifact@v4
+        with:
+          name: remediation
+          path: reports/
+          if-no-files-found: warn
+
+      - name: Normalize coverage report path
+        if: always()
+        run: |
+          set -e
+          if [ -f target/site/jacoco/jacoco.xml ]; then
+            cp target/site/jacoco/jacoco.xml reports/jacoco.xml
+          fi
+          if [ -f target/site/jacoco/coverage-summary.csv ]; then
+            cp target/site/jacoco/coverage-summary.csv reports/coverage-summary.csv
+          fi
+
+      - name: Check all deploy gates
+        id: gates
+        if: always()
+        env:
+          DEPLOY_ENV: ${{ env.DEPLOY_ENV }}
+          MIN_COVERAGE: ${{ env.MIN_COVERAGE }}
+          ALLOW_CRITICAL: ${{ env.ALLOW_CRITICAL }}
+          ALLOW_HIGH: ${{ env.ALLOW_HIGH }}
+        run: |
+          set -e
+          python3 scripts/check-deploy-gates.py \
+            --coverage-summary reports/coverage-summary.csv \
+            --sonar-report        reports/sonar-report-after-fix.json \
+            --trivy-report        reports/trivy-report-after-fix.json \
+            --remediation-report  reports/remediation-report.json \
+            --rebuild-result      target/.rebuild-ok \
+            --output              reports/deploy-gates.json
+        continue-on-error: true
+
+      - name: Echo gate result
+        if: always()
+        run: |
+          set -e
+          cat reports/deploy-gates.json
+          DEPLOY=$(python3 -c "import json;print(json.load(open('reports/deploy-gates.json'))['deploy_recommended'])")
+          echo "deploy_recommended=${DEPLOY}" >> "$GITHUB_OUTPUT"
+          if [ "${DEPLOY}" != "True" ]; then
+            echo "::warning::Deploy gates did not all pass; deploy job will be skipped."
+          fi
+
+      - name: Upload deploy gate result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deploy-gates
+          path: reports/deploy-gates.json
+          if-no-files-found: warn
+          retention-days: 90
+
+  # ---------------------------------------------------------------
+  # 11. DEPLOY
+  # ---------------------------------------------------------------
+  deploy:
+    name: "11. Deploy to ${{ env.DEPLOY_ENV }}"
+    runs-on: ubuntu-latest
+    needs: [check-deploy-gates]
+    if: ${{ needs.check-deploy-gates.outputs.deploy_recommended == 'True' }}
+    environment:
+      name: ${{ env.DEPLOY_ENV }}
+      url: ${{ steps.deploy.outputs.deploy_url }}
+    permissions:
+      contents: read
+      deployments: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.check-deploy-gates.outputs.ref || '' }}
+          fetch-depth: 0
+
+      - name: Set up JDK 21 (Temurin)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: rebuild-output
+          path: target/
+          if-no-files-found: warn
+      - name: Download gate decision
+        uses: actions/download-artifact@v4
+        with:
+          name: deploy-gates
+          path: reports/
+          if-no-files-found: warn
+
+      - name: Build deployable JAR
+        run: mvn -B -ntp -DskipTests -Dmaven.javadoc.skip=true package
+
+      - name: "🚢 Deploy to ${{ env.DEPLOY_ENV }}"
+        id: deploy
+        env:
+          # Add the transport-specific secrets you need here, e.g.:
+          # AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, KUBE_CONFIG, AZURE_CREDENTIALS, etc.
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          set -e
+          ENV="${{ env.DEPLOY_ENV }}"
+          echo "::notice::Deploying to ${ENV}"
+          echo "Target JAR: $(ls -1 target/*.jar 2>/dev/null | head -n 1 || echo 'no jar')"
+          # ---------------------------------------------------------
+          #  REPLACE THIS BLOCK WITH YOUR REAL DEPLOY STEPS.
+          #  Examples:
+          #    - Azure Web Apps:    azure/webapps-deploy@v3
+          #    - AWS S3 + ECS:      aws-actions/configure-aws-credentials@v4 + ecspresso
+          #    - Kubernetes:        azure/k8s-set-context@v3 + kubectl apply
+          #    - SSH pull:          appleboy/scp-action
+          # ---------------------------------------------------------
+          mkdir -p deploy-artifacts
+          cp target/*.jar deploy-artifacts/ 2>/dev/null || true
+          echo "Deployed jar version: $(cat target/maven-archiver/pom.properties 2>/dev/null || echo unknown)" \
+            > deploy-artifacts/deploy-info.txt
+          echo "https://example.com/${ENV}/health" > deploy-artifacts/deploy-url.txt
+
+      - name: Upload deploy artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deploy-artifacts
+          path: deploy-artifacts/
+          if-no-files-found: warn
+          retention-days: 30
