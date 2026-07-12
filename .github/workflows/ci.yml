@@ -322,18 +322,40 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Run Trivy filesystem scan (JSON / SARIF / TXT)
+      # Build the container image locally (no push) so Trivy can scan it.
+      # We use buildx with the docker-container driver for reproducibility
+      # and a stable local tag.
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build container image
+        id: build_image
+        env:
+          IMAGE_TAG: vulnerable-spring-app:ci-${{ github.sha }}
+        run: |
+          echo "IMAGE_TAG=${IMAGE_TAG}" >> "$GITHUB_OUTPUT"
+          docker build -t "${IMAGE_TAG}" --load .
+
+      - name: Run Trivy filesystem + image scan
         env:
           TRIVY_SEVERITY: "CRITICAL,HIGH,MEDIUM,LOW,UNKNOWN"
+          TRIVY_IMAGE: ${{ steps.build_image.outputs.IMAGE_TAG }}
         run: |
           bash scripts/generate-trivy-report.sh "$REPORT_DIR" .
 
-      - name: Upload Trivy SARIF to Security tab
+      - name: Upload Trivy SARIF (FS) to Security tab
         if: always() && hashFiles('reports/trivy-fs.sarif') != ''
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: reports/trivy-fs.sarif
           category: trivy-fs
+
+      - name: Upload Trivy SARIF (image) to Security tab
+        if: always() && hashFiles('reports/trivy-image.sarif') != ''
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: reports/trivy-image.sarif
+          category: trivy-image
 
       - name: Upload Trivy reports
         if: always()
@@ -344,6 +366,11 @@ jobs:
             reports/trivy-report.json
             reports/trivy-report.txt
             reports/trivy-fs.sarif
+            reports/trivy-fs.sarif.json
+            reports/trivy-fs.raw.json
+            reports/trivy-image.sarif
+            reports/trivy-image.sarif.json
+            reports/trivy-image.raw.json
             reports/trivy-report.raw.json
           if-no-files-found: warn
           retention-days: 90
@@ -757,9 +784,21 @@ jobs:
           ref: ${{ needs.rebuild-and-retest.outputs.ref }}
           fetch-depth: 0
 
-      - name: Run Trivy re-scan
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build container image (post-remediation)
+        id: build_image
+        env:
+          IMAGE_TAG: vulnerable-spring-app:ci-${{ github.sha }}-after-fix
+        run: |
+          echo "IMAGE_TAG=${IMAGE_TAG}" >> "$GITHUB_OUTPUT"
+          docker build -t "${IMAGE_TAG}" --load .
+
+      - name: Run Trivy re-scan (FS + image)
         env:
           TRIVY_SEVERITY: "CRITICAL,HIGH,MEDIUM,LOW,UNKNOWN"
+          TRIVY_IMAGE: ${{ steps.build_image.outputs.IMAGE_TAG }}
         run: |
           # Write to a separate dir so we don't overwrite the pre-fix report.
           bash scripts/generate-trivy-report.sh reports-after-fix .
@@ -775,6 +814,9 @@ jobs:
           fi
           if [ -f reports-after-fix/trivy-fs.sarif ]; then
             mv reports-after-fix/trivy-fs.sarif reports/trivy-fs-after-fix.sarif
+          fi
+          if [ -f reports-after-fix/trivy-image.sarif ]; then
+            mv reports-after-fix/trivy-image.sarif reports/trivy-image-after-fix.sarif
           fi
           rm -rf reports-after-fix
 
@@ -793,12 +835,19 @@ jobs:
             --after  reports/trivy-report-after-fix.json \
             --output reports/trivy-diff.md
 
-      - name: Upload Trivy re-scan SARIF to Security tab
+      - name: Upload Trivy re-scan SARIF (FS) to Security tab
         if: always() && hashFiles('reports/trivy-fs-after-fix.sarif') != ''
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: reports/trivy-fs-after-fix.sarif
           category: trivy-fs-after-fix
+
+      - name: Upload Trivy re-scan SARIF (image) to Security tab
+        if: always() && hashFiles('reports/trivy-image-after-fix.sarif') != ''
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: reports/trivy-image-after-fix.sarif
+          category: trivy-image-after-fix
 
       - name: Upload Trivy re-scan artifacts
         if: always()
@@ -809,6 +858,7 @@ jobs:
             reports/trivy-report-after-fix.json
             reports/trivy-report-after-fix.txt
             reports/trivy-fs-after-fix.sarif
+            reports/trivy-image-after-fix.sarif
             reports/trivy-diff.md
           if-no-files-found: warn
           retention-days: 90
