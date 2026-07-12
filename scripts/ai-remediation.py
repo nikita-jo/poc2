@@ -305,8 +305,8 @@ def _load_json(path: Path) -> dict:
         return {}
 
 
-def _git(*args: str, cwd: Path) -> subprocess.CompletedProcess:
-    return _run(["git", *args], cwd=str(cwd), check=False)
+def _git(*args: str, cwd: Path, check: bool = False) -> subprocess.CompletedProcess:
+    return _run(["git", *args], cwd=str(cwd), check=check)
 
 
 def _initial_diff_stat(repo_root: Path) -> str:
