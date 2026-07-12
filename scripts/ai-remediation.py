@@ -110,102 +110,189 @@ def fix_hardcoded_secrets(repo_root: Path) -> list[dict]:
 
 
 def fix_sql_concat(repo_root: Path) -> list[dict]:
-    """Replace a small set of obvious `+ var +` patterns inside
-    createNativeQuery(...) calls with a parameterised version. This is a
-    textual, pattern-based rewrite — it is intentionally narrow and skips
-    any line that already has '?' or :param placeholders."""
+    """Replace `String sql = "..." + var + "...";` concatenation with a
+    parameterised native query (`?` + `.setParameter(1, var)`).
+
+    The OWASP lab concatenates inside a `String sql = "..." + var + "...";`
+    assignment and then passes that `sql` to `createNativeQuery(sql, ...)`.
+    The earlier version of this fixer only looked at the
+    `createNativeQuery(...)` line, which never contains the `+` (the
+    concatenation is one statement above), so it never matched.
+
+    Strategy:
+      1. Find the `String sql = "<prefix>" + <var> + "<suffix>";` line.
+      2. Replace it with `String sql = "<prefix>?<suffix>";`.
+      3. In the immediately-following `createNativeQuery(sql, X).getResultList()`
+         chain, inject `.setParameter(1, <var>)` before `.getResultList()`.
+    """
     fixes: list[dict] = []
-    pat = re.compile(
-        r"""("SELECT[^"]*?)"\s*\+\s*([A-Za-z_][A-Za-z0-9_]*)\s*\+\s*"([^"]*?")""",
+    if not (repo_root / "src" / "main" / "java").exists():
+        return fixes
+
+    # Match a single-variable SQL string concatenation. The OWASP lab
+    # uses the pattern `String sql = "..." + var + "...";` (one-line for
+    # simple queries, sometimes multi-line for login). We require that
+    # the concatenation has exactly one variable, so multi-var cases
+    # (e.g. loginUnsafe's `+ username + "...' AND password = '" + password + "'"`)
+    # are left alone — they're handled by fix_plain_password instead.
+    assign_pat = re.compile(
+        r'(?P<indent>[ \t]*)String[ \t]+(?P<varname>[A-Za-z_][A-Za-z0-9_]*)[ \t]*=[ \t]*'
+        r'"(?P<prefix>(?:[^"\\]|\\.)*)"[ \t]*\+\s*'
+        r'(?P<var>[A-Za-z_][A-Za-z0-9_]*)[ \t]*\+\s*'
+        r'"(?P<suffix>(?:[^"\\]|\\.)*)"\s*;',
+        re.DOTALL,
     )
+
     for path in repo_root.glob("src/main/java/**/*.java"):
         original = _read(path)
         if "createNativeQuery" not in original:
             continue
-        new_lines: list[str] = []
-        changed = False
-        for line in original.splitlines():
-            if "createNativeQuery" in line and "+" in line and "?" not in line:
-                m = pat.search(line)
-                if m:
-                    prefix, var, suffix = m.group(1), m.group(2), m.group(3)
-                    # Skip if the line is in a comment.
-                    stripped = line.lstrip()
-                    if stripped.startswith(("*", "//")):
-                        new_lines.append(line)
-                        continue
-                    replaced = f'{prefix}?{suffix}'
-                    # Replace the whole line with a parameterised version
-                    indent = line[: len(line) - len(line.lstrip())]
-                    new_line = (
-                        f"{indent}// VULNERABILITY FIX (AI auto-remediation): parameterised query\n"
-                        f"{indent}List<User> rows = entityManager\n"
-                        f"{indent}    .createNativeQuery({replaced}, User.class)\n"
-                        f"{indent}    .setParameter(1, {var})\n"
-                        f"{indent}    .getResultList();"
-                    )
-                    new_lines.append(new_line)
-                    changed = True
-                    fixes.append({
-                        "rule": "sql-injection",
-                        "category": "vulnerability",
-                        "file": str(path.relative_to(repo_root)).replace("\\", "/"),
-                        "description": f"Parameterised native query that previously concatenated {var}",
-                        "safe": True,
-                    })
-                else:
-                    new_lines.append(line)
-            else:
-                new_lines.append(line)
-        if changed:
-            _write(path, "\n".join(new_lines) + "\n")
+        new = original
+        per_file: list[dict] = []
+        for m in assign_pat.finditer(new):
+            indent = m.group("indent")
+            var = m.group("var")
+            prefix = m.group("prefix")
+            suffix = m.group("suffix")
+            varname = m.group("varname")
+            # Sanity: only act on assignments that look like a SQL string
+            # (start with a SQL keyword). Otherwise we might rewrite arbitrary
+            # string concatenations.
+            if not re.match(r"\s*(SELECT|INSERT|UPDATE|DELETE)\b", prefix, re.IGNORECASE):
+                continue
+            # Strip a trailing SQL quote from the prefix and a leading SQL
+            # quote from the suffix so we don't end up with `?'` or `?''`
+            # after substitution. (The original concatenation
+            # `'<prefix>' + var + '<suffix>'` produces `'<prefix>?<suffix>'`
+            # which has stray quotes around the placeholder.)
+            if prefix.endswith("'"):
+                prefix = prefix[:-1]
+            if suffix.startswith("'"):
+                suffix = suffix[1:]
+            # Replace the assignment line.
+            new_sql_line = f'{indent}String {varname} = "{prefix}?{suffix}";'
+            new = new.replace(m.group(0), new_sql_line, 1)
+            # Inject setParameter after the createNativeQuery line.
+            # Look for `.createNativeQuery(<varname>, ...)`.
+            cn_pat = re.compile(
+                r'(\.createNativeQuery\([ \t]*' + re.escape(varname) + r'[ \t]*,[ \t]*[A-Za-z_][A-Za-z0-9_]*\.[A-Za-z_][A-Za-z0-9_]*\))'
+                r'(\s*\.\s*getResultList\(\))',
+            )
+            cn_match = cn_pat.search(new)
+            if cn_match:
+                injection = f".setParameter(1, {var})"
+                new = new.replace(
+                    cn_match.group(0),
+                    f"{cn_match.group(1)}{injection}{cn_match.group(2)}",
+                    1,
+                )
+            per_file.append({
+                "file": str(path.relative_to(repo_root)).replace("\\", "/"),
+                "var": var,
+                "sql_var": varname,
+            })
+        if per_file and new != original:
+            _write(path, new)
+            for info in per_file:
+                fixes.append({
+                    "rule": "sql-injection",
+                    "category": "vulnerability",
+                    "file": info["file"],
+                    "description": (
+                        f"Parameterised native query that previously concatenated "
+                        f"{info['var']} into {info['sql_var']}"
+                    ),
+                    "safe": True,
+                })
     return fixes
 
 
 def fix_plain_password(repo_root: Path) -> list[dict]:
-    """Replace `String.equals(password)` style checks with BCrypt checks
-    when BCryptPasswordEncoder is already on the classpath (which it is,
-    via spring-boot-starter-security). Skipped if no obvious pattern is
-    found."""
+    """The OWASP lab concatenates the password into a SQL query in
+    `UserService.loginUnsafe`. There is no `String.equals(...)` compare
+    in the codebase, so the previous regex (which only matched
+    `if (x.equals(y))` style checks) never fired. Rewrite the
+    `loginUnsafe` method to look the user up by username only and verify
+    the password in Java, with a clear TODO marker for BCrypt.
+    """
     fixes: list[dict] = []
-    eq_pat = re.compile(
-        r"if\s*\(\s*([A-Za-z_][A-Za-z0-9_.]*)\s*\.\s*equals\s*\(\s*([A-Za-z_][A-Za-z0-9_.]*)\s*\)\s*\)\s*\{?",
+    target = repo_root / "src" / "main" / "java" / "com" / "owasp" / "lab" / "service" / "UserService.java"
+    if not target.exists():
+        return fixes
+    original = _read(target)
+    if "FIX_PLAIN_PASSWORD_APPLIED" in original:
+        return fixes  # idempotent: don't re-apply
+
+    # Match the full loginUnsafe method body, from `public User loginUnsafe`
+    # up to the closing `}` of the method.
+    method_pat = re.compile(
+        r"public\s+User\s+loginUnsafe\s*\(\s*String\s+username\s*,\s*String\s+password\s*\)\s*\{[\s\S]*?\n\s{4}\}",
+        re.MULTILINE,
     )
-    for path in repo_root.glob("src/main/java/**/*.java"):
-        original = _read(path)
-        if "equals" not in original or "password" not in original.lower():
-            continue
-        if "BCryptPasswordEncoder" in original:
-            continue
-        new = original
-        for m in eq_pat.finditer(original):
-            stored, supplied = m.group(1), m.group(2)
-            # Heuristic: only act if one of the two variable names mentions
-            # "password" or "passwd".
-            if "password" not in (stored + supplied).lower() and "passwd" not in (stored + supplied).lower():
-                continue
-            new = new.replace(
-                m.group(0),
-                f"if (new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder().matches({supplied}, {stored})) {{",
-            )
-            fixes.append({
-                "rule": "plaintext-password",
-                "category": "vulnerability",
-                "file": str(path.relative_to(repo_root)).replace("\\", "/"),
-                "description": "Replaced String.equals password compare with BCryptPasswordEncoder.matches",
-                "safe": True,
-            })
-            break  # one fix per file is plenty
-        if new != original:
-            _write(path, new)
+    new_body = (
+        "public User loginUnsafe(String username, String password) {\n"
+        "        // VULNERABILITY FIX (AI auto-remediation, marker FIX_PLAIN_PASSWORD_APPLIED):\n"
+        "        //   - Look the user up by username only (no password in the SQL).\n"
+        "        //   - Compare the supplied password to the stored password in Java.\n"
+        "        //   - TODO: replace the String.equals check with BCryptPasswordEncoder.matches().\n"
+        "        String sql = \"SELECT * FROM users WHERE username = ?\";\n"
+        "        System.out.println(\"[VULNERABILITY-FIXED] Login SQL: \" + sql);\n"
+        "\n"
+        "        try {\n"
+        "            @SuppressWarnings(\"unchecked\")\n"
+        "            java.util.List<User> rows = entityManager\n"
+        "                    .createNativeQuery(sql, User.class)\n"
+        "                    .setParameter(1, username)\n"
+        "                    .getResultList();\n"
+        "            if (rows.isEmpty()) {\n"
+        "                return null;\n"
+        "            }\n"
+        "            User u = rows.get(0);\n"
+        "            if (u.getPassword() == null || !u.getPassword().equals(password)) {\n"
+        "                return null;\n"
+        "            }\n"
+        "            return u;\n"
+        "        } catch (Exception ex) {\n"
+        "            return null;\n"
+        "        }\n"
+        "    }"
+    )
+    new = method_pat.sub(new_body, original, count=1)
+    if new != original:
+        _write(target, new)
+        fixes.append({
+            "rule": "plaintext-password",
+            "category": "vulnerability",
+            "file": str(target.relative_to(repo_root)).replace("\\", "/"),
+            "description": (
+                "loginUnsafe no longer concatenates password into the SQL; "
+                "compares the password in Java with a TODO marker for BCrypt"
+            ),
+            "safe": True,
+        })
     return fixes
 
 
 def fix_bump_dependencies(repo_root: Path, trivy_report: dict) -> list[dict]:
-    """Bump dependency versions in pom.xml that have a known fix in the
-    Trivy report. Only acts on artifacts managed by the parent BOM and
-    only when the new version is a patch or minor bump of the existing
-    one."""
+    """Bump dependency versions in pom.xml based on Trivy findings.
+
+    The previous version of this fixer only matched direct dependencies
+    that have an explicit `<version>` in pom.xml. Spring Boot starter
+    dependencies are BOM-managed (no `<version>`), and transitive
+    libraries are not even listed in pom.xml — so the fixer never fired
+    on this project.
+
+    Strategy:
+      1. **Spring Boot parent bump**: if a Trivy finding's
+         `pkgName` is a Spring Boot artifact or one of the most common
+         transitive libraries (jackson, snakeyaml, logback, tomcat, etc.)
+         AND the parent is `spring-boot-starter-parent`, bump the parent
+         version when a known fixed version is available. This is the
+         single most common remediation for a Spring Boot app.
+      2. **Direct dependency bump**: if a Trivy finding matches a
+         `<groupId>/<artifactId>` in pom.xml that has an explicit
+         `<version>`, bump it (patch / minor only).
+    """
     fixes: list[dict] = []
     pom = repo_root / POM_PATH
     if not pom.exists():
@@ -213,6 +300,9 @@ def fix_bump_dependencies(repo_root: Path, trivy_report: dict) -> list[dict]:
     original = _read(pom)
     new = original
     findings = trivy_report if isinstance(trivy_report, list) else trivy_report.get("findings", [])
+
+    # Collect findings worth acting on.
+    actionable: list[dict] = []
     for f in findings:
         if (f.get("severity") or "").upper() not in {"CRITICAL", "HIGH"}:
             continue
@@ -220,12 +310,86 @@ def fix_bump_dependencies(repo_root: Path, trivy_report: dict) -> list[dict]:
         fixed = f.get("fixedVersion") or ""
         if not pkg or not fixed or fixed == "not fixed":
             continue
-        # Only bump when pkg looks like a Maven coordinate (groupId:artifactId)
+        actionable.append({"pkg": pkg, "fixed": fixed, "finding": f})
+
+    if not actionable:
+        return fixes
+
+    # ---- Strategy 1: Spring Boot parent bump ----
+    # Heuristic: if any finding is for a Spring Boot artifact or one of the
+    # well-known transitive libraries, suggest bumping the parent.
+    sb_managed_artifacts = {
+        # Spring Boot starters (no version in pom)
+        "org.springframework.boot:spring-boot-starter-web",
+        "org.springframework.boot:spring-boot-starter-data-jpa",
+        "org.springframework.boot:spring-boot-starter-security",
+        "org.springframework.boot:spring-boot-starter-tomcat",
+        "org.springframework.boot:spring-boot-starter-logging",
+        # Common transitive deps
+        "com.fasterxml.jackson.core:jackson-databind",
+        "com.fasterxml.jackson.core:jackson-core",
+        "com.fasterxml.jackson.core:jackson-annotations",
+        "org.yaml:snakeyaml",
+        "ch.qos.logback:logback-core",
+        "ch.qos.logback:logback-classic",
+        "org.apache.tomcat.embed:tomcat-embed-core",
+        "org.apache.tomcat.embed:tomcat-embed-el",
+        "org.apache.tomcat.embed:tomcat-embed-websocket",
+        "org.hibernate.orm:hibernate-core",
+    }
+    sb_finding = next(
+        (a for a in actionable if a["pkg"] in sb_managed_artifacts),
+        None,
+    )
+    if sb_finding:
+        # Find the spring-boot-starter-parent <version> in pom.xml.
+        parent_pat = re.compile(
+            r"(<artifactId>\s*spring-boot-starter-parent\s*</artifactId>\s*"
+            r"<version>\s*)([^<]+)(</version>)",
+        )
+        m = parent_pat.search(new)
+        if m:
+            old_version = m.group(2).strip()
+            new_version = sb_finding["fixed"].strip()
+            if old_version != new_version:
+                # Only act on patch/minor bumps (same major). Don't auto-bump majors.
+                def _major(v: str) -> str:
+                    return v.split(".", 1)[0]
+                if _major(old_version) == _major(new_version):
+                    new = parent_pat.sub(
+                        lambda mm: f"{mm.group(1)}{new_version}{mm.group(3)}",
+                        new,
+                        count=1,
+                    )
+                    fixes.append({
+                        "rule": "outdated-dependency",
+                        "category": "dependency",
+                        "file": POM_PATH,
+                        "description": (
+                            f"Bumped spring-boot-starter-parent from {old_version} to "
+                            f"{new_version} (transitive fix for {sb_finding['pkg']})"
+                        ),
+                        "safe": True,
+                        "old_version": old_version,
+                        "new_version": new_version,
+                    })
+                    # Once we bump the parent, all the BOM-managed findings
+                    # are addressed — skip the direct-dependency pass.
+                    if new != original:
+                        _write(pom, new)
+                    return fixes
+        # If sb_finding exists but there's no parent to bump, fall through
+        # to Strategy 2 (in case any actionable finding matches a direct
+        # dependency).
+
+    # ---- Strategy 2: direct dependency bump (only when there's an
+    # explicit <version> in pom.xml for the artifact) ----
+    for a in actionable:
+        pkg = a["pkg"]
+        fixed = a["fixed"]
         if ":" not in pkg:
             continue
         group_id, artifact_id = pkg.split(":", 1)
-        # Conservative: only patch/minor bump. If the new version is MAJOR
-        # (different leading number), skip.
         pat = re.compile(
             rf"(<groupId>\s*{re.escape(group_id)}\s*</groupId>\s*"
             rf"<artifactId>\s*{re.escape(artifact_id)}\s*</artifactId>\s*"
@@ -237,8 +401,6 @@ def fix_bump_dependencies(repo_root: Path, trivy_report: dict) -> list[dict]:
         old_version = m.group(2).strip()
         if old_version == fixed:
             continue
-        # Allow only patch bumps (e.g. 1.2.3 -> 1.2.4) or minor bumps within
-        # the same major (1.2.3 -> 1.3.0). Block 1.2.3 -> 2.0.0.
         def _major(v: str) -> str:
             return v.split(".", 1)[0]
         if _major(old_version) != _major(fixed):
@@ -253,39 +415,107 @@ def fix_bump_dependencies(repo_root: Path, trivy_report: dict) -> list[dict]:
             "old_version": old_version,
             "new_version": fixed,
         })
+
     if new != original:
         _write(pom, new)
     return fixes
 
 
 def fix_add_csp(repo_root: Path) -> list[dict]:
-    """Add a strict default Content-Security-Policy to SecurityConfig.java
-    when one is not present. Skipped if a CSP header is already added."""
+    """Add a Content-Security-Policy header to `SecurityConfig.java`.
+
+    The previous version of this fixer looked for an `authorizeHttpRequests(...)`
+    call followed by an opening `{` to splice a `.headers(...)` block into.
+    But Spring Security 6 uses a lambda DSL
+    (`.authorizeHttpRequests(auth -> auth.anyRequest().permitAll())`)
+    that has no opening `{`, so the splice either fired on the wrong
+    character (the method's closing brace) or never fired at all. And the
+    skip-check compared against `headers()` with empty parens, which
+    never matched this project's `.headers(h -> h.frameOptions(...))`.
+
+    Strategy: locate the existing `.headers(...)` call. If it already
+    configures a contentSecurityPolicy, skip. Otherwise, rewrite the
+    lambda body to include the CSP directive alongside the existing
+    configuration.
+    """
     fixes: list[dict] = []
     for path in repo_root.glob("src/main/java/**/SecurityConfig.java"):
         original = _read(path)
-        if "Content-Security-Policy" in original or "headers()" in original and "contentSecurityPolicy" in original:
+        # Idempotency marker — also serves as a hint to human reviewers.
+        if "FIX_CSP_APPLIED" in original:
             continue
-        # Try to inject into an existing `http.authorizeHttpRequests(...)` chain.
-        marker = "authorizeHttpRequests("
-        idx = original.find(marker)
-        if idx == -1:
-            continue
-        insert_at = original.find("{", idx)
-        if insert_at == -1:
-            continue
-        snippet = (
-            "\n            // AI auto-remediation: enable a strict CSP default\n"
-            "            .headers(headers -> headers.contentSecurityPolicy(csp -> csp.policyDirectives(\"default-src 'self'\")))\n"
+
+        # Look for `.headers( -> h -> <body>);`
+        # The body is everything between the first `->` after `.headers(`
+        # and the matching `))` that closes the headers call.
+        # Match `.headers(<arg> -> <body>);` where <body> is the lambda
+        # body of the headers call. Capture the entire `.headers(...)`
+        # invocation including its closing `)`s so we can rewrite it.
+        # We use a non-greedy match for the body and rely on the
+        # terminating `\)\)\s*;` to anchor the end of the headers call.
+        headers_pat = re.compile(
+            r"\.headers\(\s*[A-Za-z_][A-Za-z0-9_]*\s*->\s*"
+            r"(?P<body>.*?)"
+            r"\)\s*\)\s*;",
+            re.DOTALL,
         )
-        new = original[: insert_at + 1] + snippet + original[insert_at + 1 :]
+        m = headers_pat.search(original)
+        if m:
+            body = m.group("body").rstrip()
+            if "contentSecurityPolicy" in body or "ContentSecurityPolicy" in body:
+                # Already configured, skip.
+                continue
+            # `body` is the lambda body, e.g. `h.frameOptions(f -> f.disable())`.
+            # The lambda's closing `)` is captured separately by the regex
+            # terminator `\)\)\s*;`, so we just append the new chain here.
+            new_body = (
+                f'{body}'
+                f'.contentSecurityPolicy(csp -> csp.policyDirectives("default-src \'self\'; object-src \'none\'"))'
+            )
+            new = (
+                original[: m.start("body")]
+                + new_body
+                + original[m.end("body") :]
+            )
+            if "FIX_CSP_APPLIED" not in new:
+                # Insert a marker comment above the .headers() line so the
+                # change is grep-able for reviewers and so re-running the
+                # fixer is a no-op.
+                new = re.sub(
+                    r"(\.headers\()",
+                    "// VULNERABILITY FIX (AI auto-remediation, marker FIX_CSP_APPLIED): added Content-Security-Policy header\n            \\1",
+                    new,
+                    count=1,
+                )
+            if new != original:
+                _write(path, new)
+                fixes.append({
+                    "rule": "missing-csp",
+                    "category": "misconfig",
+                    "file": str(path.relative_to(repo_root)).replace("\\", "/"),
+                    "description": "Added a default Content-Security-Policy header",
+                    "safe": True,
+                })
+            continue
+
+        # Fallback: no existing `.headers(...)` call. Add one before the
+        # closing `;` of the security filter chain. Insert it just before
+        # `return http.build();`.
+        return_idx = original.find("return http.build();")
+        if return_idx == -1:
+            continue
+        insertion = (
+            "\n            // VULNERABILITY FIX (AI auto-remediation, marker FIX_CSP_APPLIED): added Content-Security-Policy header\n"
+            "            .headers(h -> h.contentSecurityPolicy(csp -> csp.policyDirectives(\"default-src 'self'; object-src 'none'\")))\n"
+        )
+        new = original[:return_idx] + insertion + original[return_idx:]
         if new != original:
             _write(path, new)
             fixes.append({
                 "rule": "missing-csp",
                 "category": "misconfig",
                 "file": str(path.relative_to(repo_root)).replace("\\", "/"),
-                "description": "Added a default Content-Security-Policy header",
+                "description": "Added a default Content-Security-Policy header (no prior headers() call found)",
                 "safe": True,
             })
     return fixes
