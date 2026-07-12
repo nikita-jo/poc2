@@ -11,7 +11,8 @@ key in a learning environment.
 Inputs (paths configurable via --reports, default ./reports):
   sonar-report.json, sonar-report.txt,
   trivy-report.json, trivy-report.txt,
-  jacoco.xml (or jacoco.csv), junit.xml
+  jacoco.xml (or jacoco.csv), junit.xml,
+  coverage-summary.json, coverage-summary.md, coverage-summary.csv
 
 Outputs (under --reports):
   security-review.json   - structured findings (severity, root_cause, cwe,
@@ -22,6 +23,9 @@ Outputs (under --reports):
 
 Required env:
   NVIDIA_API_KEY         - NVIDIA build / integrate API key
+  MIN_COVERAGE           - line-coverage threshold in percent (default 80);
+                           a finding must be raised if overall coverage
+                           falls below this number
 Optional env:
   NVIDIA_MODEL           - default "meta/llama-3.1-70b-instruct"
   NVIDIA_BASE_URL        - default "https://integrate.api.nvidia.com/v1"
@@ -41,20 +45,27 @@ from typing import Any
 SEVERITY_RANK = {"CRITICAL": 4, "HIGH": 3, "MEDIUM": 2, "LOW": 1, "INFO": 0,
                  "BLOCKER": 5, "MAJOR": 3, "MINOR": 2, "UNKNOWN": 0}
 
-SYSTEM_PROMPT = """You are an Enterprise DevSecOps AI Agent named "Security Reviewer".
+# Coverage threshold (in percent). The agent must raise a HIGH finding when
+# overall line coverage is below this number, and an INFO finding per
+# package whose coverage is below the threshold. Override with MIN_COVERAGE
+# env var.
+MIN_COVERAGE_PCT = float(os.environ.get("MIN_COVERAGE", "80"))
+
+
+SYSTEM_PROMPT = f"""You are an Enterprise DevSecOps AI Agent named "Security Reviewer".
 
 Your responsibility is to read SonarCloud, Trivy and test-coverage reports
 and produce a STRICTLY STRUCTURED security review of the Java/Maven project
 under review.
 
 OUTPUT FORMAT (return ONLY this JSON, no prose, no markdown fences):
-{
+{{
   "status": "OK",
   "summary": "<one-paragraph executive summary>",
   "risk_score": <integer 0-100>,
   "overall_priority": "P0|P1|P2|P3",
   "findings": [
-    {
+    {{
       "id": "<stable id, e.g. SR-001>",
       "title": "<short title>",
       "severity": "CRITICAL|HIGH|MEDIUM|LOW|INFO",
@@ -63,15 +74,15 @@ OUTPUT FORMAT (return ONLY this JSON, no prose, no markdown fences):
       "cwe": ["CWE-89", "CWE-79"],
       "owasp": ["A01:2021-Broken Access Control", "A03:2021-Injection"],
       "root_cause": "<one-sentence technical root cause>",
-      "file": "<repo-relative path>",
+      "file": "<repo-relative path or package name>",
       "line": <line number or null>,
       "rule_id": "<Sonar rule id or Trivy rule id>",
       "evidence": "<quote the relevant source line(s) or finding message>",
       "suggested_fix": "<concrete fix, ideally a code snippet>",
       "risk_score": <integer 0-100>
-    }
+    }}
   ]
-}
+}}
 
 RULES:
 - Be specific: every finding must reference a file + line number OR a
@@ -89,6 +100,21 @@ RULES:
 - Cap findings at 50 entries; sort by severity desc, then risk_score desc.
 - `risk_score` is 0-100 (likelihood × impact, rounded).
 - Return valid JSON. Do not include any commentary outside the JSON.
+
+COVERAGE RULES (threshold = {MIN_COVERAGE_PCT:.0f}% line coverage):
+- If coverage-summary.json is present and the overall line_pct is below the
+  threshold, emit ONE HIGH finding with category="coverage",
+  owasp=["A05:2021-Security Misconfiguration"], cwe=["CWE-1126"],
+  file="<the package(s) with the lowest coverage, comma-separated>",
+  evidence quoting the actual overall line_pct value from the report.
+- For each package whose line_pct is below the threshold, emit ONE INFO
+  finding with category="coverage", file=package name, evidence quoting
+  the per-package pct. Cap the per-package coverage findings at 10 to
+  stay within the overall 50-finding budget.
+- If coverage-summary.json reports "error" (no jacoco.xml), do NOT raise
+  a coverage finding — the build was unable to measure coverage.
+- If overall coverage is at or above the threshold, do NOT raise any
+  coverage findings.
 """
 
 
@@ -101,11 +127,19 @@ def _read(path: Path) -> str:
 
 
 def _build_user_prompt(reports_dir: Path) -> str:
-    parts: list[str] = ["Analyse the following scanner outputs and return the JSON review described in the system prompt.\n"]
+    parts: list[str] = [
+        f"Analyse the following scanner outputs and return the JSON review described in the system prompt.\n"
+        f"Coverage threshold for this pipeline: {MIN_COVERAGE_PCT:.0f}% line coverage.\n"
+    ]
+    # Order matters: human-readable first (so the LLM has the narrative),
+    # then structured (so it can quote precise numbers).
     for name in (
         "sonar-report.txt",
-        "sonar-report.json",
         "trivy-report.txt",
+        "coverage-summary.md",
+        "coverage-summary.json",
+        "coverage-summary.csv",
+        "sonar-report.json",
         "trivy-report.json",
         "jacoco.xml",
         "junit.xml",
@@ -173,12 +207,75 @@ def _extract_json(text: str) -> dict | None:
     return None
 
 
+def _load_coverage(reports_dir: Path) -> dict | None:
+    """Return the structured coverage summary if present."""
+    p = reports_dir / "coverage-summary.json"
+    if not p.exists():
+        return None
+    try:
+        return json.loads(p.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return None
+
+
+def _coverage_findings(counter_start: int, coverage: dict | None) -> tuple[list[dict], int]:
+    """Emit coverage findings for the fallback review. Returns
+    (findings, next_counter)."""
+    if not coverage or coverage.get("error"):
+        return [], counter_start
+    overall = coverage.get("overall") or {}
+    overall_pct = overall.get("line_pct")
+    if overall_pct is None:
+        return [], counter_start
+    findings: list[dict] = []
+    counter = counter_start
+    threshold = float(coverage.get("threshold_pct", MIN_COVERAGE_PCT))
+    if overall_pct < threshold:
+        counter += 1
+        worst = sorted(
+            coverage.get("packages") or [],
+            key=lambda p: p.get("line_pct", 0.0),
+        )[:5]
+        worst_names = ", ".join(p.get("package", "?") for p in worst)
+        findings.append({
+            "id": f"SR-{counter:03d}",
+            "title": f"Line coverage {overall_pct}% is below threshold {threshold:.0f}%",
+            "severity": "HIGH",
+            "priority": "P1",
+            "category": "coverage",
+            "cwe": ["CWE-1126"],
+            "owasp": ["A05:2021-Security Misconfiguration"],
+            "root_cause": (
+                "Unit-test coverage is below the policy threshold, so security-critical "
+                "code paths are not exercised by automated tests."
+            ),
+            "file": worst_names or "(no packages)",
+            "line": None,
+            "rule_id": "coverage-threshold",
+            "evidence": (
+                f"Overall line coverage: {overall_pct}% "
+                f"({overall.get('line_covered', 0):,}/{overall.get('line_total', 0):,} lines); "
+                f"threshold: {threshold:.0f}%"
+            ),
+            "suggested_fix": (
+                "Add unit tests targeting the lowest-covered packages first. "
+                "Focus on service-layer and controller code that handles untrusted input."
+            ),
+            "risk_score": 70,
+        })
+    return findings, counter
+
+
 def _fallback_review(reports_dir: Path) -> dict:
     """Deterministic stub when the NVIDIA API is unavailable."""
     sonar = _load_sonar(reports_dir / "sonar-report.json")
     trivy = _load_trivy(reports_dir / "trivy-report.json")
+    coverage = _load_coverage(reports_dir)
     findings: list[dict] = []
     counter = 0
+
+    cov_findings, counter = _coverage_findings(counter, coverage)
+    findings.extend(cov_findings)
 
     for sev, f in _highest(sonar, 10):
         counter += 1

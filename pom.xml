@@ -31,6 +31,9 @@
         <jacoco.version>0.8.12</jacoco.version>
         <!-- Default JaCoCo XML report path so SonarCloud can read coverage without extra config. -->
         <jacoco.reportPath>${project.build.directory}/site/jacoco/jacoco.xml</jacoco.reportPath>
+        <!-- Minimum line coverage required by the pipeline (override per-run via
+             -Djacoco.min.coverage=NN). 80% matches the DevSecOps policy. -->
+        <jacoco.min.coverage>0.80</jacoco.min.coverage>
     </properties>
 
     <dependencies>
@@ -113,7 +116,19 @@
     <profiles>
         <!--
             Activated by the SonarQube CI step via `-Pcoverage`.
-            Produces target/site/jacoco/jacoco.xml so Sonar can import coverage.
+
+            JaCoCo itself produces:
+              - target/site/jacoco/jacoco.xml   (consumed by Sonar)
+              - target/site/jacoco/jacoco.csv   (raw CSV)
+              - target/site/jacoco/index.html   (human view)
+
+            The pipeline's per-package coverage-summary.{csv,json,md} is
+            generated afterwards by scripts/generate-coverage-report.py
+            from jacoco.xml.
+
+            The 80% line-coverage rule is enforced via the `check` goal bound
+            to `verify`. Override with `-Djacoco.min.coverage=NN` to relax/raise
+            locally; the pipeline sets it via env -> arg in ci.yml.
         -->
         <profile>
             <id>coverage</id>
@@ -123,18 +138,54 @@
                         <groupId>org.jacoco</groupId>
                         <artifactId>jacoco-maven-plugin</artifactId>
                         <version>${jacoco.version}</version>
+                        <configuration>
+                            <!-- 80% line coverage minimum on the bundle.
+                                 Overridable from the command line. -->
+                            <jacoco.min.coverage>${jacoco.min.coverage}</jacoco.min.coverage>
+                            <rules>
+                                <rule>
+                                    <element>BUNDLE</element>
+                                    <limits>
+                                        <limit>
+                                            <counter>LINE</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>${jacoco.min.coverage}</minimum>
+                                        </limit>
+                                    </limits>
+                                    <excludes>
+                                        <!-- OWASP lab: model classes are data
+                                             containers exercised indirectly. -->
+                                        <exclude>com.owasp.lab.model.*</exclude>
+                                        <exclude>com.owasp.lab.VulnerableSpringAppApplication</exclude>
+                                    </excludes>
+                                </rule>
+                            </rules>
+                        </configuration>
                         <executions>
+                            <!-- Bind the agent prepare to the `test` phase so
+                                 unit tests are instrumented (not just verify). -->
                             <execution>
                                 <id>prepare-agent</id>
+                                <phase>test</phase>
                                 <goals>
                                     <goal>prepare-agent</goal>
                                 </goals>
                             </execution>
+                            <!-- Generate HTML + XML + CSV reports on verify. -->
                             <execution>
                                 <id>report</id>
                                 <phase>verify</phase>
                                 <goals>
                                     <goal>report</goal>
+                                </goals>
+                            </execution>
+                            <!-- Enforce the coverage rule on verify. Fails the
+                                 build if line coverage < 80% (or the override). -->
+                            <execution>
+                                <id>check-coverage</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>check</goal>
                                 </goals>
                             </execution>
                         </executions>

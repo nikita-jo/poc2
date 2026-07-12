@@ -48,7 +48,10 @@ env:
   SONAR_PROJECT_KEY: ${{ vars.SONAR_PROJECT_KEY || secrets.SONAR_PROJECT_KEY }}
   SONAR_ORGANIZATION: ${{ vars.SONAR_ORGANIZATION || secrets.SONAR_ORGANIZATION }}
   MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository -Dorg.slf4j.simpleLogger.showDateTime=false"
-  MIN_COVERAGE: ${{ vars.MIN_COVERAGE || '70' }}
+  MIN_COVERAGE: ${{ vars.MIN_COVERAGE || '80' }}
+  # JaCoCo line-coverage ratio (0..1) — separate from MIN_COVERAGE (which is a
+  # percentage used by check-deploy-gates.py). 80% = pipeline policy.
+  MIN_COVERAGE_RATIO: ${{ vars.MIN_COVERAGE_RATIO || '0.80' }}
   ALLOW_CRITICAL: ${{ vars.ALLOW_CRITICAL || 'false' }}
   ALLOW_HIGH: ${{ vars.ALLOW_HIGH || 'false' }}
   REPORT_DIR: reports
@@ -176,39 +179,25 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Build with coverage profile
-        run: mvn -B -ntp -Pcoverage verify
-      - name: Produce coverage summary CSV
+        # The `check` goal (added in pom.xml under the `coverage` profile)
+        # fails this step if line coverage < $MIN_COVERAGE_RATIO (default 0.80).
+        run: mvn -B -ntp -Pcoverage verify -Djacoco.min.coverage=${{ env.MIN_COVERAGE_RATIO }}
+
+      - name: Generate coverage summary (CSV + JSON + Markdown)
         if: always() && hashFiles('target/site/jacoco/jacoco.xml') != ''
+        env:
+          MIN_COVERAGE: ${{ env.MIN_COVERAGE }}
         run: |
           set -e
-          python3 - <<'PY'
-          import csv, re, sys, xml.etree.ElementTree as ET
-          from pathlib import Path
-          src = Path("target/site/jacoco/jacoco.xml")
-          out = Path("target/site/jacoco/coverage-summary.csv")
-          if not src.exists():
-              print("No jacoco.xml found; writing empty summary")
-              out.write_text("element,missed,covered,total,coverage_pct\n", encoding="utf-8")
-              sys.exit(0)
-          root = ET.parse(src).getroot()
-          rows = [("package", "missed", "covered", "total", "pct")]
-          for pkg in root.iter("package"):
-              name = pkg.get("name") or "(root)"
-              missed = covered = 0
-              for c in pkg.iter("counter"):
-                  if c.get("type") == "LINE":
-                      missed += int(c.get("missed", 0))
-                      covered += int(c.get("covered", 0))
-              total = missed + covered
-              pct = round(covered / total * 100, 2) if total else 0.0
-              rows.append((name, missed, covered, total, pct))
-          with out.open("w", newline="", encoding="utf-8") as f:
-              w = csv.writer(f)
-              w.writerows(rows)
-          print("Coverage summary:")
-          for r in rows[-10:]:
-              print(" ", r)
-          PY
+          # Always emit all three formats so the artifact upload has files even
+          # when coverage is below threshold and the build was short-circuited.
+          mkdir -p reports
+          python3 scripts/generate-coverage-report.py \
+            --xml target/site/jacoco/jacoco.xml \
+            --output-dir reports \
+            --min-coverage ${MIN_COVERAGE}
+          # Also keep a copy next to the raw jacoco.xml for the upload step.
+          cp reports/coverage-summary.csv target/site/jacoco/coverage-summary.csv
 
       - name: Upload coverage artifacts
         if: always()
@@ -217,7 +206,11 @@ jobs:
           name: coverage-build-output
           path: |
             target/site/jacoco/jacoco.xml
+            target/site/jacoco/jacoco.csv
+            target/site/jacoco/index.html
             target/site/jacoco/coverage-summary.csv
+            reports/coverage-summary.json
+            reports/coverage-summary.md
             target/surefire-reports/
           if-no-files-found: warn
           retention-days: 30
@@ -399,6 +392,15 @@ jobs:
           if [ -f target/site/jacoco/jacoco.xml ]; then
             cp target/site/jacoco/jacoco.xml reports/jacoco.xml
           fi
+          if [ -f target/site/jacoco/coverage-summary.csv ]; then
+            cp target/site/jacoco/coverage-summary.csv reports/coverage-summary.csv
+          fi
+          if [ -f target/site/jacoco/coverage-summary.json ]; then
+            cp target/site/jacoco/coverage-summary.json reports/coverage-summary.json
+          fi
+          if [ -f target/site/jacoco/coverage-summary.md ]; then
+            cp target/site/jacoco/coverage-summary.md reports/coverage-summary.md
+          fi
           if compgen -G "target/surefire-reports/*.xml" > /dev/null; then
             cp target/surefire-reports/*.xml reports/ || true
             # Provide a junit.xml alias for the AI agent
@@ -412,6 +414,9 @@ jobs:
         if: always()
         env:
           NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
+          # Pass the coverage threshold into the agent so its prompt and
+          # the deterministic fallback both honour the same gate.
+          MIN_COVERAGE: ${{ env.MIN_COVERAGE }}
         run: |
           set -e
           python3 scripts/ai-security-review.py --reports reports
@@ -492,6 +497,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
+          MIN_COVERAGE: ${{ env.MIN_COVERAGE }}
           REMEDIATION_BRANCH: ai-remediation/${{ github.sha }}
           REMEDIATION_TARGET: ${{ github.event.pull_request.base.ref || 'main' }}
           SKIP_PR: ${{ github.event_name == 'pull_request' && 'true' || '' }}
@@ -594,39 +600,22 @@ jobs:
       - name: Run unit tests
         run: mvn -B -ntp test
       - name: Aggregate coverage
-        run: mvn -B -ntp -Pcoverage verify
+        run: mvn -B -ntp -Pcoverage verify -Djacoco.min.coverage=${{ env.MIN_COVERAGE_RATIO }}
       - name: Mark rebuild success
         run: mkdir -p target && touch target/.rebuild-ok
 
       - name: Re-stage coverage summary
         if: always()
+        env:
+          MIN_COVERAGE: ${{ env.MIN_COVERAGE }}
         run: |
           set -e
-          if [ -f target/site/jacoco/jacoco.xml ]; then
-            python3 - <<'PY'
-          import csv, sys, xml.etree.ElementTree as ET
-          from pathlib import Path
-          src = Path("target/site/jacoco/jacoco.xml")
-          out = Path("target/site/jacoco/coverage-summary.csv")
-          if not src.exists():
-              sys.exit(0)
-          root = ET.parse(src).getroot()
-          rows = [("package", "missed", "covered", "total", "pct")]
-          for pkg in root.iter("package"):
-              name = pkg.get("name") or "(root)"
-              missed = covered = 0
-              for c in pkg.iter("counter"):
-                  if c.get("type") == "LINE":
-                      missed += int(c.get("missed", 0))
-                      covered += int(c.get("covered", 0))
-              total = missed + covered
-              pct = round(covered / total * 100, 2) if total else 0.0
-              rows.append((name, missed, covered, total, pct))
-          out.parent.mkdir(parents=True, exist_ok=True)
-          with out.open("w", newline="", encoding="utf-8") as f:
-              w = csv.writer(f); w.writerows(rows)
-          PY
-          fi
+          mkdir -p reports
+          python3 scripts/generate-coverage-report.py \
+            --xml target/site/jacoco/jacoco.xml \
+            --output-dir reports \
+            --min-coverage ${MIN_COVERAGE}
+          cp reports/coverage-summary.csv target/site/jacoco/coverage-summary.csv
 
       - name: Upload rebuild artifacts
         if: always()
@@ -890,6 +879,12 @@ jobs:
           fi
           if [ -f target/site/jacoco/coverage-summary.csv ]; then
             cp target/site/jacoco/coverage-summary.csv reports/coverage-summary.csv
+          fi
+          if [ -f target/site/jacoco/coverage-summary.json ]; then
+            cp target/site/jacoco/coverage-summary.json reports/coverage-summary.json
+          fi
+          if [ -f target/site/jacoco/coverage-summary.md ]; then
+            cp target/site/jacoco/coverage-summary.md reports/coverage-summary.md
           fi
 
       - name: Check all deploy gates
