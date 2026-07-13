@@ -1,0 +1,23 @@
+{
+  "patches": [
+    {
+      "file": "pom.xml",
+      "new_content": "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n    <dependencies>\n        <dependency>\n            <groupId>org.apache.tomcat.embed</groupId>\n            <artifactId>tomcat-embed-core</artifactId>\n            <version>10.1.55</version>\n        </dependency>\n        <dependency>\n            <groupId>org.springframework.security</groupId>\n            <artifactId>spring-security-web</artifactId>\n            <version>6.5.9</version>\n        </dependency>\n        <dependency>\n            <groupId>com.fasterxml.jackson.core</groupId>\n            <artifactId>jackson-databind</artifactId>\n            <version>2.18.8</version>\n        </dependency>\n    </dependencies>\n</project>",
+      "rule_id": "CVE-2026-22732",
+      "finding_id": "SR-001",
+      "description": "Upgrade Apache Tomcat, Spring Security, and Jackson Databind to fix remote code execution vulnerabilities"
+    }
+  ],
+  "skipped": [
+    {
+      "finding_id": "SR-009",
+      "rule_id": "CVE-2026-34483",
+      "reason": "No code changes required, only dependency upgrades"
+    },
+    {
+      "finding_id": "SR-010",
+      "rule_id": "CVE-2026-41284",
+      "reason": "No code changes required, only dependency upgrades"
+    }
+  ]
+}

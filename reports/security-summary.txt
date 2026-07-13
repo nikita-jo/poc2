@@ -1,0 +1,15 @@
+status=OK
+risk_score=85
+priority=P0
+finding_count=10
+
+[CRITICAL] SR-001 Apache Tomcat Vulnerability  -- org.apache.tomcat.embed:tomcat-embed-core@10.1.42
+[CRITICAL] SR-002 Spring Security Vulnerability  -- org.springframework.security:spring-security-web@6.3.10
+[HIGH    ] SR-003 Jackson Databind Vulnerability  -- com.fasterxml.jackson.core:jackson-databind@2.17.3
+[HIGH    ] SR-004 Apache Tomcat Vulnerability  -- org.apache.tomcat.embed:tomcat-embed-core@10.1.42
+[HIGH    ] SR-005 Spring Security Vulnerability  -- org.springframework.security:spring-security-web@6.3.10
+[MEDIUM  ] SR-006 Apache Tomcat Vulnerability  -- org.apache.tomcat.embed:tomcat-embed-core@10.1.42
+[MEDIUM  ] SR-007 Spring Security Vulnerability  -- org.springframework.security:spring-security-web@6.3.10
+[MEDIUM  ] SR-008 Jackson Databind Vulnerability  -- com.fasterxml.jackson.core:jackson-databind@2.17.3
+[LOW     ] SR-009 Apache Tomcat Vulnerability  -- org.apache.tomcat.embed:tomcat-embed-core@10.1.42
+[LOW     ] SR-010 Spring Security Vulnerability  -- org.springframework.security:spring-security-web@6.3.10

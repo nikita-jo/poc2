@@ -1,0 +1,45 @@
+Produce safe, minimal patches for the following security findings.
+Coverage threshold is irrelevant here; fix the code, not the tests.
+Severity scale: CRITICAL > HIGH > MEDIUM > LOW > INFO.
+
+===== FINDINGS (sorted by severity, capped at 20) =====
+- id=SR-001 sev=CRITICAL file=org.apache.tomcat.embed:tomcat-embed-core@10.1.42 line=None rule_id=CVE-2026-22732
+  evidence: Apache Tomcat is vulnerable to remote code execution
+  suggested_fix: Upgrade Apache Tomcat to version 9.0.118, 10.1.55, or 11.0.22
+- id=SR-002 sev=CRITICAL file=org.springframework.security:spring-security-web@6.3.10 line=None rule_id=CVE-2026-41293
+  evidence: Spring Security is vulnerable to remote code execution
+  suggested_fix: Upgrade Spring Security to version 6.5.9 or 7.0.4
+- id=SR-003 sev=HIGH file=com.fasterxml.jackson.core:jackson-databind@2.17.3 line=None rule_id=CVE-2026-54512
+  evidence: Jackson Databind is vulnerable to remote code execution
+  suggested_fix: Upgrade Jackson Databind to version 2.18.8, 3.1.4, or 2.21.4
+- id=SR-004 sev=HIGH file=org.apache.tomcat.embed:tomcat-embed-core@10.1.42 line=None rule_id=CVE-2026-43512
+  evidence: Apache Tomcat is vulnerable to information disclosure
+  suggested_fix: Upgrade Apache Tomcat to version 9.0.118, 10.1.55, or 11.0.22
+- id=SR-005 sev=HIGH file=org.springframework.security:spring-security-web@6.3.10 line=None rule_id=CVE-2026-43515
+  evidence: Spring Security is vulnerable to information disclosure
+  suggested_fix: Upgrade Spring Security to version 6.5.9 or 7.0.4
+- id=SR-006 sev=MEDIUM file=org.apache.tomcat.embed:tomcat-embed-core@10.1.42 line=None rule_id=CVE-2026-24734
+  evidence: Apache Tomcat is vulnerable to denial of service
+  suggested_fix: Upgrade Apache Tomcat to version 9.0.118, 10.1.55, or 11.0.22
+- id=SR-007 sev=MEDIUM file=org.springframework.security:spring-security-web@6.3.10 line=None rule_id=CVE-2026-24880
+  evidence: Spring Security is vulnerable to denial of service
+  suggested_fix: Upgrade Spring Security to version 6.5.9 or 7.0.4
+- id=SR-008 sev=MEDIUM file=com.fasterxml.jackson.core:jackson-databind@2.17.3 line=None rule_id=CVE-2026-54514
+  evidence: Jackson Databind is vulnerable to denial of service
+  suggested_fix: Upgrade Jackson Databind to version 2.18.8, 3.1.4, or 2.21.4
+- id=SR-009 sev=LOW file=org.apache.tomcat.embed:tomcat-embed-core@10.1.42 line=None rule_id=CVE-2026-34483
+  evidence: Apache Tomcat is vulnerable to information disclosure
+  suggested_fix: Upgrade Apache Tomcat to version 9.0.118, 10.1.55, or 11.0.22
+- id=SR-010 sev=LOW file=org.springframework.security:spring-security-web@6.3.10 line=None rule_id=CVE-2026-41284
+  evidence: Spring Security is vulnerable to information disclosure
+  suggested_fix: Upgrade Spring Security to version 6.5.9 or 7.0.4
+
+===== CURRENT FILE CONTENTS =====
+
+----- org.apache.tomcat.embed:tomcat-embed-core@10.1.42 (NOT FOUND on disk) -----
+
+----- org.springframework.security:spring-security-web@6.3.10 (NOT FOUND on disk) -----
+
+----- com.fasterxml.jackson.core:jackson-databind@2.17.3 (NOT FOUND on disk) -----
+
+Return ONLY the JSON object. No commentary, no markdown fences.

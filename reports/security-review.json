@@ -1,0 +1,208 @@
+{
+  "status": "OK",
+  "summary": "The project has multiple critical and high-severity vulnerabilities in its dependencies, including Apache Tomcat, Spring Security, and Jackson Databind. These vulnerabilities can lead to remote code execution, information disclosure, and other security issues. It is recommended to update these dependencies to the latest versions and apply the necessary patches.",
+  "risk_score": 85,
+  "overall_priority": "P0",
+  "findings": [
+    {
+      "id": "SR-001",
+      "title": "Apache Tomcat Vulnerability",
+      "severity": "CRITICAL",
+      "priority": "P0",
+      "category": "vulnerability",
+      "cwe": [
+        "CWE-89"
+      ],
+      "owasp": [
+        "A06:2021-Vulnerable and Outdated Components"
+      ],
+      "root_cause": "Apache Tomcat is vulnerable to remote code execution",
+      "file": "org.apache.tomcat.embed:tomcat-embed-core@10.1.42",
+      "line": null,
+      "rule_id": "CVE-2026-22732",
+      "evidence": "Apache Tomcat is vulnerable to remote code execution",
+      "suggested_fix": "Upgrade Apache Tomcat to version 9.0.118, 10.1.55, or 11.0.22",
+      "risk_score": 90
+    },
+    {
+      "id": "SR-002",
+      "title": "Spring Security Vulnerability",
+      "severity": "CRITICAL",
+      "priority": "P0",
+      "category": "vulnerability",
+      "cwe": [
+        "CWE-89"
+      ],
+      "owasp": [
+        "A06:2021-Vulnerable and Outdated Components"
+      ],
+      "root_cause": "Spring Security is vulnerable to remote code execution",
+      "file": "org.springframework.security:spring-security-web@6.3.10",
+      "line": null,
+      "rule_id": "CVE-2026-41293",
+      "evidence": "Spring Security is vulnerable to remote code execution",
+      "suggested_fix": "Upgrade Spring Security to version 6.5.9 or 7.0.4",
+      "risk_score": 90
+    },
+    {
+      "id": "SR-003",
+      "title": "Jackson Databind Vulnerability",
+      "severity": "HIGH",
+      "priority": "P1",
+      "category": "vulnerability",
+      "cwe": [
+        "CWE-89"
+      ],
+      "owasp": [
+        "A06:2021-Vulnerable and Outdated Components"
+      ],
+      "root_cause": "Jackson Databind is vulnerable to remote code execution",
+      "file": "com.fasterxml.jackson.core:jackson-databind@2.17.3",
+      "line": null,
+      "rule_id": "CVE-2026-54512",
+      "evidence": "Jackson Databind is vulnerable to remote code execution",
+      "suggested_fix": "Upgrade Jackson Databind to version 2.18.8, 3.1.4, or 2.21.4",
+      "risk_score": 80
+    },
+    {
+      "id": "SR-004",
+      "title": "Apache Tomcat Vulnerability",
+      "severity": "HIGH",
+      "priority": "P1",
+      "category": "vulnerability",
+      "cwe": [
+        "CWE-89"
+      ],
+      "owasp": [
+        "A06:2021-Vulnerable and Outdated Components"
+      ],
+      "root_cause": "Apache Tomcat is vulnerable to information disclosure",
+      "file": "org.apache.tomcat.embed:tomcat-embed-core@10.1.42",
+      "line": null,
+      "rule_id": "CVE-2026-43512",
+      "evidence": "Apache Tomcat is vulnerable to information disclosure",
+      "suggested_fix": "Upgrade Apache Tomcat to version 9.0.118, 10.1.55, or 11.0.22",
+      "risk_score": 80
+    },
+    {
+      "id": "SR-005",
+      "title": "Spring Security Vulnerability",
+      "severity": "HIGH",
+      "priority": "P1",
+      "category": "vulnerability",
+      "cwe": [
+        "CWE-89"
+      ],
+      "owasp": [
+        "A06:2021-Vulnerable and Outdated Components"
+      ],
+      "root_cause": "Spring Security is vulnerable to information disclosure",
+      "file": "org.springframework.security:spring-security-web@6.3.10",
+      "line": null,
+      "rule_id": "CVE-2026-43515",
+      "evidence": "Spring Security is vulnerable to information disclosure",
+      "suggested_fix": "Upgrade Spring Security to version 6.5.9 or 7.0.4",
+      "risk_score": 80
+    },
+    {
+      "id": "SR-006",
+      "title": "Apache Tomcat Vulnerability",
+      "severity": "MEDIUM",
+      "priority": "P2",
+      "category": "vulnerability",
+      "cwe": [
+        "CWE-89"
+      ],
+      "owasp": [
+        "A06:2021-Vulnerable and Outdated Components"
+      ],
+      "root_cause": "Apache Tomcat is vulnerable to denial of service",
+      "file": "org.apache.tomcat.embed:tomcat-embed-core@10.1.42",
+      "line": null,
+      "rule_id": "CVE-2026-24734",
+      "evidence": "Apache Tomcat is vulnerable to denial of service",
+      "suggested_fix": "Upgrade Apache Tomcat to version 9.0.118, 10.1.55, or 11.0.22",
+      "risk_score": 60
+    },
+    {
+      "id": "SR-007",
+      "title": "Spring Security Vulnerability",
+      "severity": "MEDIUM",
+      "priority": "P2",
+      "category": "vulnerability",
+      "cwe": [
+        "CWE-89"
+      ],
+      "owasp": [
+        "A06:2021-Vulnerable and Outdated Components"
+      ],
+      "root_cause": "Spring Security is vulnerable to denial of service",
+      "file": "org.springframework.security:spring-security-web@6.3.10",
+      "line": null,
+      "rule_id": "CVE-2026-24880",
+      "evidence": "Spring Security is vulnerable to denial of service",
+      "suggested_fix": "Upgrade Spring Security to version 6.5.9 or 7.0.4",
+      "risk_score": 60
+    },
+    {
+      "id": "SR-008",
+      "title": "Jackson Databind Vulnerability",
+      "severity": "MEDIUM",
+      "priority": "P2",
+      "category": "vulnerability",
+      "cwe": [
+        "CWE-89"
+      ],
+      "owasp": [
+        "A06:2021-Vulnerable and Outdated Components"
+      ],
+      "root_cause": "Jackson Databind is vulnerable to denial of service",
+      "file": "com.fasterxml.jackson.core:jackson-databind@2.17.3",
+      "line": null,
+      "rule_id": "CVE-2026-54514",
+      "evidence": "Jackson Databind is vulnerable to denial of service",
+      "suggested_fix": "Upgrade Jackson Databind to version 2.18.8, 3.1.4, or 2.21.4",
+      "risk_score": 60
+    },
+    {
+      "id": "SR-009",
+      "title": "Apache Tomcat Vulnerability",
+      "severity": "LOW",
+      "priority": "P3",
+      "category": "vulnerability",
+      "cwe": [
+        "CWE-89"
+      ],
+      "owasp": [
+        "A06:2021-Vulnerable and Outdated Components"
+      ],
+      "root_cause": "Apache Tomcat is vulnerable to information disclosure",
+      "file": "org.apache.tomcat.embed:tomcat-embed-core@10.1.42",
+      "line": null,
+      "rule_id": "CVE-2026-34483",
+      "evidence": "Apache Tomcat is vulnerable to information disclosure",
+      "suggested_fix": "Upgrade Apache Tomcat to version 9.0.118, 10.1.55, or 11.0.22",
+      "risk_score": 40
+    },
+    {
+      "id": "SR-010",
+      "title": "Spring Security Vulnerability",
+      "severity": "LOW",
+      "priority": "P3",
+      "category": "vulnerability",
+      "cwe": [
+        "CWE-89"
+      ],
+      "owasp": [
+        "A06:2021-Vulnerable and Outdated Components"
+      ],
+      "root_cause": "Spring Security is vulnerable to information disclosure",
+      "file": "org.springframework.security:spring-security-web@6.3.10",
+      "line": null,
+      "rule_id": "CVE-2026-41284",
+      "evidence": "Spring Security is vulnerable to information disclosure",
+      "suggested_fix": "Upgrade Spring Security to version 6.5.9 or 7.0.4",
+      "risk_score": 40
+    }
+  ]
+}

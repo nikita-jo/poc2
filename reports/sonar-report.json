@@ -1,0 +1,8 @@
+{
+  "status": "SKIPPED",
+  "projectKey": "nikita-jo_poc2",
+  "host": "https://sonarcloud.io",
+  "qualityGate": "UNKNOWN",
+  "metrics": {},
+  "issues": []
+}
