@@ -181,23 +181,35 @@ jobs:
       - name: Build with coverage profile
         # The `check` goal (added in pom.xml under the `coverage` profile)
         # fails this step if line coverage < $MIN_COVERAGE_RATIO (default 0.80).
+        # We tolerate that failure here so the JaCoCo `report` goal still
+        # produces jacoco.xml for the downstream summary + artifact upload.
+        # The threshold itself is enforced by the `check-deploy-gates` job
+        # using `MIN_COVERAGE`, which can be tuned independently of the
+        # JaCoCo rule and gates the deploy step.
+        continue-on-error: true
         run: mvn -B -ntp -Pcoverage verify -Djacoco.min.coverage=${{ env.MIN_COVERAGE_RATIO }}
 
       - name: Generate coverage summary (CSV + JSON + Markdown)
-        if: always() && hashFiles('target/site/jacoco/jacoco.xml') != ''
+        if: always()
         env:
           MIN_COVERAGE: ${{ env.MIN_COVERAGE }}
         run: |
           set -e
           # Always emit all three formats so the artifact upload has files even
-          # when coverage is below threshold and the build was short-circuited.
+          # when coverage is below threshold or no jacoco.xml was produced
+          # (e.g. no tests exist yet). The script writes a "no data" payload in
+          # that case rather than failing.
           mkdir -p reports
           python3 scripts/generate-coverage-report.py \
             --xml target/site/jacoco/jacoco.xml \
             --output-dir reports \
             --min-coverage ${MIN_COVERAGE}
-          # Also keep a copy next to the raw jacoco.xml for the upload step.
-          cp reports/coverage-summary.csv target/site/jacoco/coverage-summary.csv
+          # Also keep a copy next to the raw jacoco.xml for the upload step,
+          # but only when the JaCoCo output dir actually exists (it may not
+          # if `mvn -Pcoverage verify` short-circuited).
+          if [ -d target/site/jacoco ]; then
+            cp reports/coverage-summary.csv target/site/jacoco/coverage-summary.csv
+          fi
 
       - name: Upload coverage artifacts
         if: always()
@@ -631,6 +643,10 @@ jobs:
       - name: Run unit tests
         run: mvn -B -ntp test
       - name: Aggregate coverage
+        # Same rationale as the `coverage` job: tolerate JaCoCo's `check`
+        # failure so the `report` goal still emits jacoco.xml. The threshold
+        # is enforced by `check-deploy-gates`.
+        continue-on-error: true
         run: mvn -B -ntp -Pcoverage verify -Djacoco.min.coverage=${{ env.MIN_COVERAGE_RATIO }}
       - name: Mark rebuild success
         run: mkdir -p target && touch target/.rebuild-ok
@@ -646,7 +662,12 @@ jobs:
             --xml target/site/jacoco/jacoco.xml \
             --output-dir reports \
             --min-coverage ${MIN_COVERAGE}
-          cp reports/coverage-summary.csv target/site/jacoco/coverage-summary.csv
+          # The JaCoCo output dir may not exist if the rebuild's coverage step
+          # short-circuited (e.g. failed tests, missing jacoco report). Only
+          # mirror the CSV there when the dir is present.
+          if [ -d target/site/jacoco ]; then
+            cp reports/coverage-summary.csv target/site/jacoco/coverage-summary.csv
+          fi
 
       - name: Upload rebuild artifacts
         if: always()
