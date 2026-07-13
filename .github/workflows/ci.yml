@@ -556,6 +556,8 @@ jobs:
           touch reports/changed-files.txt
           touch reports/ai-patch.diff
           touch reports/git-diff-stat.txt
+          touch reports/llm-prompt.txt
+          touch reports/llm-response.txt
 
       - name: Validate build after remediation
         if: always()
@@ -576,6 +578,8 @@ jobs:
             reports/changed-files.txt
             reports/ai-patch.diff
             reports/git-diff-stat.txt
+            reports/llm-prompt.txt
+            reports/llm-response.txt
           if-no-files-found: warn
           retention-days: 90
 

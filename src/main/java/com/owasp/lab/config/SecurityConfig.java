@@ -36,7 +36,8 @@ public class SecurityConfig {
 
             // VULNERABILITY (A05:2021): disable frame options on H2 console
             // (acceptable for local lab) - but combined with no auth, also bad.
-            .headers(h -> h.frameOptions(f -> f.disable()));
+            // VULNERABILITY FIX (AI auto-remediation, marker FIX_CSP_APPLIED): added Content-Security-Policy header
+            .headers(h -> h.frameOptions(f -> f.disable().contentSecurityPolicy(csp -> csp.policyDirectives("default-src 'self'; object-src 'none'"))));
 
         return http.build();
     }

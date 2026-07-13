@@ -43,6 +43,9 @@ import re
 import shutil
 import subprocess
 import sys
+import urllib.error
+import urllib.request
+from fnmatch import fnmatch
 from pathlib import Path
 
 # ---------------------------------------------------------------------
@@ -535,6 +538,301 @@ def _load_json(path: Path) -> dict:
         return {}
 
 
+# ---------------------------------------------------------------------
+# LLM-driven per-file patches
+# ---------------------------------------------------------------------
+
+# Files the LLM is allowed to write to. Anything else is recorded as a
+# `skipped` entry and never touches disk. This is a coarse whitelist
+# tuned for the OWASP learning lab; tighten it for production code.
+_LLM_WRITABLE_GLOBS = (
+    "src/main/java/**/*.java",
+    "src/test/java/**/*.java",
+    "src/main/resources/**",
+    "src/test/resources/**",
+    "pom.xml",
+    "Dockerfile",
+)
+_LLM_MAX_PATCHES = 10
+_LLM_MAX_BYTES_PER_CALL = 256 * 1024
+_LLM_MAX_FILE_BYTES = 8 * 1024
+
+
+def _is_path_writable(rel_path: str) -> bool:
+    """True iff `rel_path` matches one of the whitelisted globs."""
+    rel = rel_path.replace("\\", "/").lstrip("/")
+    if not rel:
+        return False
+    # Reject absolute paths and parent-traversal early.
+    if rel.startswith("/") or ".." in rel.split("/"):
+        return False
+    from fnmatch import fnmatch
+    for pat in _LLM_WRITABLE_GLOBS:
+        if fnmatch(rel, pat):
+            return True
+    return False
+
+
+def _call_nvidia(prompt: str, system: str, model: str, base_url: str, max_tokens: int) -> str:
+    """Call the NVIDIA chat completions API. Returns the assistant's
+    content (a string), or "" on missing key / network error / non-JSON
+    response. Logs a warning to stderr on failure so the workflow log
+    shows why the LLM pass was skipped."""
+    api_key = os.environ.get("NVIDIA_API_KEY", "").strip()
+    if not api_key:
+        print("WARN: NVIDIA_API_KEY not set; skipping LLM patch pass.", file=sys.stderr)
+        return ""
+    payload = {
+        "model": model,
+        "max_tokens": max_tokens,
+        "temperature": 0.1,
+        "messages": [
+            {"role": "system", "content": system},
+            {"role": "user", "content": prompt},
+        ],
+    }
+    req = urllib.request.Request(
+        f"{base_url.rstrip('/')}/chat/completions",
+        data=json.dumps(payload).encode("utf-8"),
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {api_key}",
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=180) as resp:
+            data = json.load(resp)
+    except (urllib.error.URLError, urllib.error.HTTPError, json.JSONDecodeError, TimeoutError) as exc:
+        print(f"WARN: NVIDIA API call failed: {exc}", file=sys.stderr)
+        return ""
+    try:
+        return data["choices"][0]["message"]["content"] or ""
+    except (KeyError, IndexError, TypeError):
+        return ""
+
+
+def _extract_json(text: str) -> dict | None:
+    """Best-effort JSON extraction. Handles ```json fences and the case
+    where the LLM wraps the JSON in leading prose."""
+    if not text:
+        return None
+    text = re.sub(r"^```(?:json)?\s*", "", text.strip())
+    text = re.sub(r"```$", "", text.strip())
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        m = re.search(r"\{[\s\S]*\}", text)
+        if m:
+            try:
+                return json.loads(m.group(0))
+            except json.JSONDecodeError:
+                return None
+    return None
+
+
+_REMEDIATION_SYSTEM_PROMPT = """You are an automated code-remediation agent for a Java / Spring Boot / Maven project.
+
+You will receive:
+  1. A list of security findings (id, severity, file, line, rule_id, evidence, suggested_fix).
+  2. The current content of every file referenced by those findings.
+
+Your job: produce a STRICT JSON object describing SAFE, BEHAVIOR-PRESERVING
+patches that fix as many findings as possible.
+
+OUTPUT SCHEMA (return ONLY this JSON, no prose, no markdown fences):
+{
+  "patches": [
+    {
+      "file": "src/main/java/.../Foo.java",
+      "new_content": "<FULL new file content after the fix>",
+      "rule_id": "java:S2077",
+      "finding_id": "SR-001",
+      "description": "One-line description of the change"
+    }
+  ],
+  "skipped": [
+    { "finding_id": "SR-009", "rule_id": "java:S5145",
+      "reason": "Why this finding cannot be safely auto-fixed" }
+  ]
+}
+
+RULES:
+- `new_content` MUST be the FULL file content, not a diff or a hunk.
+- Only emit `patches` for files the user listed. Do not invent new files.
+- If you cannot fix a finding safely, put it in `skipped` with a reason.
+- Cap patches at 10 and total new_content bytes at 256 KB.
+- Be conservative: parameterise queries, hash passwords, escape output,
+  validate inputs, add security headers. Do not introduce new
+  dependencies unless the finding explicitly requires it.
+- Do not delete code that the application still needs. If you remove
+  vulnerable code, replace it with a safe equivalent.
+- Add a marker comment `// FIX_LLM_APPLIED: <rule_id>` on the line
+  where the change begins so re-runs are idempotent.
+- Return valid JSON. Do not include any commentary outside the JSON.
+"""
+
+
+def _build_remediation_prompt(review: dict, repo_root: Path) -> str:
+    """Build the user prompt: capped findings + per-file contents."""
+    findings = (review or {}).get("findings") or []
+    findings = sorted(
+        findings,
+        key=lambda f: (
+            -SEVERITY_RANK.get((f.get("severity") or "INFO").upper(), 0),
+            -int(f.get("risk_score") or 0),
+        ),
+    )[:20]
+
+    parts: list[str] = [
+        "Produce safe, minimal patches for the following security findings.\n"
+        "Coverage threshold is irrelevant here; fix the code, not the tests.\n"
+        f"Severity scale: CRITICAL > HIGH > MEDIUM > LOW > INFO.\n"
+    ]
+    parts.append("===== FINDINGS (sorted by severity, capped at 20) =====")
+    for f in findings:
+        parts.append(
+            f"- id={f.get('id', '?')} sev={f.get('severity', 'INFO')} "
+            f"file={f.get('file', '?')} line={f.get('line', '?')} "
+            f"rule_id={f.get('rule_id', '?')}\n"
+            f"  evidence: {(f.get('evidence') or '')[:300]}\n"
+            f"  suggested_fix: {(f.get('suggested_fix') or '')[:300]}"
+        )
+
+    # Attach the current content of every file referenced by the findings.
+    seen: set[str] = set()
+    parts.append("\n===== CURRENT FILE CONTENTS =====")
+    for f in findings:
+        rel = (f.get("file") or "").replace("\\", "/")
+        if not rel or rel in seen:
+            continue
+        seen.add(rel)
+        path = repo_root / rel
+        if not path.exists():
+            parts.append(f"\n----- {rel} (NOT FOUND on disk) -----")
+            continue
+        try:
+            content = path.read_text(encoding="utf-8", errors="replace")
+        except OSError as exc:
+            parts.append(f"\n----- {rel} (READ ERROR: {exc}) -----")
+            continue
+        if len(content.encode("utf-8")) > _LLM_MAX_FILE_BYTES:
+            content = content[:_LLM_MAX_FILE_BYTES] + "\n<!-- truncated -->\n"
+        parts.append(f"\n----- {rel} -----\n{content}")
+
+    parts.append(
+        "\nReturn ONLY the JSON object. No commentary, no markdown fences."
+    )
+    return "\n".join(parts)
+
+
+def _apply_llm_patches(repo_root: Path, raw_response: str) -> tuple[list[dict], list[dict]]:
+    """Validate and write the LLM's per-file patches. Returns
+    `(applied_fixes, skipped_fixes)`."""
+    applied: list[dict] = []
+    skipped: list[dict] = []
+
+    parsed = _extract_json(raw_response)
+    if not parsed:
+        skipped.append({
+            "rule_id": "llm",
+            "finding_id": "-",
+            "reason": "LLM response was not valid JSON",
+        })
+        return applied, skipped
+    patches = parsed.get("patches")
+    if not isinstance(patches, list):
+        skipped.append({
+            "rule_id": "llm",
+            "finding_id": "-",
+            "reason": "LLM response did not contain a `patches` array",
+        })
+        return applied, skipped
+    if not isinstance(parsed.get("skipped", []), list):
+        parsed["skipped"] = []
+
+    total_bytes = 0
+    for i, patch in enumerate(patches):
+        if not isinstance(patch, dict):
+            skipped.append({"rule_id": "llm", "finding_id": f"#{i}", "reason": "patch is not an object"})
+            continue
+        if len(applied) >= _LLM_MAX_PATCHES:
+            skipped.append({"rule_id": patch.get("rule_id", "llm"), "finding_id": patch.get("finding_id", f"#{i}"),
+                            "reason": f"max patches ({_LLM_MAX_PATCHES}) reached"})
+            continue
+        rel = (patch.get("file") or "").replace("\\", "/").lstrip("/")
+        new_content = patch.get("new_content")
+        rule_id = patch.get("rule_id") or "llm-patch"
+        finding_id = patch.get("finding_id") or f"#{i}"
+        if not rel:
+            skipped.append({"rule_id": rule_id, "finding_id": finding_id, "reason": "missing `file`"})
+            continue
+        if not isinstance(new_content, str):
+            skipped.append({"rule_id": rule_id, "finding_id": finding_id, "reason": "missing or non-string `new_content`"})
+            continue
+        if not _is_path_writable(rel):
+            skipped.append({"rule_id": rule_id, "finding_id": finding_id,
+                            "reason": f"path not whitelisted: {rel}"})
+            continue
+        added_bytes = len(new_content.encode("utf-8"))
+        if total_bytes + added_bytes > _LLM_MAX_BYTES_PER_CALL:
+            skipped.append({"rule_id": rule_id, "finding_id": finding_id,
+                            "reason": f"max bytes per call ({_LLM_MAX_BYTES_PER_CALL}) reached"})
+            continue
+        target = repo_root / rel
+        if not target.exists():
+            skipped.append({"rule_id": rule_id, "finding_id": finding_id,
+                            "reason": f"file does not exist on disk: {rel}"})
+            continue
+        current = _read(target)
+        if current == new_content:
+            skipped.append({"rule_id": rule_id, "finding_id": finding_id,
+                            "reason": "new_content is identical to current file (no change)"})
+            continue
+        if f"FIX_LLM_APPLIED: {rule_id}" in current:
+            skipped.append({"rule_id": rule_id, "finding_id": finding_id,
+                            "reason": "already applied (FIX_LLM_APPLIED marker present)"})
+            continue
+        # Write + read-back verification.
+        try:
+            _write(target, new_content)
+        except OSError as exc:
+            skipped.append({"rule_id": rule_id, "finding_id": finding_id,
+                            "reason": f"write failed: {exc}"})
+            continue
+        if _read(target) != new_content:
+            # Best-effort rollback: rewrite the original content.
+            try:
+                _write(target, current)
+            except OSError:
+                pass
+            skipped.append({"rule_id": rule_id, "finding_id": finding_id,
+                            "reason": "read-back verification failed"})
+            continue
+        total_bytes += added_bytes
+        applied.append({
+            "rule": rule_id,
+            "category": "llm-fix",
+            "file": rel,
+            "description": (patch.get("description") or "")[:200],
+            "source": "llm",
+            "finding_id": finding_id,
+            "safe": True,
+        })
+        print(f"  [llm] patched {rel} for {rule_id}", file=sys.stderr)
+
+    # Merge LLM-declared skips with our own validation skips.
+    for s in parsed.get("skipped", []):
+        if not isinstance(s, dict):
+            continue
+        skipped.append({
+            "rule_id": s.get("rule_id", "llm"),
+            "finding_id": s.get("finding_id", "-"),
+            "reason": s.get("reason", "skipped by LLM"),
+        })
+    return applied, skipped
+
+
 def _git(*args: str, cwd: Path, check: bool = False) -> subprocess.CompletedProcess:
     return _run(["git", *args], cwd=str(cwd), check=check)
 
@@ -616,6 +914,11 @@ def main() -> int:
     p.add_argument("--reports", type=Path, default=Path("reports"))
     p.add_argument("--branch", default=os.environ.get("REMEDIATION_BRANCH", "ai-remediation/local"))
     p.add_argument("--target", default=os.environ.get("REMEDIATION_TARGET", "main"))
+    p.add_argument("--model", default=os.environ.get("NVIDIA_MODEL", "meta/llama-3.1-70b-instruct"))
+    p.add_argument("--base-url", default=os.environ.get("NVIDIA_BASE_URL", "https://integrate.api.nvidia.com/v1"))
+    p.add_argument("--max-tokens", type=int, default=int(os.environ.get("NVIDIA_MAX_TOKENS", "8000")))
+    p.add_argument("--skip-llm", action="store_true",
+                   help="Skip the LLM patch pass and only run the deterministic fixers.")
     args = p.parse_args()
 
     args.reports.mkdir(parents=True, exist_ok=True)
@@ -637,6 +940,30 @@ def main() -> int:
     all_fixes += fix_plain_password(args.repo_root)
     all_fixes += fix_bump_dependencies(args.repo_root, trivy_findings)
     all_fixes += fix_add_csp(args.repo_root)
+
+    # LLM patch pass: ask the model for additional per-file patches and
+    # apply them after the deterministic fixers. Skipped when --skip-llm
+    # is set or when NVIDIA_API_KEY is missing.
+    llm_skipped: list[dict] = []
+    if not args.skip_llm and os.environ.get("NVIDIA_API_KEY", "").strip():
+        print("Asking LLM for per-file patches...", file=sys.stderr)
+        user_prompt = _build_remediation_prompt(review, args.repo_root)
+        (args.reports / "llm-prompt.txt").write_text(user_prompt, encoding="utf-8")
+        raw = _call_nvidia(
+            user_prompt,
+            _REMEDIATION_SYSTEM_PROMPT,
+            args.model,
+            args.base_url,
+            args.max_tokens,
+        )
+        (args.reports / "llm-response.txt").write_text(raw, encoding="utf-8")
+        llm_applied, llm_skipped = _apply_llm_patches(args.repo_root, raw)
+        all_fixes += llm_applied
+        print(f"  LLM applied {len(llm_applied)} patch(es), skipped {len(llm_skipped)}.",
+              file=sys.stderr)
+    else:
+        print("LLM patch pass skipped (no --skip-llm=false and no NVIDIA_API_KEY).",
+              file=sys.stderr)
 
     diff_stat = _initial_diff_stat(args.repo_root)
     changed = _changed_files(args.repo_root)
@@ -666,7 +993,7 @@ def main() -> int:
         "pr_url": pr_url,
         "branch": args.branch,
         "target": args.target,
-        "skipped_findings": _collect_skipped(review, all_fixes),
+        "skipped_findings": _collect_skipped(review, all_fixes, extra_skipped=llm_skipped),
     }
     (args.reports / "remediation-report.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
     print(f"Remediation report written to {args.reports}/remediation-report.json")
@@ -676,20 +1003,30 @@ def main() -> int:
 
 
 def _render_summary(review: dict, fixes: list[dict], diff_stat: str, file_count: int) -> str:
+    det_fixes = [f for f in fixes if f.get("source") != "llm"]
+    llm_fixes = [f for f in fixes if f.get("source") == "llm"]
     lines = [
         "# AI Auto-Remediation Summary",
         "",
         f"- **Status:** {('OK' if fixes else 'NO_CHANGES')}",
-        f"- **Safe fixes applied:** {len(fixes)}",
+        f"- **Safe fixes applied:** {len(fixes)} (deterministic: {len(det_fixes)}, LLM: {len(llm_fixes)})",
         f"- **Files changed:** {file_count}",
         "",
-        "## Fixed",
+        "## Fixed (deterministic)",
         "",
     ]
-    for f in fixes:
+    for f in det_fixes:
         lines.append(
             f"- [{f.get('rule','')}] `{f.get('file','')}` — {f.get('description','')}"
         )
+    if not det_fixes:
+        lines.append("- (none)")
+    if llm_fixes:
+        lines.extend(["", "## Fixed (LLM-generated)", ""])
+        for f in llm_fixes:
+            lines.append(
+                f"- [{f.get('rule','')}] `{f.get('file','')}` — {f.get('description','')}"
+            )
     if not fixes:
         lines.append("- No safe automated fixes were applicable.")
     lines.extend([
@@ -705,14 +1042,16 @@ def _render_summary(review: dict, fixes: list[dict], diff_stat: str, file_count:
         "- [ ] Confirm no business logic was changed",
         "- [ ] Run `mvn -B -ntp -Pcoverage verify` locally",
         "- [ ] Review the unified diff in `ai-patch.diff`",
+        "- [ ] For LLM fixes, sanity-check the new file content end-to-end",
         "- [ ] Approve the PR if the changes are acceptable",
     ])
     return "\n".join(lines) + "\n"
 
 
-def _collect_skipped(review: dict, applied: list[dict]) -> list[dict]:
+def _collect_skipped(review: dict, applied: list[dict], extra_skipped: list[dict] | None = None) -> list[dict]:
     """Record any review findings whose rule wasn't applied — those are
-    the ones the deterministic engine refused to touch."""
+    the ones the deterministic engine refused to touch — plus any
+    extra skip reasons (e.g. from the LLM patch pass)."""
     applied_rules = {f.get("rule") for f in applied}
     skipped: list[dict] = []
     for finding in (review.get("findings") or []):
@@ -724,6 +1063,8 @@ def _collect_skipped(review: dict, applied: list[dict]) -> list[dict]:
                 "title": finding.get("title"),
                 "reason": "Deterministic engine did not have a safe auto-fix; requires human review.",
             })
+    if extra_skipped:
+        skipped.extend(extra_skipped)
     return skipped
 
 
