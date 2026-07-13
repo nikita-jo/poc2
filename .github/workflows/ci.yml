@@ -186,20 +186,17 @@ jobs:
       - name: Run unit tests (instrumented)
         # Plain `test` so the JaCoCo `prepare-agent` (bound to the test phase
         # by the coverage profile) instruments the JVM and produces the
-        # jacoco.exec file. The `report` goal below turns that into XML/CSV/HTML.
+        # jacoco.exec file.
         run: mvn -B -ntp -Pcoverage test
 
       - name: Generate JaCoCo coverage report
-        # The `report` goal writes target/site/jacoco/jacoco.xml etc. It does
-        # NOT enforce the coverage threshold; that's done in the next step.
-        run: mvn -B -ntp -Pcoverage report
-
-      - name: Enforce coverage threshold (best-effort)
-        # JaCoCo's `check` goal fails the build when line coverage < ratio.
-        # We tolerate that failure here so the report files remain on disk
-        # for upload; the real gate is `check-deploy-gates` (uses MIN_COVERAGE).
-        continue-on-error: true
-        run: mvn -B -ntp -Pcoverage check -Djacoco.min.coverage=${{ env.MIN_COVERAGE_RATIO }}
+        # The JaCoCo `report` goal is bound to the `verify` phase in pom.xml,
+        # so `mvn -Pcoverage report` is NOT a valid invocation — `report` is
+        # a plugin goal, not a lifecycle phase. Run `verify` (which executes
+        # the bound report goal) with the threshold forced to 0 so the bound
+        # `check` goal never fails the build. The real threshold is enforced
+        # by `check-deploy-gates` (uses MIN_COVERAGE).
+        run: mvn -B -ntp -Pcoverage verify -Djacoco.min.coverage=0
 
       - name: Generate coverage summary (CSV + JSON + Markdown)
         if: always()
@@ -755,13 +752,11 @@ jobs:
       - name: Run unit tests (instrumented)
         run: mvn -B -ntp -Pcoverage test
       - name: Generate JaCoCo coverage report
-        run: mvn -B -ntp -Pcoverage report
-      - name: Enforce coverage threshold (best-effort)
-        # Same rationale as the `coverage` job: tolerate JaCoCo's `check`
-        # failure so the `report` goal still emits jacoco.xml. The threshold
-        # is enforced by `check-deploy-gates`.
-        continue-on-error: true
-        run: mvn -B -ntp -Pcoverage check -Djacoco.min.coverage=${{ env.MIN_COVERAGE_RATIO }}
+        # Same rationale as the `coverage` job: invoke the `verify` phase so
+        # the bound `report` goal writes jacoco.xml, with the threshold forced
+        # to 0 so the bound `check` goal never fails the build. The real
+        # threshold is enforced by `check-deploy-gates`.
+        run: mvn -B -ntp -Pcoverage verify -Djacoco.min.coverage=0
       - name: Mark rebuild success
         run: mkdir -p target && touch target/.rebuild-ok
 
