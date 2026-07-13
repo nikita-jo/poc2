@@ -2,7 +2,7 @@
 
 - **Status:** NO_CHANGES
 - **Safe fixes applied:** 0 (deterministic: 0, LLM: 0)
-- **Files changed:** 13
+- **Files changed:** 4
 
 ## Fixed (deterministic)
 
@@ -12,20 +12,11 @@
 ## Diff stat
 
 ```
-reports/SONAR_REPORT.md        |    8 +-
- reports/llm-prompt.txt         |   54 +-
- reports/llm-response.txt       |   61 +-
- reports/security-report.json   |  136 +--
- reports/security-review.json   |  136 +--
- reports/security-review.md     |  118 +--
- reports/security-summary.txt   |   22 +-
- reports/sonar-report.json      |    6 +-
- reports/trivy-image.raw.json   | 1846 +++++--------------------------------
- reports/trivy-image.sarif      | 1988 ++++++++++------------------------------
- reports/trivy-image.sarif.json |  270 ------
- reports/trivy-report.json      |  288 ------
- reports/trivy-report.txt       |   50 +-
- 13 files changed, 999 insertions(+), 3984 deletions(-)
+reports/SONAR_REPORT.md      |   8 +-
+ reports/sonar-report.json    |   6 +-
+ reports/trivy-image.raw.json | 366 +++++++++++++++++++++----------------------
+ reports/trivy-image.sarif    |   6 +-
+ 4 files changed, 193 insertions(+), 193 deletions(-)
 ```
 
 ## Reviewer checklist

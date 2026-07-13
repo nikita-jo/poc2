@@ -3214,11 +3214,11 @@
       ],
       "columnKind": "utf16CodeUnits",
       "properties": {
-        "imageID": "sha256:671232bb50b9955a0af267974ea01665427cdbbf34852244f09709f7e417d56c",
-        "imageName": "vulnerable-spring-app:ci-9804d0f4b75ee17407f3471b2eca53deb82cdd61",
+        "imageID": "sha256:e76738d1c49c2954e80d27b8a552b491359d4cb4654a9e7210757c4f4d2b3002",
+        "imageName": "vulnerable-spring-app:ci-013dc3aec40842c8d07fae4e5b7be164fc78d49e",
         "repoDigests": [],
         "repoTags": [
-          "vulnerable-spring-app:ci-9804d0f4b75ee17407f3471b2eca53deb82cdd61"
+          "vulnerable-spring-app:ci-013dc3aec40842c8d07fae4e5b7be164fc78d49e"
         ]
       }
     }
