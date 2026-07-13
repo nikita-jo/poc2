@@ -1,0 +1,23 @@
+{
+  "patches": [
+    {
+      "file": "pom.xml",
+      "new_content": "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n    <dependencies>\n        <dependency>\n            <groupId>org.apache.tomcat.embed</groupId>\n            <artifactId>tomcat-embed-core</artifactId>\n            <version>11.0.22</version>\n        </dependency>\n        <dependency>\n            <groupId>org.springframework.security</groupId>\n            <artifactId>spring-security-web</artifactId>\n            <version>7.0.4</version>\n        </dependency>\n        <dependency>\n            <groupId>com.fasterxml.jackson.core</groupId>\n            <artifactId>jackson-databind</artifactId>\n            <version>2.18.8</version>\n        </dependency>\n    </dependencies>\n</project>\n// FIX_LLM_APPLIED: CVE-2026-41293, CVE-2026-43512, CVE-2026-43515, CVE-2025-66614, CVE-2025-55754, CVE-2026-22732, CVE-2026-54512, CVE-2026-54513",
+      "rule_id": "CVE-2026-41293, CVE-2026-43512, CVE-2026-43515, CVE-2025-66614, CVE-2025-55754, CVE-2026-22732, CVE-2026-54512, CVE-2026-54513",
+      "finding_id": "SR-001, SR-002, SR-003, SR-004, SR-005, SR-006, SR-007, SR-008",
+      "description": "Upgrade dependencies to fix security vulnerabilities"
+    }
+  ],
+  "skipped": [
+    {
+      "finding_id": "SR-009",
+      "rule_id": "CVE-2025-48989",
+      "reason": "Upgrade already applied in patch for SR-001"
+    },
+    {
+      "finding_id": "SR-010",
+      "rule_id": "CVE-2025-52520",
+      "reason": "Upgrade already applied in patch for SR-001"
+    }
+  ]
+}
