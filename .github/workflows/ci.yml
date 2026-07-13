@@ -744,6 +744,44 @@ jobs:
           touch reports/llm-prompt.txt
           touch reports/llm-response.txt
 
+      - name: Generate auto-remediation report
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NVIDIA_MODEL: ${{ env.NVIDIA_MODEL || 'meta/llama-3.1-70b-instruct' }}
+        run: |
+          set -euo pipefail
+          # Pull the AI fix branch out of the remediation report so the
+          # consolidated report can show "AI Fix Branch" alongside the
+          # trigger branch.
+          AI_FIX_BRANCH=$(python3 -c "import json,os; p='reports/remediation-report.json';
+            print(json.load(open(p)).get('branch','') if os.path.exists(p) else '')" 2>/dev/null || echo "")
+          BUILD_TS=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          python3 scripts/generate-auto-remediation-report.py \
+            --reports reports \
+            --repository       "${{ github.repository }}" \
+            --branch           "${{ github.event.pull_request.head.ref || github.ref_name }}" \
+            --ai-fix-branch    "${AI_FIX_BRANCH}" \
+            --commit-sha       "${{ github.sha }}" \
+            --pipeline-run-id  "${{ github.run_id }}" \
+            --workflow         "${{ github.workflow }}" \
+            --build-timestamp  "$BUILD_TS" \
+            --pr-number        "${PR_NUMBER}" \
+            --pre-sonar        reports/sonar-report.json \
+            --post-sonar       reports/sonar-report-after-fix.json \
+            --pre-trivy        reports/trivy-report.json \
+            --post-trivy       reports/trivy-report-after-fix.json \
+            --pre-coverage-summary  reports/coverage-summary.csv \
+            --post-coverage-summary reports/coverage-summary.csv \
+            --codeql-sarif         reports/codeql-results.sarif \
+            --security-review      reports/security-review.json \
+            --remediation-report   reports/remediation-report.json \
+            --deploy-gates         reports/deploy-gates.json \
+            --output-md   reports/AUTO_REMEDIATION_REPORT.md \
+            --output-json reports/auto-remediation-report.json
+        continue-on-error: true
+
       - name: Validate build after remediation
         if: always()
         run: |
@@ -766,6 +804,17 @@ jobs:
             reports/llm-prompt.txt
             reports/llm-response.txt
           if-no-files-found: error
+          retention-days: 90
+
+      - name: Upload auto-remediation report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: auto-remediation-report
+          path: |
+            reports/AUTO_REMEDIATION_REPORT.md
+            reports/auto-remediation-report.json
+          if-no-files-found: warn
           retention-days: 90
 
   # ---------------------------------------------------------------
