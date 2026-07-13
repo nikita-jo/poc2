@@ -299,20 +299,28 @@ jobs:
         continue-on-error: false
         env:
           SONAR_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}
-        uses: sonarsource/sonarqube-scan-action@v3
-        with:
-          projectBaseDir: .
-          # Static config (sources, tests, coverage path, exclusions, Java
-          # version, host URL) lives in sonar-project.properties at the repo
-          # root. The workflow only overrides the two secret-derived identity
-          # values via -D, using GitHub Actions expression syntax (${{ ... }})
-          # so the substitution happens at workflow parse time and the literal
-          # value reaches the scanner. Plain ${VAR} shell expansion is NOT
-          # performed on `args:` for `uses:` steps — it would pass through
-          # literally to the scanner and break the URL.
-          args: >
-            -Dsonar.projectKey=${{ env.SONAR_PROJECT_KEY }}
-            -Dsonar.organization=${{ env.SONAR_ORGANIZATION }}
+          SONAR_HOST_URL: ${{ env.SONAR_HOST_URL }}
+          SONAR_PROJECT_KEY: ${{ env.SONAR_PROJECT_KEY }}
+          SONAR_ORGANIZATION: ${{ env.SONAR_ORGANIZATION }}
+        # Use `mvn sonar:sonar` instead of `sonarsource/sonarqube-scan-action@v3`.
+        # The Maven Sonar plugin's property resolver DOES support ${env.X}
+        # placeholders in sonar-project.properties (it inherits the shell's
+        # process environment), so the file can reference $env.SONAR_* values
+        # that we expose via the step's `env:` block. The CLI Docker wrapper
+        # used by v3 of the action sandboxes the scanner and does not
+        # propagate the host's env vars as ${env.X}, which kept breaking
+        # the scanner's startup version-check with "Expected URL scheme
+        # 'http' or 'https' but no scheme was found for /api/s...".
+        #
+        # `-Dsonar.token=...` passes the SONARQUBE_TOKEN from the env block;
+        # it's never written to disk.
+        run: |
+          set -euo pipefail
+          mvn -B -ntp sonar:sonar \
+            -Dsonar.token="${SONAR_TOKEN}" \
+            -Dsonar.host.url="${SONAR_HOST_URL}" \
+            -Dsonar.projectKey="${SONAR_PROJECT_KEY}" \
+            -Dsonar.organization="${SONAR_ORGANIZATION}"
 
       - name: SonarCloud scan (skipped — missing secrets)
         if: env.SONAR_TOKEN == '' || env.SONAR_PROJECT_KEY == '' || env.SONAR_ORGANIZATION == ''
@@ -883,17 +891,19 @@ jobs:
         if: env.SONAR_TOKEN != '' && env.SONAR_PROJECT_KEY != '' && env.SONAR_ORGANIZATION != ''
         env:
           SONAR_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}
-        uses: sonarsource/sonarqube-scan-action@v3
-        with:
-          projectBaseDir: .
-          args: >
-            -Dsonar.projectKey=${{ env.SONAR_PROJECT_KEY }}
-            -Dsonar.organization=${{ env.SONAR_ORGANIZATION }}
-            -Dsonar.sources=src/main/java
-            -Dsonar.tests=src/test/java
-            -Dsonar.java.binaries=target/classes
-            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
-            -Dsonar.junit.reportPaths=target/surefire-reports
+          SONAR_HOST_URL: ${{ env.SONAR_HOST_URL }}
+          SONAR_PROJECT_KEY: ${{ env.SONAR_PROJECT_KEY }}
+          SONAR_ORGANIZATION: ${{ env.SONAR_ORGANIZATION }}
+        # Same rationale as sonarcloud-scan: use `mvn sonar:sonar` so the
+        # Maven Sonar plugin's property resolver picks up ${env.X} from
+        # the step's env block (the CLI action v3 wrapper does not).
+        run: |
+          set -euo pipefail
+          mvn -B -ntp sonar:sonar \
+            -Dsonar.token="${SONAR_TOKEN}" \
+            -Dsonar.host.url="${SONAR_HOST_URL}" \
+            -Dsonar.projectKey="${SONAR_PROJECT_KEY}" \
+            -Dsonar.organization="${SONAR_ORGANIZATION}"
 
       - name: SonarCloud re-scan (skipped)
         if: env.SONAR_TOKEN == '' || env.SONAR_PROJECT_KEY == '' || env.SONAR_ORGANIZATION == ''
