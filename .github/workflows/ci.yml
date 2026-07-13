@@ -303,13 +303,16 @@ jobs:
         with:
           projectBaseDir: .
           # Static config (sources, tests, coverage path, exclusions, Java
-          # version) lives in sonar-project.properties at the repo root.
-          # The workflow only passes the three secret-derived values so the
-          # secret is never echoed into a properties file checked into git.
+          # version, host URL) lives in sonar-project.properties at the repo
+          # root. The workflow only overrides the two secret-derived identity
+          # values via -D, using GitHub Actions expression syntax (${{ ... }})
+          # so the substitution happens at workflow parse time and the literal
+          # value reaches the scanner. Plain ${VAR} shell expansion is NOT
+          # performed on `args:` for `uses:` steps — it would pass through
+          # literally to the scanner and break the URL.
           args: >
-            -Dsonar.projectKey=${SONAR_PROJECT_KEY}
-            -Dsonar.organization=${SONAR_ORGANIZATION}
-            -Dsonar.host.url=${SONAR_HOST_URL}
+            -Dsonar.projectKey=${{ env.SONAR_PROJECT_KEY }}
+            -Dsonar.organization=${{ env.SONAR_ORGANIZATION }}
 
       - name: SonarCloud scan (skipped — missing secrets)
         if: env.SONAR_TOKEN == '' || env.SONAR_PROJECT_KEY == '' || env.SONAR_ORGANIZATION == ''
@@ -884,9 +887,8 @@ jobs:
         with:
           projectBaseDir: .
           args: >
-            -Dsonar.projectKey=${SONAR_PROJECT_KEY}
-            -Dsonar.organization=${SONAR_ORGANIZATION}
-            -Dsonar.host.url=${SONAR_HOST_URL}
+            -Dsonar.projectKey=${{ env.SONAR_PROJECT_KEY }}
+            -Dsonar.organization=${{ env.SONAR_ORGANIZATION }}
             -Dsonar.sources=src/main/java
             -Dsonar.tests=src/test/java
             -Dsonar.java.binaries=target/classes
