@@ -170,6 +170,11 @@ jobs:
           java-version: '21'
           cache: maven
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
       - name: Cache Maven repository
         uses: actions/cache@v4
         with:
@@ -178,23 +183,30 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      - name: Build with coverage profile
-        # The `check` goal (added in pom.xml under the `coverage` profile)
-        # fails this step if line coverage < $MIN_COVERAGE_RATIO (default 0.80).
-        # We tolerate that failure here so the JaCoCo `report` goal still
-        # produces jacoco.xml for the downstream summary + artifact upload.
-        # The threshold itself is enforced by the `check-deploy-gates` job
-        # using `MIN_COVERAGE`, which can be tuned independently of the
-        # JaCoCo rule and gates the deploy step.
+      - name: Run unit tests (instrumented)
+        # Plain `test` so the JaCoCo `prepare-agent` (bound to the test phase
+        # by the coverage profile) instruments the JVM and produces the
+        # jacoco.exec file. The `report` goal below turns that into XML/CSV/HTML.
+        run: mvn -B -ntp -Pcoverage test
+
+      - name: Generate JaCoCo coverage report
+        # The `report` goal writes target/site/jacoco/jacoco.xml etc. It does
+        # NOT enforce the coverage threshold; that's done in the next step.
+        run: mvn -B -ntp -Pcoverage report
+
+      - name: Enforce coverage threshold (best-effort)
+        # JaCoCo's `check` goal fails the build when line coverage < ratio.
+        # We tolerate that failure here so the report files remain on disk
+        # for upload; the real gate is `check-deploy-gates` (uses MIN_COVERAGE).
         continue-on-error: true
-        run: mvn -B -ntp -Pcoverage verify -Djacoco.min.coverage=${{ env.MIN_COVERAGE_RATIO }}
+        run: mvn -B -ntp -Pcoverage check -Djacoco.min.coverage=${{ env.MIN_COVERAGE_RATIO }}
 
       - name: Generate coverage summary (CSV + JSON + Markdown)
         if: always()
         env:
           MIN_COVERAGE: ${{ env.MIN_COVERAGE }}
         run: |
-          set -e
+          set -euo pipefail
           # Always emit all three formats so the artifact upload has files even
           # when coverage is below threshold or no jacoco.xml was produced
           # (e.g. no tests exist yet). The script writes a "no data" payload in
@@ -224,7 +236,7 @@ jobs:
             reports/coverage-summary.json
             reports/coverage-summary.md
             target/surefire-reports/
-          if-no-files-found: warn
+          if-no-files-found: error
           retention-days: 30
 
   # ---------------------------------------------------------------
@@ -250,6 +262,11 @@ jobs:
           distribution: temurin
           java-version: '21'
           cache: maven
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
 
       - name: Cache Maven repository
         uses: actions/cache@v4
@@ -301,6 +318,7 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
+          set -euo pipefail
           mkdir -p "$REPORT_DIR"
           python3 scripts/generate-sonar-report.py \
             --output-dir "$REPORT_DIR" \
@@ -333,7 +351,7 @@ jobs:
             reports/sonar-report.txt
             reports/SONAR_REPORT.md
             reports/sonar-quality-gate.txt
-          if-no-files-found: warn
+          if-no-files-found: error
           retention-days: 90
 
   # ---------------------------------------------------------------
@@ -393,7 +411,7 @@ jobs:
         with:
           name: codeql-results
           path: reports/codeql-results.sarif
-          if-no-files-found: warn
+          if-no-files-found: error
           retention-days: 90
 
   # ---------------------------------------------------------------
@@ -460,7 +478,7 @@ jobs:
             reports/trivy-image.sarif.json
             reports/trivy-image.raw.json
             reports/trivy-report.raw.json
-          if-no-files-found: warn
+          if-no-files-found: error
           retention-days: 90
 
   # ---------------------------------------------------------------
@@ -502,7 +520,7 @@ jobs:
         continue-on-error: true
       - name: Stage jacoco + junit for the AI agent
         run: |
-          set -e
+          set -euo pipefail
           mkdir -p reports
           if [ -f target/site/jacoco/jacoco.xml ]; then
             cp target/site/jacoco/jacoco.xml reports/jacoco.xml
@@ -533,7 +551,7 @@ jobs:
           # the deterministic fallback both honour the same gate.
           MIN_COVERAGE: ${{ env.MIN_COVERAGE }}
         run: |
-          set -e
+          set -euo pipefail
           python3 scripts/ai-security-review.py --reports reports
 
       # Publish the agent's output under the brief's filename
@@ -543,6 +561,7 @@ jobs:
       - name: Alias security-report.json
         if: always()
         run: |
+          set -euo pipefail
           if [ -f reports/security-review.json ]; then
             cp reports/security-review.json reports/security-report.json
           fi
@@ -557,7 +576,7 @@ jobs:
             reports/security-report.json
             reports/security-review.md
             reports/security-summary.txt
-          if-no-files-found: warn
+          if-no-files-found: error
           retention-days: 90
 
   # ---------------------------------------------------------------
@@ -629,7 +648,7 @@ jobs:
           REMEDIATION_TARGET: ${{ github.event.pull_request.base.ref || 'main' }}
           SKIP_PR: ${{ github.event_name == 'pull_request' && 'true' || '' }}
         run: |
-          set -e
+          set -euo pipefail
           python3 scripts/ai-remediation.py --repo-root . --reports reports
           # Read back the remediation branch + PR URL for downstream jobs
           if [ -f reports/remediation-report.json ]; then
@@ -648,7 +667,7 @@ jobs:
       - name: Stage remediation outputs
         if: always()
         run: |
-          set -e
+          set -euo pipefail
           # Make sure all expected files exist (the remediation step may have
           # not produced any changes; that's fine).
           touch reports/remediation-summary.md
@@ -662,7 +681,7 @@ jobs:
       - name: Validate build after remediation
         if: always()
         run: |
-          set -e
+          set -euo pipefail
           if [ ! -f target/.rebuild-ok ] && [ ! -d target/classes ]; then
             echo "::warning::No build output found; the next job will rebuild."
           fi
@@ -680,7 +699,7 @@ jobs:
             reports/git-diff-stat.txt
             reports/llm-prompt.txt
             reports/llm-response.txt
-          if-no-files-found: warn
+          if-no-files-found: error
           retention-days: 90
 
   # ---------------------------------------------------------------
@@ -718,6 +737,11 @@ jobs:
           java-version: '21'
           cache: maven
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
       - name: Cache Maven repository
         uses: actions/cache@v4
         with:
@@ -728,14 +752,16 @@ jobs:
 
       - name: Build (compile)
         run: mvn -B -ntp -DskipTests -Dmaven.javadoc.skip=true package
-      - name: Run unit tests
-        run: mvn -B -ntp test
-      - name: Aggregate coverage
+      - name: Run unit tests (instrumented)
+        run: mvn -B -ntp -Pcoverage test
+      - name: Generate JaCoCo coverage report
+        run: mvn -B -ntp -Pcoverage report
+      - name: Enforce coverage threshold (best-effort)
         # Same rationale as the `coverage` job: tolerate JaCoCo's `check`
         # failure so the `report` goal still emits jacoco.xml. The threshold
         # is enforced by `check-deploy-gates`.
         continue-on-error: true
-        run: mvn -B -ntp -Pcoverage verify -Djacoco.min.coverage=${{ env.MIN_COVERAGE_RATIO }}
+        run: mvn -B -ntp -Pcoverage check -Djacoco.min.coverage=${{ env.MIN_COVERAGE_RATIO }}
       - name: Mark rebuild success
         run: mkdir -p target && touch target/.rebuild-ok
 
@@ -744,7 +770,7 @@ jobs:
         env:
           MIN_COVERAGE: ${{ env.MIN_COVERAGE }}
         run: |
-          set -e
+          set -euo pipefail
           mkdir -p reports
           python3 scripts/generate-coverage-report.py \
             --xml target/site/jacoco/jacoco.xml \
@@ -764,7 +790,7 @@ jobs:
           name: rebuild-output
           path: |
             target/
-          if-no-files-found: warn
+          if-no-files-found: error
           retention-days: 30
 
   # ---------------------------------------------------------------
@@ -791,6 +817,11 @@ jobs:
           distribution: temurin
           java-version: '21'
           cache: maven
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
 
       - name: Cache Maven repository
         uses: actions/cache@v4
@@ -838,6 +869,7 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
+          set -euo pipefail
           mkdir -p reports
           python3 scripts/generate-sonar-report.py \
             --output-dir reports \
@@ -863,6 +895,7 @@ jobs:
       - name: Generate Sonar diff report
         if: always() && hashFiles('reports/sonar-report.json') != '' && hashFiles('reports/sonar-report-after-fix.json') != ''
         run: |
+          set -euo pipefail
           python3 scripts/generate-sonar-diff.py \
             --before reports/sonar-report.json \
             --after  reports/sonar-report-after-fix.json \
@@ -877,7 +910,7 @@ jobs:
             reports/sonar-report-after-fix.json
             reports/sonar-report-after-fix.txt
             reports/sonar-diff-report.md
-          if-no-files-found: warn
+          if-no-files-found: error
           retention-days: 90
 
   # ---------------------------------------------------------------
@@ -900,6 +933,11 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
       - name: Build container image (post-remediation)
         id: build_image
         env:
@@ -919,6 +957,7 @@ jobs:
       - name: Rename Trivy re-scan outputs
         if: always()
         run: |
+          set -euo pipefail
           if [ -f reports-after-fix/trivy-report.json ]; then
             mv reports-after-fix/trivy-report.json reports/trivy-report-after-fix.json
           fi
@@ -943,6 +982,7 @@ jobs:
       - name: Generate Trivy diff report
         if: always() && hashFiles('reports/trivy-report.json') != '' && hashFiles('reports/trivy-report-after-fix.json') != ''
         run: |
+          set -euo pipefail
           python3 scripts/generate-trivy-diff.py \
             --before reports/trivy-report.json \
             --after  reports/trivy-report-after-fix.json \
@@ -973,7 +1013,7 @@ jobs:
             reports/trivy-fs-after-fix.sarif
             reports/trivy-image-after-fix.sarif
             reports/trivy-diff.md
-          if-no-files-found: warn
+          if-no-files-found: error
           retention-days: 90
 
   # ---------------------------------------------------------------
@@ -1043,7 +1083,7 @@ jobs:
       - name: Normalize coverage report path
         if: always()
         run: |
-          set -e
+          set -euo pipefail
           if [ -f target/site/jacoco/jacoco.xml ]; then
             cp target/site/jacoco/jacoco.xml reports/jacoco.xml
           fi
@@ -1066,7 +1106,7 @@ jobs:
           ALLOW_CRITICAL: ${{ env.ALLOW_CRITICAL }}
           ALLOW_HIGH: ${{ env.ALLOW_HIGH }}
         run: |
-          set -e
+          set -euo pipefail
           python3 scripts/check-deploy-gates.py \
             --coverage-summary reports/coverage-summary.csv \
             --sonar-report        reports/sonar-report-after-fix.json \
@@ -1080,7 +1120,7 @@ jobs:
       - name: Echo gate result
         if: always()
         run: |
-          set -e
+          set -euo pipefail
           cat reports/deploy-gates.json
           DEPLOY=$(python3 -c "import json;print(json.load(open('reports/deploy-gates.json'))['deploy_recommended'])")
           echo "deploy_recommended=${DEPLOY}" >> "$GITHUB_OUTPUT"
@@ -1094,7 +1134,7 @@ jobs:
         with:
           name: deploy-gates
           path: reports/deploy-gates.json
-          if-no-files-found: warn
+          if-no-files-found: error
           retention-days: 90
 
   # ---------------------------------------------------------------
