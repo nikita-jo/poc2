@@ -267,8 +267,8 @@ jobs:
         with:
           name: coverage-build-output
           path: target/
-          if-no-files-found: warn
 
+        continue-on-error: true
       - name: SonarCloud scan
         if: env.SONAR_TOKEN != '' && env.SONAR_PROJECT_KEY != '' && env.SONAR_ORGANIZATION != ''
         id: sonar
@@ -410,20 +410,20 @@ jobs:
         with:
           name: sonar-report
           path: reports/
-          if-no-files-found: warn
+        continue-on-error: true
       - name: Download Trivy report
         uses: actions/download-artifact@v4
         with:
           name: trivy-report
           path: reports/
-          if-no-files-found: warn
+        continue-on-error: true
       - name: Download coverage artifacts
         uses: actions/download-artifact@v4
         with:
           name: coverage-build-output
           path: target/
-          if-no-files-found: warn
 
+        continue-on-error: true
       - name: Stage jacoco + junit for the AI agent
         run: |
           set -e
@@ -503,22 +503,22 @@ jobs:
         with:
           name: security-review
           path: reports/
-          if-no-files-found: warn
 
+        continue-on-error: true
       - name: Download Sonar report
         uses: actions/download-artifact@v4
         with:
           name: sonar-report
           path: reports/
-          if-no-files-found: warn
 
+        continue-on-error: true
       - name: Download Trivy report
         uses: actions/download-artifact@v4
         with:
           name: trivy-report
           path: reports/
-          if-no-files-found: warn
 
+        continue-on-error: true
       - name: Install GitHub CLI
         run: |
           if ! command -v gh >/dev/null 2>&1; then
@@ -720,8 +720,8 @@ jobs:
         with:
           name: rebuild-output
           path: target/
-          if-no-files-found: warn
 
+        continue-on-error: true
       - name: SonarCloud re-scan
         if: env.SONAR_TOKEN != '' && env.SONAR_PROJECT_KEY != '' && env.SONAR_ORGANIZATION != ''
         env:
@@ -770,8 +770,8 @@ jobs:
         with:
           name: sonar-report
           path: reports/
-          if-no-files-found: warn
 
+        continue-on-error: true
       - name: Generate Sonar diff report
         if: always() && hashFiles('reports/sonar-report.json') != '' && hashFiles('reports/sonar-report-after-fix.json') != ''
         run: |
@@ -850,8 +850,8 @@ jobs:
         with:
           name: trivy-report
           path: reports/
-          if-no-files-found: warn
 
+        continue-on-error: true
       - name: Generate Trivy diff report
         if: always() && hashFiles('reports/trivy-report.json') != '' && hashFiles('reports/trivy-report-after-fix.json') != ''
         run: |
@@ -925,26 +925,26 @@ jobs:
         with:
           name: rebuild-output
           path: target/
-          if-no-files-found: warn
+        continue-on-error: true
       - name: Download post-fix Sonar
         uses: actions/download-artifact@v4
         with:
           name: sonar-report-after-fix
           path: reports/
-          if-no-files-found: warn
+        continue-on-error: true
       - name: Download post-fix Trivy
         uses: actions/download-artifact@v4
         with:
           name: trivy-report-after-fix
           path: reports/
-          if-no-files-found: warn
+        continue-on-error: true
       - name: Download remediation report
         uses: actions/download-artifact@v4
         with:
           name: remediation
           path: reports/
-          if-no-files-found: warn
 
+        continue-on-error: true
       - name: Normalize coverage report path
         if: always()
         run: |
@@ -1034,14 +1034,14 @@ jobs:
         with:
           name: rebuild-output
           path: target/
-          if-no-files-found: warn
+        continue-on-error: true
       - name: Download gate decision
         uses: actions/download-artifact@v4
         with:
           name: deploy-gates
           path: reports/
-          if-no-files-found: warn
 
+        continue-on-error: true
       - name: Build deployable JAR
         run: mvn -B -ntp -DskipTests -Dmaven.javadoc.skip=true package
 
