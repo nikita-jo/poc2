@@ -252,7 +252,7 @@ jobs:
     # in workflow-level if: expressions). The token is still scoped to this
     # job and never echoed to the workflow env or to other jobs.
     env:
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      SONAR_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}
       SONAR_PROJECT_KEY: ${{ vars.SONAR_PROJECT_KEY || secrets.SONAR_PROJECT_KEY }}
       SONAR_ORGANIZATION: ${{ vars.SONAR_ORGANIZATION || secrets.SONAR_ORGANIZATION }}
     steps:
@@ -296,7 +296,7 @@ jobs:
         id: sonar
         continue-on-error: false
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}
         uses: sonarsource/sonarqube-scan-action@v3
         with:
           projectBaseDir: .
@@ -315,7 +315,7 @@ jobs:
           set -euo pipefail
           mkdir -p "$REPORT_DIR"
           echo "SKIPPED" > "$REPORT_DIR/sonar-quality-gate.txt"
-          echo "::error::SonarCloud scan skipped: SONAR_TOKEN, SONAR_PROJECT_KEY or SONAR_ORGANIZATION not set. Configure them in Settings → Secrets and variables → Actions."
+          echo "::error::SonarCloud scan skipped: SONARQUBE_TOKEN, SONAR_PROJECT_KEY or SONAR_ORGANIZATION not set. Configure them in Settings → Secrets and variables → Actions."
           exit 1
 
       # Generate the report BEFORE the QG wait so the artifacts still upload
@@ -323,7 +323,7 @@ jobs:
       - name: Generate Sonar report (JSON + Markdown)
         if: always()
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}
         run: |
           set -euo pipefail
           mkdir -p "$REPORT_DIR"
@@ -346,7 +346,7 @@ jobs:
           failOnQualityGateError: true
           inMillisecondsToWait: 300000
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}
 
       - name: Upload SonarCloud reports
         if: always()
@@ -832,9 +832,9 @@ jobs:
       pull-requests: read
       security-events: write
     # See sonarcloud-scan for why this job-level env exists (so if:
-    # expressions can read SONAR_TOKEN).
+    # expressions can read SONARQUBE_TOKEN).
     env:
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      SONAR_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}
       SONAR_PROJECT_KEY: ${{ vars.SONAR_PROJECT_KEY || secrets.SONAR_PROJECT_KEY }}
       SONAR_ORGANIZATION: ${{ vars.SONAR_ORGANIZATION || secrets.SONAR_ORGANIZATION }}
     steps:
@@ -877,7 +877,7 @@ jobs:
       - name: SonarCloud re-scan
         if: env.SONAR_TOKEN != '' && env.SONAR_PROJECT_KEY != '' && env.SONAR_ORGANIZATION != ''
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}
         uses: sonarsource/sonarqube-scan-action@v3
         with:
           projectBaseDir: .
@@ -902,7 +902,7 @@ jobs:
       - name: Generate post-fix Sonar report
         if: always()
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}
         run: |
           set -euo pipefail
           mkdir -p reports
@@ -910,7 +910,7 @@ jobs:
             --output-dir reports \
             --host "${SONAR_HOST_URL}" \
             --project-key "${SONAR_PROJECT_KEY}" \
-            --token "${SONAR_TOKEN}" \
+            --token "${SONARQUBE_TOKEN}" \
             --page-size 500
           # Rename for clarity
           if [ -f reports/sonar-report.json ]; then
@@ -1221,7 +1221,7 @@ jobs:
         env:
           # Add the transport-specific secrets you need here, e.g.:
           # AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, KUBE_CONFIG, AZURE_CREDENTIALS, etc.
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}
           DEPLOY_ENV: ${{ github.event.inputs.environment || vars.DEPLOY_ENV || 'dev' }}
         run: |
           set -e
