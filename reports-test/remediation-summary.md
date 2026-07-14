@@ -2,7 +2,7 @@
 
 - **Status:** OK
 - **Safe fixes applied:** 2 (deterministic: 2, LLM: 0)
-- **Files changed:** 7
+- **Files changed:** 5
 
 ## Fixed (deterministic)
 
@@ -12,14 +12,12 @@
 ## Diff stat
 
 ```
-Dockerfile                                         |   1 +
- pom.xml                                            |   2 +-
- reports-test/ai-patch.diff                         | 821 ---------------------
- reports-test/changed-files.txt                     |   7 -
- reports-test/git-diff-stat.txt                     |   8 -
- reports-test/remediation-summary.md                |  31 -
- scripts/__pycache__/ai-remediation.cpython-312.pyc | Bin 74790 -> 75154 bytes
- 7 files changed, 2 insertions(+), 868 deletions(-)
+reports-test/ai-patch.diff          | 927 ------------------------------------
+ reports-test/changed-files.txt      |   7 -
+ reports-test/git-diff-stat.txt      |   8 -
+ reports-test/remediation-summary.md |  31 --
+ scripts/ai-remediation.py           |  71 ++-
+ 5 files changed, 66 insertions(+), 978 deletions(-)
 ```
 
 ## Reviewer checklist

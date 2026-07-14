@@ -1706,7 +1706,7 @@ def main() -> int:
         "pr_url": pr_url,
         "branch": args.branch,
         "target": args.target,
-        "skipped_findings": _collect_skipped(review, all_fixes, extra_skipped=llm_skipped),
+        "skipped_findings": _collect_skipped(review, all_fixes, extra_skipped=llm_skipped, trivy_findings=trivy_findings),
     }
     (args.reports / "remediation-report.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
     print(f"Remediation report written to {args.reports}/remediation-report.json")
@@ -1763,17 +1763,78 @@ def _render_summary(review: dict, fixes: list[dict], diff_stat: str, file_count:
     return "\n".join(lines) + "\n"
 
 
-def _collect_skipped(review: dict, applied: list[dict], extra_skipped: list[dict] | None = None) -> list[dict]:
+def _collect_skipped(review: dict, applied: list[dict], extra_skipped: list[dict] | None = None,
+                     trivy_findings: list[dict] | None = None) -> list[dict]:
     """Record any review findings whose rule wasn't applied — those are
     the ones the deterministic engine refused to touch — plus any
-    extra skip reasons (e.g. from the LLM patch pass)."""
+    extra skip reasons (e.g. from the LLM patch pass).
+
+    `trivy_findings` (optional) is used to recognise that a parent-bump
+    or Dockerfile patch transitively fixes multiple CVEs: the
+    security-review's `rule_id` is the CVE id, but the fix's `rule`
+    is `outdated-dependency` or `outdated-base-image`. Without this
+    mapping, every CVE that the parent bump covers would land in
+    `skipped_findings` with a misleading "no safe fix" reason.
+    """
+    applied_files = {f.get("file") for f in applied}
     applied_rules = {f.get("rule") for f in applied}
+    # Build a set of "addresses" each fix covers: a parent-bump on
+    # pom.xml addresses every Trivy finding whose `pkgName` is a
+    # Spring Boot BOM-managed artifact; a Dockerfile patch addresses
+    # every image-scanner finding.
+    addresses: set[str] = set()
+    if "pom.xml" in applied_files:
+        sb_managed = {
+            "org.springframework.boot:spring-boot",
+            "org.springframework.boot:spring-boot-starter-web",
+            "org.springframework.boot:spring-boot-starter-data-jpa",
+            "org.springframework.boot:spring-boot-starter-security",
+            "org.springframework.boot:spring-boot-starter-tomcat",
+            "org.springframework.boot:spring-boot-starter-logging",
+            "com.fasterxml.jackson.core:jackson-databind",
+            "com.fasterxml.jackson.core:jackson-core",
+            "com.fasterxml.jackson.core:jackson-annotations",
+            "org.yaml:snakeyaml",
+            "ch.qos.logback:logback-core",
+            "ch.qos.logback:logback-classic",
+            "org.apache.tomcat.embed:tomcat-embed-core",
+            "org.apache.tomcat.embed:tomcat-embed-el",
+            "org.apache.tomcat.embed:tomcat-embed-websocket",
+            "org.hibernate.orm:hibernate-core",
+            "org.springframework.security:spring-security-core",
+            "org.springframework.security:spring-security-web",
+            "org.springframework:spring-core",
+            "org.springframework:spring-webmvc",
+        }
+        for tf in (trivy_findings or []):
+            if tf.get("pkgName") in sb_managed:
+                rid = tf.get("ruleId") or ""
+                cve = tf.get("cve") or ""
+                if rid:
+                    addresses.add(rid)
+                if cve:
+                    addresses.add(cve)
+    if "Dockerfile" in applied_files:
+        for tf in (trivy_findings or []):
+            if tf.get("scanner") == "image" or "library/" in (tf.get("file") or ""):
+                rid = tf.get("ruleId") or ""
+                cve = tf.get("cve") or ""
+                if rid:
+                    addresses.add(rid)
+                if cve:
+                    addresses.add(cve)
+
     skipped: list[dict] = []
     for finding in (review.get("findings") or []):
-        if finding.get("rule_id") and finding.get("rule_id") not in applied_rules:
+        rid = finding.get("rule_id") or ""
+        if rid and rid in applied_rules:
+            continue  # directly applied
+        if rid and rid in addresses:
+            continue  # transitively fixed by a same-major bump / Dockerfile patch
+        if rid:
             skipped.append({
                 "id": finding.get("id"),
-                "rule_id": finding.get("rule_id"),
+                "rule_id": rid,
                 "severity": finding.get("severity"),
                 "title": finding.get("title"),
                 "reason": "Deterministic engine did not have a safe auto-fix; requires human review.",
