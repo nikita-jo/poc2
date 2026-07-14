@@ -113,7 +113,7 @@ without conflict.
 
 ## 3. Web API usage
 
-`scripts/generate-sonar-report.py` calls six SonarCloud Web API endpoints
+`scripts/generate-sonar-report.py` calls five SonarCloud Web API endpoints
 after a successful scan. All calls are GETs, all use Bearer-token auth, and
 all are optional (the script degrades to a stub report when the token or
 project key is missing).
@@ -125,7 +125,13 @@ project key is missing).
 | `/api/qualitygates/project_status?projectKey=KEY` | Current Quality Gate status | `fetch_quality_gate` |
 | `/api/measures/component?component=KEY&metricKeys=...` | All numeric and rating metrics in one call | `fetch_measures` |
 | `/api/issues/search?projectKeys=KEY&types=...&ps=...&p=...` | Paginated issues (up to 10 × 500) | `fetch_issues` |
-| `/api/issues/search?projectKeys=KEY&facets=severities&ps=1` | Total + per-severity issue counts | `fetch_overall_counts` |
+
+The per-severity counts in `overallIssueCounts` are derived **in-process**
+from the issues list itself (`_counts_from_findings`), not from a separate
+facets endpoint. This guarantees `overallIssueCounts.total` equals
+`len(raw.issues)` and that the severity breakdown sums to the total — the
+two cannot drift apart as they did when the issues and counts endpoints
+were called with different `types` filters.
 
 The script emits `::warning::` log lines for any failed call and continues
 with the data it has. The output is always a complete JSON file with the

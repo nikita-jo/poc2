@@ -24,7 +24,13 @@ Endpoints queried:
   GET /api/qualitygates/project_status?projectKey={KEY}   (quality gate status)
   GET /api/measures/component?component={KEY}&metricKeys=...  (metrics)
   GET /api/issues/search?projectKeys={KEY}&types=...&ps=...&p=...  (issues)
-  GET /api/issues/search?projectKeys={KEY}&facets=severities&ps=1  (counts)
+
+Note: the per-severity issue counts (`overallIssueCounts`) are computed
+in-process from the issues list itself (`_counts_from_findings`), not
+from a separate API call. This guarantees `overallIssueCounts.total`
+equals `len(raw.issues)` and that the severity breakdown sums to the
+total — the two cannot drift apart as they did when both endpoints
+were queried with different filters.
 
 Required env:
   SONAR_TOKEN         - SonarCloud account token
@@ -206,13 +212,21 @@ def fetch_measures(host: str, project_key: str, token: str) -> dict:
     return out
 
 
+# Shared filter string for the /api/issues/search endpoint. Used by
+# `fetch_issues` so the per-severity counts (derived in-process from the
+# returned issues list) match exactly what the issues page returns. Adding
+# this filter to overall counts previously fixed a bug where the separate
+# facets endpoint silently included issues the issues page had dropped.
+ISSUE_TYPE_FILTER = "VULNERABILITY,CODE_SMELL,BUG,SECURITY_HOTSPOT"
+
+
 def fetch_issues(host: str, project_key: str, token: str, page_size: int) -> list:
     issues: list = []
     for page in range(1, 10):  # 10 pages * 500 = 5000 issues cap
         url = (
             f"{host}/api/issues/search"
             f"?projectKeys={urllib.parse.quote(project_key, safe='')}"
-            f"&types=VULNERABILITY,CODE_SMELL,BUG,SECURITY_HOTSPOT"
+            f"&types={ISSUE_TYPE_FILTER}"
             f"&ps={page_size}&p={page}"
         )
         data = _http_get_json(url, token)
@@ -227,28 +241,6 @@ def fetch_issues(host: str, project_key: str, token: str, page_size: int) -> lis
     return issues
 
 
-def fetch_overall_counts(host: str, project_key: str, token: str) -> dict:
-    """Return {total, blocker, critical, major, minor, info} via the
-    /api/issues/search facets=severities endpoint."""
-    data = _http_get_json(
-        f"{host}/api/issues/search"
-        f"?projectKeys={urllib.parse.quote(project_key, safe='')}"
-        f"&facets=severities&ps=1",
-        token,
-    )
-    counts = {"total": 0, "BLOCKER": 0, "CRITICAL": 0, "MAJOR": 0, "MINOR": 0, "INFO": 0}
-    if not data:
-        return _rename_counts(counts)
-    counts["total"] = int(data.get("total", 0) or 0)
-    for facet in (data.get("facets") or []):
-        if facet.get("property") == "severities":
-            for v in facet.get("values", []) or []:
-                sev = (v.get("val") or "").upper()
-                if sev in counts:
-                    counts[sev] = int(v.get("count", 0) or 0)
-    return _rename_counts(counts)
-
-
 def _rename_counts(c: dict) -> dict:
     """Map the API's uppercase severity keys to camelCase for the JSON output."""
     return {
@@ -259,6 +251,23 @@ def _rename_counts(c: dict) -> dict:
         "minor": c.get("MINOR", 0),
         "info": c.get("INFO", 0),
     }
+
+
+def _counts_from_findings(findings: list) -> dict:
+    """Compute the overall severity counts directly from the findings list.
+
+    Used in place of `fetch_overall_counts` to guarantee that the
+    `overallIssueCounts.total` matches `len(raw.issues)` and that the
+    severity breakdown sums to the total. The two numbers can never
+    disagree because they're derived from the same in-memory list.
+    """
+    counts = {"total": 0, "BLOCKER": 0, "CRITICAL": 0, "MAJOR": 0, "MINOR": 0, "INFO": 0}
+    for f in findings:
+        sev = (f.get("severity") or "INFO").upper()
+        if sev in counts:
+            counts[sev] += 1
+        counts["total"] += 1
+    return _rename_counts(counts)
 
 
 # ---------------------------------------------------------------------------
@@ -624,12 +633,16 @@ def main() -> int:
     qg_status = fetch_quality_gate(args.host, args.project_key, args.token)
     metrics = fetch_measures(args.host, args.project_key, args.token)
     issues = fetch_issues(args.host, args.project_key, args.token, args.page_size)
-    overall_counts = fetch_overall_counts(args.host, args.project_key, args.token)
-
+    # Derive overall counts from the issues list itself. This makes the
+    # counts and the issues list guaranteed-consistent (single source of
+    # truth). Previously we called /api/issues/search?facets=severities
+    # separately, which could disagree with the issues list when the API
+    # silently dropped rows (e.g. on branches with a different rule set).
     findings = [_issue_to_finding(it) for it in issues]
     findings.sort(
         key=lambda f: (-SEVERITY_RANK.get(f["severity"], 0), f.get("file") or "", f.get("line") or 0)
     )
+    overall_counts = _counts_from_findings(findings)
 
     flat = reshape_report(
         project_key=args.project_key,
