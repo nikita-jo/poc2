@@ -3,13 +3,13 @@
 **Project:** vulnerable-spring-app  
 **Project Key:** `nikita-jo_poc2`  
 **Branch:** `main`  
-**Commit SHA:** `0ded7fb9eae4fbfad558c75cbdbf724888aa6152`  
-**Analysis Date:** 2026-07-14T06:50:34+0000  
-**Quality Gate Status:** ✅ **OK**  
+**Commit SHA:** `e4efea838ff01a63715e647737c2fa44ba5eb914`  
+**Analysis Date:** 2026-07-14T09:45:37+0000  
+**Quality Gate Status:** ❌ **ERROR**  
 
 ## Quality Gate Status
 
-The SonarCloud quality gate is **OK**.
+The SonarCloud quality gate is **ERROR**.
 
 ## Coverage
 
@@ -25,7 +25,7 @@ The SonarCloud quality gate is **OK**.
 | Code Smells | 0 | 0 |
 | Security Hotspots | 0 | 0 |
 
-**Overall issue counts:** total `24`, blocker `5`, critical `8`, major `7`, minor `3`, info `1`.
+**Overall issue counts:** total `0`, blocker `0`, critical `0`, major `0`, minor `0`, info `0`.
 
 ## Ratings
 
@@ -41,11 +41,11 @@ The SonarCloud quality gate is **OK**.
 
 ## Summary
 
-This SonarCloud Cloud analysis scanned **vulnerable-spring-app** on branch `main` at commit `0ded7fb9eae4fbfad558c75cbdbf724888aa6152`. The quality gate is **OK**, line coverage is **N/A**, with **0** vulnerabilities, **0** bugs, **0** code smells, and **0** security hotspots.
+This SonarCloud Cloud analysis scanned **vulnerable-spring-app** on branch `main` at commit `e4efea838ff01a63715e647737c2fa44ba5eb914`. The quality gate is **ERROR**, line coverage is **N/A**, with **0** vulnerabilities, **0** bugs, **0** code smells, and **0** security hotspots.
 
 ## Recommendations
 
-- No outstanding recommendations. The codebase is within policy thresholds.
+- Quality gate **ERROR** — review the metrics below and address every failing condition before deploying.
 
 ---
-_Report generated at 2026-07-14T06:51:20Z._  _See `sonar-report.json` for the full machine-readable payload._
+_Report generated at 2026-07-14T09:46:18Z._  _See `sonar-report.json` for the full machine-readable payload._

@@ -2,5 +2,6 @@ Dockerfile
 reports/SONAR_REPORT.md
 reports/llm-prompt.txt
 reports/sonar-report.json
+reports/sonar-report.txt
 reports/trivy-image.raw.json
 reports/trivy-image.sarif
