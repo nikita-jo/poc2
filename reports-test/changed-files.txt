@@ -1,0 +1,2 @@
+scripts/__pycache__/ai-remediation.cpython-312.pyc
+scripts/ai-remediation.py
