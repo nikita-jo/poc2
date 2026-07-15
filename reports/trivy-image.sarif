@@ -1929,7 +1929,7 @@
           "ruleIndex": 16,
           "level": "warning",
           "message": {
-            "text": "Package: wget\nInstalled Version: 1.21.2-2ubuntu1.1\nVulnerability CVE-2021-31879\nSeverity: MEDIUM\nFixed Version: \nLink: [CVE-2021-31879](https://avd.aquasec.com/nvd/cve-2021-31879)"
+            "text": "Package: wget\nInstalled Version: 1.21.2-2ubuntu1.3\nVulnerability CVE-2021-31879\nSeverity: MEDIUM\nFixed Version: \nLink: [CVE-2021-31879](https://avd.aquasec.com/nvd/cve-2021-31879)"
           },
           "locations": [
             {
@@ -1946,7 +1946,7 @@
                 }
               },
               "message": {
-                "text": "library/vulnerable-spring-app: wget@1.21.2-2ubuntu1.1"
+                "text": "library/vulnerable-spring-app: wget@1.21.2-2ubuntu1.3"
               }
             }
           ]
@@ -1956,7 +1956,7 @@
           "ruleIndex": 17,
           "level": "warning",
           "message": {
-            "text": "Package: wget\nInstalled Version: 1.21.2-2ubuntu1.1\nVulnerability CVE-2026-58469\nSeverity: MEDIUM\nFixed Version: \nLink: [CVE-2026-58469](https://avd.aquasec.com/nvd/cve-2026-58469)"
+            "text": "Package: wget\nInstalled Version: 1.21.2-2ubuntu1.3\nVulnerability CVE-2026-58469\nSeverity: MEDIUM\nFixed Version: \nLink: [CVE-2026-58469](https://avd.aquasec.com/nvd/cve-2026-58469)"
           },
           "locations": [
             {
@@ -1973,7 +1973,7 @@
                 }
               },
               "message": {
-                "text": "library/vulnerable-spring-app: wget@1.21.2-2ubuntu1.1"
+                "text": "library/vulnerable-spring-app: wget@1.21.2-2ubuntu1.3"
               }
             }
           ]
@@ -1983,7 +1983,7 @@
           "ruleIndex": 18,
           "level": "warning",
           "message": {
-            "text": "Package: wget\nInstalled Version: 1.21.2-2ubuntu1.1\nVulnerability CVE-2026-58470\nSeverity: MEDIUM\nFixed Version: \nLink: [CVE-2026-58470](https://avd.aquasec.com/nvd/cve-2026-58470)"
+            "text": "Package: wget\nInstalled Version: 1.21.2-2ubuntu1.3\nVulnerability CVE-2026-58470\nSeverity: MEDIUM\nFixed Version: \nLink: [CVE-2026-58470](https://avd.aquasec.com/nvd/cve-2026-58470)"
           },
           "locations": [
             {
@@ -2000,7 +2000,7 @@
                 }
               },
               "message": {
-                "text": "library/vulnerable-spring-app: wget@1.21.2-2ubuntu1.1"
+                "text": "library/vulnerable-spring-app: wget@1.21.2-2ubuntu1.3"
               }
             }
           ]
@@ -2010,7 +2010,7 @@
           "ruleIndex": 19,
           "level": "warning",
           "message": {
-            "text": "Package: wget\nInstalled Version: 1.21.2-2ubuntu1.1\nVulnerability CVE-2026-58471\nSeverity: MEDIUM\nFixed Version: \nLink: [CVE-2026-58471](https://avd.aquasec.com/nvd/cve-2026-58471)"
+            "text": "Package: wget\nInstalled Version: 1.21.2-2ubuntu1.3\nVulnerability CVE-2026-58471\nSeverity: MEDIUM\nFixed Version: \nLink: [CVE-2026-58471](https://avd.aquasec.com/nvd/cve-2026-58471)"
           },
           "locations": [
             {
@@ -2027,7 +2027,7 @@
                 }
               },
               "message": {
-                "text": "library/vulnerable-spring-app: wget@1.21.2-2ubuntu1.1"
+                "text": "library/vulnerable-spring-app: wget@1.21.2-2ubuntu1.3"
               }
             }
           ]
@@ -2037,7 +2037,7 @@
           "ruleIndex": 20,
           "level": "warning",
           "message": {
-            "text": "Package: wget\nInstalled Version: 1.21.2-2ubuntu1.1\nVulnerability CVE-2026-58472\nSeverity: MEDIUM\nFixed Version: \nLink: [CVE-2026-58472](https://avd.aquasec.com/nvd/cve-2026-58472)"
+            "text": "Package: wget\nInstalled Version: 1.21.2-2ubuntu1.3\nVulnerability CVE-2026-58472\nSeverity: MEDIUM\nFixed Version: \nLink: [CVE-2026-58472](https://avd.aquasec.com/nvd/cve-2026-58472)"
           },
           "locations": [
             {
@@ -2054,7 +2054,7 @@
                 }
               },
               "message": {
-                "text": "library/vulnerable-spring-app: wget@1.21.2-2ubuntu1.1"
+                "text": "library/vulnerable-spring-app: wget@1.21.2-2ubuntu1.3"
               }
             }
           ]
@@ -2332,11 +2332,11 @@
       ],
       "columnKind": "utf16CodeUnits",
       "properties": {
-        "imageID": "sha256:66d72849d42e525727dc3ac7bbf3ab8575312d1bcec5feb6aa9035cd1ae1cd72",
-        "imageName": "vulnerable-spring-app:ci-e4efea838ff01a63715e647737c2fa44ba5eb914",
+        "imageID": "sha256:c6b7efdf28f48fd546dfa8dd0718131fe2897fb04dd258d60156a009c0da06a7",
+        "imageName": "vulnerable-spring-app:ci-258b15a373aecf6bd93f95024617b468e3d21391",
         "repoDigests": [],
         "repoTags": [
-          "vulnerable-spring-app:ci-e4efea838ff01a63715e647737c2fa44ba5eb914"
+          "vulnerable-spring-app:ci-258b15a373aecf6bd93f95024617b468e3d21391"
         ]
       }
     }
