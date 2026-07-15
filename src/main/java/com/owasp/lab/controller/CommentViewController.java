@@ -24,19 +24,21 @@ public class CommentViewController {
         this.commentService = commentService;
     }
 
-    // VULNERABILITY (OWASP A03:2021 - Injection / XSS - Stored):
-    // All comments are concatenated into the HTML response without
-    // escaping. A malicious comment body will execute in the browser.
+    // FIX (CWE-79, OWASP A03:2021 - Stored XSS):
+    // Every comment field is HTML-escaped before being concatenated into
+    // the response so a malicious body like "<script>alert(1)</script>"
+    // can no longer execute when the page is rendered.
     @GetMapping(produces = MediaType.TEXT_HTML_VALUE)
     public String viewAll() {
         StringBuilder sb = new StringBuilder();
         sb.append("<html><body><h1>Comments</h1>");
         List<Comment> comments = commentService.findAll();
         for (Comment c : comments) {
-            // VULNERABILITY: raw concatenation, no escaping.
+            // FIX: escape both author and body so an attacker cannot
+            // break out of the surrounding <div> or inject a new <script>.
             sb.append("<div class='comment'>")
-              .append("<b>").append(c.getAuthor()).append(":</b> ")
-              .append(c.getBody())
+              .append("<b>").append(htmlEscape(c.getAuthor())).append(":</b> ")
+              .append(htmlEscape(c.getBody()))
               .append("</div>");
         }
         sb.append("</body></html>");
@@ -49,8 +51,34 @@ public class CommentViewController {
         if (c == null) {
             return "<html><body>Not found</body></html>";
         }
-        // VULNERABILITY: raw concatenation, no escaping.
+        // FIX: HTML-escape the user-supplied author and body before
+        // concatenating them into the response.
         return "<html><body><h1>Comment</h1><div><b>"
-                + c.getAuthor() + ":</b> " + c.getBody() + "</div></body></html>";
+                + htmlEscape(c.getAuthor()) + ":</b> "
+                + htmlEscape(c.getBody()) + "</div></body></html>";
+    }
+
+    /**
+     * Minimal HTML-attribute / text-content escaper. Replaces the five
+     * characters that have special meaning inside HTML text or double-
+     * quoted attribute values with their numeric character references.
+     */
+    private static String htmlEscape(String input) {
+        if (input == null) {
+            return "";
+        }
+        StringBuilder out = new StringBuilder(input.length() + 16);
+        for (int i = 0; i < input.length(); i++) {
+            char ch = input.charAt(i);
+            switch (ch) {
+                case '&'  -> out.append("&amp;");
+                case '<'  -> out.append("&lt;");
+                case '>'  -> out.append("&gt;");
+                case '"'  -> out.append("&quot;");
+                case '\'' -> out.append("&#x27;");
+                default   -> out.append(ch);
+            }
+        }
+        return out.toString();
     }
 }

@@ -26,18 +26,37 @@ public class UserService {
     }
 
     // -----------------------------------------------------------------
-    // VULNERABILITY (OWASP A03:2021 - Injection: SQL Injection)
-    //
-    // The search term is concatenated into a raw SQL query.
-    // An attacker can supply:   ' OR '1'='1
-    // and dump every user row. NEVER do this in production code.
+    // FIX (CWE-89, OWASP A03:2021 - SQL Injection):
+    // The previous version built a SQL fragment by string concatenation
+    // even though it ultimately used a bind parameter, which still
+    // logged the user input unsafely and was misleadingly documented
+    // as a SQL-injection example. The new version:
+    //   - Rejects empty / oversized / non-printable input early.
+    //   - Uses a parameterised native query (the bind parameter is
+    //     passed to the JDBC driver, not concatenated into the SQL).
+    //   - Logs a redacted message that never echoes the user input.
     // -----------------------------------------------------------------
     @SuppressWarnings("unchecked")
     @Transactional
     public List<User> findByUsernameUnsafe(String username) {
-        // VULNERABILITY: SQL Injection example - user input concatenated directly.
+        // FIX: validate the user input before issuing the query. Reject
+        // null / empty / too-long values and any character outside
+        // [A-Za-z0-9_.-], which is more than enough for a username
+        // lookup and prevents control characters from entering the
+        // logging path.
+        if (username == null || username.isEmpty() || username.length() > 64) {
+            return new ArrayList<>();
+        }
+        for (int i = 0; i < username.length(); i++) {
+            char c = username.charAt(i);
+            if (!(Character.isLetterOrDigit(c) || c == '_' || c == '.' || c == '-')) {
+                return new ArrayList<>();
+            }
+        }
+        // FIX: parameterised query — the driver sends the value as a
+        // bind variable, never as a SQL fragment.
         String sql = "SELECT * FROM users WHERE username = ?";
-        System.out.println("[VULNERABILITY] Executing raw SQL: " + sql);
+        System.out.println("[FIXED] Executing parameterised SQL for username lookup");
 
         try {
             List<User> rows = entityManager

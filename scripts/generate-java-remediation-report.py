@@ -415,11 +415,20 @@ def _collect_java_changes(ctx: dict) -> list[dict]:
         severity = (fix.get("severity") or finding.get("severity") or "INFO")
         cwe = fix.get("cwe") or finding.get("cwe")
         owasp = fix.get("owasp") or finding.get("owasp")
-        title = finding.get("title") or fix.get("description") or fix.get("explanation") or "Java source change"
+        # Title priority: fix's own description, then fix's rule, then the
+        # finding's title. The fix is what the AI just applied to this file,
+        # so its description is the most accurate summary of the change.
+        title = (
+            fix.get("description")
+            or fix.get("rule")
+            or finding.get("title")
+            or fix.get("explanation")
+            or "Java source change"
+        )
         status = fix.get("status") or "applied"
         explanation = fix.get("explanation") or finding.get("summary") or finding.get("suggested_fix") or ""
         benefit = fix.get("security_benefit") or finding.get("impact") or ""
-        finding_id = finding.get("id") or fix.get("finding_id") or fix.get("id")
+        finding_id = fix.get("id") or fix.get("finding_id") or finding.get("id")
 
         # If both before and after are empty, this is a mode-only / no-op
         # change for Java; still record it but flag the status.

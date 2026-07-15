@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.*;
 import java.util.Base64;
+import java.util.regex.Pattern;
 
 /**
  * Insecure deserialisation demo.
@@ -26,11 +27,37 @@ import java.util.Base64;
 @RequestMapping("/api/deserialize")
 public class InsecureDeserializationController {
 
+    // Whitelist of fully-qualified class names that may be deserialised.
+    // Anything outside this list is rejected before readObject() is called,
+    // which neutralises gadget-chain RCE (CWE-502, OWASP A08:2021).
+    private static final Pattern ALLOWED_CLASSES = Pattern.compile(
+            "^("
+                    + "java\\.lang\\.(String|Long|Integer|Boolean|Double|Float|Byte|Short|Character|Number|Object)"
+                    + "|java\\.util\\.(HashMap|LinkedHashMap|ArrayList|LinkedList|HashSet|TreeSet|Date|UUID)"
+                    + "|com\\.owasp\\.lab\\.model\\.[A-Za-z0-9_]+"
+                    + ")$"
+    );
+
     @PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<?> deserialize(@RequestBody String body) throws Exception {
         byte[] bytes = Base64.getDecoder().decode(body);
-        // VULNERABILITY: unsafe native Java deserialisation
+        // FIX (CWE-502, OWASP A08:2021): install an ObjectInputFilter that
+        // resolves each class about to be deserialised and only allows the
+        // whitelisted packages above. The JVM consults the filter before
+        // allocating any class, so gadget chains from spring-core /
+        // commons-collections / etc. are blocked at the source.
         try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(bytes))) {
+            ois.setObjectInputFilter(info -> {
+                Class<?> resolved = info.serialClass();
+                if (resolved == null) {
+                    return ObjectInputFilter.Status.UNDECIDED;
+                }
+                String name = resolved.getName();
+                if (ALLOWED_CLASSES.matcher(name).matches()) {
+                    return ObjectInputFilter.Status.ALLOWED;
+                }
+                return ObjectInputFilter.Status.REJECTED;
+            });
             Object o = ois.readObject();
             return ResponseEntity.ok("Deserialized: " + o.getClass().getName());
         }

@@ -1,6 +1,4 @@
-Dockerfile
-reports/SONAR_REPORT.md
-reports/llm-prompt.txt
-reports/sonar-report.json
-reports/trivy-image.raw.json
-reports/trivy-image.sarif
+src/main/java/com/owasp/lab/controller/CommentController.java
+src/main/java/com/owasp/lab/controller/CommentViewController.java
+src/main/java/com/owasp/lab/controller/InsecureDeserializationController.java
+src/main/java/com/owasp/lab/service/UserService.java
