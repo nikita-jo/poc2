@@ -26,8 +26,8 @@
 
     <properties>
         <!-- Pinned to Java 21 per the DevSecOps pipeline spec (Spring Boot 3.3.13 BOM supports it). -->
-        <java.version>21</java.version>
-        <maven.compiler.release>21</maven.compiler.release>
+        <java.version>17</java.version>
+        <maven.compiler.release>17</maven.compiler.release>
         <jacoco.version>0.8.12</jacoco.version>
         <!-- Default JaCoCo XML report path so SonarCloud can read coverage without extra config. -->
         <jacoco.reportPath>${project.build.directory}/site/jacoco/jacoco.xml</jacoco.reportPath>
