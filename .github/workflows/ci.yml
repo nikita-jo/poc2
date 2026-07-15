@@ -814,7 +814,7 @@ jobs:
         env:
           NVDAI_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
         run: |
-          bash scripts/run-secure-remediation-assessment.sh
+          bash reports/samples/run-secure-remediation-assessment.sh
 
       - name: Validate build after remediation
         if: always()
