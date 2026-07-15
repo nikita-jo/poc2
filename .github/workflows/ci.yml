@@ -1033,7 +1033,7 @@ jobs:
           NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
           NVIDIA_MODEL: ${{ env.NVIDIA_MODEL || 'meta/llama-3.1-70b-instruct' }}
           NVIDIA_BASE_URL: ${{ env.NVIDIA_BASE_URL || 'https://integrate.api.nvidia.com/v1' }}
-          NVIDIA_MAX_TOKENS: ${{ env.NVIDIA_MAX_TOKENS || '80000' }}
+          # NVIDIA_MAX_TOKENS: ${{ env.NVIDIA_MAX_TOKENS || '80000' }}
         run: |
           set -euo pipefail
           python3 scripts/ai-generate-testcases.py \
@@ -1093,7 +1093,7 @@ jobs:
           NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
           NVIDIA_MODEL: ${{ env.NVIDIA_MODEL || 'meta/llama-3.1-70b-instruct' }}
           NVIDIA_BASE_URL: ${{ env.NVIDIA_BASE_URL || 'https://integrate.api.nvidia.com/v1' }}
-          NVIDIA_MAX_TOKENS: ${{ env.NVIDIA_MAX_TOKENS || '80000' }}
+          # NVIDIA_MAX_TOKENS: ${{ env.NVIDIA_MAX_TOKENS || '80000' }}
         run: |
           set -euo pipefail
           python3 scripts/ai-generate-playwright-tests.py \
