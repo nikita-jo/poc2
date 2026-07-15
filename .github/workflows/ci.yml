@@ -1009,19 +1009,19 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Fetch remediation report from main branch
+      - name: Fetch remediation report from aiTest branch
         run: |
           set -euo pipefail
           mkdir -p reports
-          git fetch --no-tags --depth=1 origin main
-          if git show origin/main:reports/remediation-report.json > reports/remediation-report.json 2>/dev/null; then
-            echo "Using remediation report from main branch"
+          git fetch --no-tags --depth=1 origin aiTest 
+          if git show origin/aiTest:reports/JAVA_VULNERABILITY_REMEDIATION_REPORT.md > reports/JAVA_VULNERABILITY_REMEDIATION_REPORT.md 2>/dev/null; then
+            echo "Using remediation report from aiTest branch"
           else
-            echo "::warning::No remediation report found on main branch"
+            echo "::warning::No remediation report found on aiTest branch"
           fi
 
       - name: Download remediation artifact
-        if: ${{ hashFiles('reports/remediation-report.json') == '' }}
+        if: ${{ hashFiles('reports/JAVA_VULNERABILITY_REMEDIATION_REPORT.md') == '' }}
         uses: actions/download-artifact@v4
         with:
           name: remediation
@@ -1038,7 +1038,7 @@ jobs:
           set -euo pipefail
           python3 scripts/ai-generate-testcases.py \
             --agent .claude/agents/security-vuln-testcase-generator.md \
-            --input reports/remediation-report.json \
+            --input reports/JAVA_VULNERABILITY_REMEDIATION_REPORT.md \
             --output test/testcaseInJson/security_testcases_generated.json
 
       - name: Upload generated testcase JSON
