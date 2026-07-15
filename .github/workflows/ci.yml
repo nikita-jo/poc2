@@ -809,6 +809,13 @@ jobs:
             --out reports/SECURE_REMEDIATION_REPORT.md
         continue-on-error: true
 
+      - name: 🤖 Agent 3 - AI Secure Remediation Assessment
+        if: always()
+        env:
+          NVDAI_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
+        run: |
+          bash scripts/run-secure-remediation-assessment.sh
+
       - name: Validate build after remediation
         if: always()
         run: |
@@ -850,6 +857,15 @@ jobs:
         with:
           name: secure-remediation-report
           path: reports/SECURE_REMEDIATION_REPORT.md
+          if-no-files-found: warn
+          retention-days: 90
+
+      - name: Upload AI Secure Remediation Assessment
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-secure-remediation-summary
+          path: reports/AI_SECURE_REMEDIATION_SUMMARY.md
           if-no-files-found: warn
           retention-days: 90
 
