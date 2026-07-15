@@ -800,6 +800,15 @@ jobs:
             --output-json reports/auto-remediation-report.json
         continue-on-error: true
 
+      - name: Generate secure remediation report
+        if: always()
+        run: |
+          set -euo pipefail
+          python3 scripts/generate-remediation-report.py \
+            --reports reports \
+            --out reports/SECURE_REMEDIATION_REPORT.md
+        continue-on-error: true
+
       - name: Validate build after remediation
         if: always()
         run: |
@@ -832,6 +841,15 @@ jobs:
           path: |
             reports/AUTO_REMEDIATION_REPORT.md
             reports/auto-remediation-report.json
+          if-no-files-found: warn
+          retention-days: 90
+
+      - name: Upload secure remediation report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: secure-remediation-report
+          path: reports/SECURE_REMEDIATION_REPORT.md
           if-no-files-found: warn
           retention-days: 90
 
