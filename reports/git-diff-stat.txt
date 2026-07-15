@@ -1,5 +1,7 @@
- .../owasp/lab/controller/CommentController.java    | 43 +++++++++++++++++----
- .../lab/controller/CommentViewController.java      | 44 ++++++++++++++++++----
- .../InsecureDeserializationController.java         | 29 +++++++++++++-
- .../java/com/owasp/lab/service/UserService.java    | 33 ++++++++++++----
- 4 files changed, 126 insertions(+), 23 deletions(-)
+ Dockerfile                   |   1 +
+ reports/SONAR_REPORT.md      |   6 +-
+ reports/llm-prompt.txt       |   9 ++
+ reports/sonar-report.json    |   4 +-
+ reports/trivy-image.raw.json | 344 +++++++++++++++++++++----------------------
+ reports/trivy-image.sarif    |   6 +-
+ 6 files changed, 190 insertions(+), 180 deletions(-)
