@@ -8,4 +8,4 @@
  */
 
 // Intentionally empty: the auth_enforcement feature uses only common steps.
-export {};
+export {}; 
