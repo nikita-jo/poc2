@@ -946,6 +946,48 @@ jobs:
           if-no-files-found: warn
           retention-days: 90
 
+      # ---------------------------------------------------------------
+      # 8b. JAVA VULNERABILITY REMEDIATION REPORT
+      # ---------------------------------------------------------------
+      # Aggregates the existing ai-patch.diff, remediation-report.json
+      # and security-review.json into a dedicated report that lists
+      # ONLY Java source-file changes with clear before/after code
+      # blocks. Output is written to reports/ AND to the GitHub
+      # Actions run summary so reviewers see it on the run page.
+      - name: ☕ Generate Java vulnerability remediation report
+        if: always()
+        run: |
+          set -euo pipefail
+          mkdir -p reports
+          python3 scripts/generate-java-remediation-report.py \
+            --reports reports \
+            --out      reports/JAVA_VULNERABILITY_REMEDIATION_REPORT.md
+        continue-on-error: true
+
+      - name: ☕ Publish Java remediation report to run summary
+        if: always()
+        run: |
+          set -euo pipefail
+          if [ ! -f reports/JAVA_VULNERABILITY_REMEDIATION_REPORT.md ]; then
+            {
+              echo "## ☕ Java Vulnerability Remediation Report"
+              echo ""
+              echo "_Report file not found — the generator did not run successfully._"
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          cat reports/JAVA_VULNERABILITY_REMEDIATION_REPORT.md >> "$GITHUB_STEP_SUMMARY"
+        continue-on-error: true
+
+      - name: Upload Java vulnerability remediation report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: java-remediation-report
+          path: reports/JAVA_VULNERABILITY_REMEDIATION_REPORT.md
+          if-no-files-found: warn
+          retention-days: 90
+
   # ---------------------------------------------------------------
   # 9. REBUILD & RETEST
   # ---------------------------------------------------------------
