@@ -5,10 +5,14 @@ import jakarta.persistence.*;
 /**
  * User entity.
  *
- * VULNERABILITY (OWASP A02:2021 - Cryptographic Failures /
- *                OWASP A07:2021 - Identification and Authentication Failures):
- * Passwords are stored as PLAIN TEXT. In a real system you MUST hash with
- * bcrypt / argon2 / scrypt and use a per-user salt.
+ * REMEDIATION (OWASP A02:2021 - Cryptographic Failures /
+ *              OWASP A07:2021 - Identification and Authentication Failures):
+ * The {@code password} column stores a hashed credential produced by the
+ * configured {@link org.springframework.security.crypto.password.PasswordEncoder}
+ * (BCrypt by default).  Plaintext passwords never reach the database.
+ *
+ * <p>Never return this field via any public API response.  The
+ * {@code AuthController.login} response explicitly omits it.</p>
  */
 @Entity
 @Table(name = "users")

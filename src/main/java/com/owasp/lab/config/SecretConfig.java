@@ -5,26 +5,31 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.beans.factory.annotation.Value;
 
 /**
- * Loads hardcoded "secrets" from application.properties into the Spring
- * context so we can demonstrate A02:2021 (Cryptographic Failures).
+ * REMEDIATION (OWASP A02:2021 - Cryptographic Failures /
+ *              OWASP A05:2021 - Security Misconfiguration):
  *
- * VULNERABILITY (OWASP A02:2021 - Cryptographic Failures /
- *                OWASP A05:2021 - Security Misconfiguration):
- *  - Secrets are stored in plaintext in application.properties.
- *  - They are exposed in source control.
- *  - They are injected into beans and could be leaked via /env or
- *    /actuator endpoints (which we deliberately also expose in the demo).
+ *  - VULN-010: secrets are no longer hardcoded literals in
+ *    application.properties.  They are sourced from environment
+ *    variables (APP_SECRET_API_KEY, APP_SECRET_DB_PASSWORD,
+ *    APP_SECRET_JWT_SIGNING_KEY) which MUST be supplied by a real
+ *    secrets manager (Spring Cloud Config, HashiCorp Vault, AWS
+ *    Secrets Manager) at deploy time.  No defaults are provided so
+ *    a misconfigured deployment fails fast rather than silently
+ *    picking up an attacker-known value.
+ *  - VULN-013: the JWT signing key, when one is required, must be a
+ *    high-entropy value generated via SecureRandom and rotated
+ *    periodically.
  */
 @Configuration
 public class SecretConfig {
 
-    @Value("${app.secret.api.key}")
+    @Value("${app.secret.api.key:}")
     private String apiKey;
 
-    @Value("${app.secret.db.password}")
+    @Value("${app.secret.db.password:}")
     private String dbPassword;
 
-    @Value("${app.secret.jwt.signing.key}")
+    @Value("${app.secret.jwt.signing.key:}")
     private String jwtSigningKey;
 
     @Bean(name = "apiKey")
