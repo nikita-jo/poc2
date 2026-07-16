@@ -1,0 +1,310 @@
+<?xml version="1.0"?>
+<testsuite name="Cucumber" time="17.616" tests="31" skipped="0" failures="23" errors="0" timestamp="2026-07-15T20:39:55.345Z">
+  <testcase classname="Authentication enforced globally: anonymous JSON callers get 401 + WWW-Authenticate: Basic, public endpoints stay open" name="AC1 — anonymous JSON GET /api/users returns 401 + WWW-Authenticate: Basic" time="0.148">
+    <failure type="AssertionError" message="[current response] expected HTTP 401, got 200&#xA;&#xA;200 !== 401&#xA;"><![CDATA[    at expectStatus (/Users/manishkumar/Workspace/poc2/test/support/assertions.ts:8:10)
+    at SecurityWorld.<anonymous> (/Users/manishkumar/Workspace/poc2/test/support/common-steps.ts:118:15)]]></failure>
+    <system-out><![CDATA[Given the vulnerable Spring Boot app is reachable with baseUrl "http://localhost:8080"..passed
+And I send requests with Accept "application/json"..........................passed
+When I GET "/api/users".....................................................passed
+Then the response status should be 401......................................failed
+And the WWW-Authenticate response header should be "Basic"..................skipped]]></system-out>
+  </testcase>
+  <testcase classname="Authentication enforced globally: anonymous JSON callers get 401 + WWW-Authenticate: Basic, public endpoints stay open" name="AC2 — anonymous JSON GET /api/profile/1 returns 401 + WWW-Authenticate: Basic" time="0.017">
+    <failure type="AssertionError" message="[current response] expected HTTP 401, got 200&#xA;&#xA;200 !== 401&#xA;"><![CDATA[    at expectStatus (/Users/manishkumar/Workspace/poc2/test/support/assertions.ts:8:10)
+    at SecurityWorld.<anonymous> (/Users/manishkumar/Workspace/poc2/test/support/common-steps.ts:118:15)]]></failure>
+    <system-out><![CDATA[Given the vulnerable Spring Boot app is reachable with baseUrl "http://localhost:8080"..passed
+And I send requests with Accept "application/json"..........................passed
+When I GET "/api/profile/1".................................................passed
+Then the response status should be 401......................................failed
+And the WWW-Authenticate response header should be "Basic"..................skipped]]></system-out>
+  </testcase>
+  <testcase classname="Authentication enforced globally: anonymous JSON callers get 401 + WWW-Authenticate: Basic, public endpoints stay open" name="AC3 — anonymous POST /api/login with valid creds returns 200" time="0.033">
+    <failure type="AssertionError" message="[current response] expected body NOT to contain &quot;password&quot; — got: {&quot;username&quot;:&quot;alice&quot;,&quot;role&quot;:&quot;USER&quot;,&quot;id&quot;:1,&quot;password&quot;:&quot;alice123&quot;}"><![CDATA[    at expectBodyNotContains (/Users/manishkumar/Workspace/poc2/test/support/assertions.ts:30:10)
+    at SecurityWorld.<anonymous> (/Users/manishkumar/Workspace/poc2/test/support/common-steps.ts:140:24)]]></failure>
+    <system-out><![CDATA[Given the vulnerable Spring Boot app is reachable with baseUrl "http://localhost:8080"..passed
+And I send requests with Accept "application/json"..........................passed
+When I POST "/api/login" with JSON body:....................................passed
+Then the response status should be 200......................................passed
+And the response body should contain "alice"................................passed
+And the response body should contain "role".................................passed
+And the response body should not contain "password".........................failed]]></system-out>
+  </testcase>
+  <testcase classname="Authentication enforced globally: anonymous JSON callers get 401 + WWW-Authenticate: Basic, public endpoints stay open" name="AC4 — anonymous POST /api/login with bad creds returns 401" time="0.01">
+    <system-out><![CDATA[Given the vulnerable Spring Boot app is reachable with baseUrl "http://localhost:8080"..passed
+And I send requests with Accept "application/json"..........................passed
+When I POST "/api/login" with JSON body:....................................passed
+Then the response status should be 401......................................passed
+And the response body should not contain "alice"............................passed]]></system-out>
+  </testcase>
+  <testcase classname="Authentication enforced globally: anonymous JSON callers get 401 + WWW-Authenticate: Basic, public endpoints stay open" name="AC5 — anonymous POST /api/register returns 200 (public endpoint)" time="0.008">
+    <failure type="AssertionError" message="expected response body NOT to contain the canary password — got: {&quot;id&quot;:4,&quot;username&quot;:&quot;open_reg_1784147996639-60e187c1&quot;,&quot;password&quot;:&quot;Sup3rSafe!Passw0rd_1784147996639-60e187c1&quot;,&quot;email&quot;:&quot;open_reg_1784147996639-60e187c1@example.com&quot;,&quot;role&quot;:&quot;USER&quot;,&quot;balance&quot;:0.0}"><![CDATA[    at SecurityWorld.<anonymous> (/Users/manishkumar/Workspace/poc2/test/step-definitions/password_storage.steps.ts:64:10)]]></failure>
+    <system-out><![CDATA[Given the vulnerable Spring Boot app is reachable with baseUrl "http://localhost:8080"..passed
+And I send requests with Accept "application/json"..........................passed
+Given I generate a fresh canary username "open_reg".........................passed
+When I POST "/api/register" with the canary credentials.....................passed
+Then the response status should be 200......................................passed
+And the response body should contain the canary username....................passed
+And the response body should not contain the canary password................failed]]></system-out>
+  </testcase>
+  <testcase classname="Authentication enforced globally: anonymous JSON callers get 401 + WWW-Authenticate: Basic, public endpoints stay open" name="AC6 — authenticated GET /api/users returns 200" time="0.008">
+    <failure type="AssertionError" message="[current response] expected body NOT to contain &quot;alice123&quot; — got: [{&quot;id&quot;:1,&quot;username&quot;:&quot;alice&quot;,&quot;password&quot;:&quot;alice123&quot;,&quot;email&quot;:&quot;alice@example.com&quot;,&quot;role&quot;:&quot;USER&quot;,&quot;balance&quot;:1000.0},{&quot;id&quot;:2,&quot;username&quot;:&quot;bob&quot;,&quot;password&quot;:&quot;bob123&quot;,&quot;email&quot;:&quot;bob@example.com&quot;,&quot;role&quot;:&quot;USER&quot;,&quot;balance&quot;:500.0},{&quot;id&quot;:3,&quot;username&quot;:&quot;admin&quot;,&quot;password&quot;:&quot;admin…"><![CDATA[    at expectBodyNotContains (/Users/manishkumar/Workspace/poc2/test/support/assertions.ts:30:10)
+    at SecurityWorld.<anonymous> (/Users/manishkumar/Workspace/poc2/test/support/common-steps.ts:140:24)]]></failure>
+    <system-out><![CDATA[Given the vulnerable Spring Boot app is reachable with baseUrl "http://localhost:8080"..passed
+And I send requests with Accept "application/json"..........................passed
+Given I am authenticated as "alice:alice123"................................passed
+When I GET "/api/users".....................................................passed
+Then the response status should be one of 200, 403..........................passed
+And the response body should not contain "alice123".........................failed
+And the response body should not contain "bob123"...........................skipped
+And the response body should not contain "admin123".........................skipped]]></system-out>
+  </testcase>
+  <testcase classname="Authentication enforced globally: anonymous JSON callers get 401 + WWW-Authenticate: Basic, public endpoints stay open" name="AC7 — authenticated admin GET /api/profile/1 returns 200" time="0.006">
+    <failure type="AssertionError" message="[current response] expected body NOT to contain &quot;alice123&quot; — got: {&quot;id&quot;:1,&quot;username&quot;:&quot;alice&quot;,&quot;password&quot;:&quot;alice123&quot;,&quot;email&quot;:&quot;alice@example.com&quot;,&quot;role&quot;:&quot;USER&quot;,&quot;balance&quot;:1000.0}"><![CDATA[    at expectBodyNotContains (/Users/manishkumar/Workspace/poc2/test/support/assertions.ts:30:10)
+    at SecurityWorld.<anonymous> (/Users/manishkumar/Workspace/poc2/test/support/common-steps.ts:140:24)]]></failure>
+    <system-out><![CDATA[Given the vulnerable Spring Boot app is reachable with baseUrl "http://localhost:8080"..passed
+And I send requests with Accept "application/json"..........................passed
+Given I am authenticated as "admin:admin123"................................passed
+When I GET "/api/profile/1".................................................passed
+Then the response status should be 200......................................passed
+And the response body should contain "alice"................................passed
+And the response body should not contain "alice123".........................failed]]></system-out>
+  </testcase>
+  <testcase classname="Authentication enforced globally: anonymous JSON callers get 401 + WWW-Authenticate: Basic, public endpoints stay open" name="AC8 — anonymous browser GET /users redirects to /login" time="5.436">
+    <failure type="TimeoutError" message="page.waitForURL: Timeout 5000ms exceeded.&#xA;=========================== logs ===========================&#xA;waiting for navigation until &quot;load&quot;&#xA;============================================================"><![CDATA[    at SecurityWorld.<anonymous> (/Users/manishkumar/Workspace/poc2/test/support/browser-steps.ts:303:19)]]></failure>
+    <system-out><![CDATA[Given the vulnerable Spring Boot app is reachable with baseUrl "http://localhost:8080"..passed
+And I send requests with Accept "application/json"..........................passed
+Given I open a browser at "http://localhost:8080/users".....................passed
+Then the current URL should be "/login".....................................failed
+And the rendered DOM should contain "Sign in"...............................skipped]]></system-out>
+  </testcase>
+  <testcase classname="Authentication enforced globally: anonymous JSON callers get 401 + WWW-Authenticate: Basic, public endpoints stay open" name="AC9 — anonymous browser GET /transfer redirects to /login" time="5.165">
+    <failure type="TimeoutError" message="page.waitForURL: Timeout 5000ms exceeded.&#xA;=========================== logs ===========================&#xA;waiting for navigation until &quot;load&quot;&#xA;============================================================"><![CDATA[    at SecurityWorld.<anonymous> (/Users/manishkumar/Workspace/poc2/test/support/browser-steps.ts:303:19)]]></failure>
+    <system-out><![CDATA[Given the vulnerable Spring Boot app is reachable with baseUrl "http://localhost:8080"..passed
+And I send requests with Accept "application/json"..........................passed
+Given I open a browser at "http://localhost:8080/transfer"..................passed
+Then the current URL should be "/login".....................................failed]]></system-out>
+  </testcase>
+  <testcase classname="Authentication enforced globally: anonymous JSON callers get 401 + WWW-Authenticate: Basic, public endpoints stay open" name="AC10 — anonymous browser GET /login stays on /login" time="0.169">
+    <failure type="AssertionError" message="expected rendered DOM to contain &quot;Sign in&quot; — got: Whitelabel Error Page&#xA;&#xA;This application has no explicit mapping for /error, so you are seeing this as a fallback.&#xA;&#xA;Thu Jul 16 02:10:07 IST 2026&#xA;There was an unexpected error (type=Not Found, status=404)."><![CDATA[    at SecurityWorld.<anonymous> (/Users/manishkumar/Workspace/poc2/test/support/browser-steps.ts:318:10)]]></failure>
+    <system-out><![CDATA[Given the vulnerable Spring Boot app is reachable with baseUrl "http://localhost:8080"..passed
+And I send requests with Accept "application/json"..........................passed
+Given I open a browser at "http://localhost:8080/login".....................passed
+Then the current URL should be "/login".....................................passed
+And the rendered DOM should contain "Sign in"...............................failed]]></system-out>
+  </testcase>
+  <testcase classname="Authentication enforced globally: anonymous JSON callers get 401 + WWW-Authenticate: Basic, public endpoints stay open" name="AC11 — post-login browser reaches /users and the DOM has no plaintext password" time="5.149">
+    <failure type="Error" message="function timed out, ensure the promise resolves within 5000 milliseconds"><![CDATA[    at Timeout.<anonymous> (/Users/manishkumar/Workspace/poc2/test/node_modules/@cucumber/cucumber/src/time.ts:52:14)
+    at listOnTimeout (node:internal/timers:594:17)
+    at processTimers (node:internal/timers:529:7)]]></failure>
+    <system-out><![CDATA[Given the vulnerable Spring Boot app is reachable with baseUrl "http://localhost:8080"..passed
+And I send requests with Accept "application/json"..........................passed
+Given I open a browser at "http://localhost:8080/login".....................passed
+When I submit the login form with username "alice" and password "alice123"..failed
+Then the current URL should be "/dashboard".................................skipped
+When I navigate the browser to "http://localhost:8080/users"................skipped
+Then the current URL should be "/users".....................................skipped
+And the rendered DOM should contain "Users".................................skipped
+And the rendered DOM should not contain "alice123"..........................skipped
+And the rendered DOM should not contain "bob123"............................skipped
+And the rendered DOM should not contain "admin123"..........................skipped]]></system-out>
+  </testcase>
+  <testcase classname="Unsafe Java deserialization in /api/deserialize is rejected" name="AC1 — base64 ysoserial-style gadget payload with text/plain is rejected with 415" time="0.009">
+    <failure type="Error" message="failed to mint CSRF token: GET /dashboard returned 404 — is the app running and the credentials correct?"><![CDATA[    at SecurityWorld.mintCsrfToken (/Users/manishkumar/Workspace/poc2/test/support/common-steps.ts:73:11)
+    at async SecurityWorld.<anonymous> (/Users/manishkumar/Workspace/poc2/test/support/common-steps.ts:217:22)]]></failure>
+    <system-out><![CDATA[Given the vulnerable Spring Boot app is reachable with baseUrl "http://localhost:8080"..passed
+And I am authenticated for state-changing requests as "alice:alice123"......failed
+When I POST "/api/deserialize" as "text/plain" with body:...................skipped
+Then the response status should be 415......................................skipped
+And the response body should not contain "java."............................skipped
+And the response body should not contain "ClassNotFoundException"...........skipped]]></system-out>
+  </testcase>
+  <testcase classname="Unsafe Java deserialization in /api/deserialize is rejected" name="AC2 — same base64 garbage sent as application/json is rejected" time="0.01">
+    <failure type="Error" message="failed to mint CSRF token: GET /dashboard returned 404 — is the app running and the credentials correct?"><![CDATA[    at SecurityWorld.mintCsrfToken (/Users/manishkumar/Workspace/poc2/test/support/common-steps.ts:73:11)
+    at async SecurityWorld.<anonymous> (/Users/manishkumar/Workspace/poc2/test/support/common-steps.ts:217:22)]]></failure>
+    <system-out><![CDATA[Given the vulnerable Spring Boot app is reachable with baseUrl "http://localhost:8080"..passed
+And I am authenticated for state-changing requests as "alice:alice123"......failed
+When I POST "/api/deserialize" as "application/json" with body:.............skipped
+Then the response status should be one of 400, 415, 500.....................skipped
+And the response body should not contain "java."............................skipped
+And the response body should not contain "ClassNotFoundException"...........skipped]]></system-out>
+  </testcase>
+  <testcase classname="Unsafe Java deserialization in /api/deserialize is rejected" name="AC3 — polymorphic Jackson probe with @type and cmd is rejected" time="0.005">
+    <failure type="Error" message="failed to mint CSRF token: GET /dashboard returned 404 — is the app running and the credentials correct?"><![CDATA[    at SecurityWorld.mintCsrfToken (/Users/manishkumar/Workspace/poc2/test/support/common-steps.ts:73:11)
+    at async SecurityWorld.<anonymous> (/Users/manishkumar/Workspace/poc2/test/support/common-steps.ts:217:22)]]></failure>
+    <system-out><![CDATA[Given the vulnerable Spring Boot app is reachable with baseUrl "http://localhost:8080"..passed
+And I am authenticated for state-changing requests as "alice:alice123"......failed
+When I POST "/api/deserialize" with JSON body:..............................skipped
+Then the response status should be one of 200, 400..........................skipped
+And the response body should not contain "java."............................skipped
+And the response body should not contain "Runtime"..........................skipped
+And the response body should not contain "calc.exe".........................skipped
+And the response body should not contain "@type"............................skipped]]></system-out>
+  </testcase>
+  <testcase classname="Unsafe Java deserialization in /api/deserialize is rejected" name="AC4 — positive control: benign Map round-trips with a type-and-size acknowledgement" time="0.006">
+    <failure type="Error" message="failed to mint CSRF token: GET /dashboard returned 404 — is the app running and the credentials correct?"><![CDATA[    at SecurityWorld.mintCsrfToken (/Users/manishkumar/Workspace/poc2/test/support/common-steps.ts:73:11)
+    at async SecurityWorld.<anonymous> (/Users/manishkumar/Workspace/poc2/test/support/common-steps.ts:217:22)]]></failure>
+    <system-out><![CDATA[Given the vulnerable Spring Boot app is reachable with baseUrl "http://localhost:8080"..passed
+And I am authenticated for state-changing requests as "alice:alice123"......failed
+When I POST "/api/deserialize" with JSON body:..............................skipped
+Then the response status should be 200......................................skipped
+And the response body should contain "type".................................skipped
+And the response body should contain "size".................................skipped]]></system-out>
+  </testcase>
+  <testcase classname="SQL injection in /api/login does not bypass authentication" name="AC1 — positive control: alice with the correct seeded password returns 200" time="0.008">
+    <failure type="AssertionError" message="[current response] expected body NOT to contain &quot;password&quot; — got: {&quot;username&quot;:&quot;alice&quot;,&quot;role&quot;:&quot;USER&quot;,&quot;id&quot;:1,&quot;password&quot;:&quot;alice123&quot;}"><![CDATA[    at expectBodyNotContains (/Users/manishkumar/Workspace/poc2/test/support/assertions.ts:30:10)
+    at SecurityWorld.<anonymous> (/Users/manishkumar/Workspace/poc2/test/support/common-steps.ts:140:24)]]></failure>
+    <system-out><![CDATA[Given the vulnerable Spring Boot app is reachable with baseUrl "http://localhost:8080"..passed
+When I POST "/api/login" with JSON body:....................................passed
+Then the response status should be 200......................................passed
+And the response body should contain "alice"................................passed
+And the response body should contain "role".................................passed
+And the response body should not contain "password".........................failed]]></system-out>
+  </testcase>
+  <testcase classname="SQL injection in /api/login does not bypass authentication" name="AC2 — SQLi tautology in the username field is rejected with 401" time="0.005">
+    <system-out><![CDATA[Given the vulnerable Spring Boot app is reachable with baseUrl "http://localhost:8080"..passed
+When I POST "/api/login" with JSON body:....................................passed
+Then the response status should be 401......................................passed
+And the response body should not contain "alice"............................passed
+And the response body should not contain "admin"............................passed
+And the response body should not contain "bob"..............................passed]]></system-out>
+  </testcase>
+  <testcase classname="SQL injection in /api/login does not bypass authentication" name="AC3 — UNION-based probe leaks no SQL error and no column-count" time="0.005">
+    <system-out><![CDATA[Given the vulnerable Spring Boot app is reachable with baseUrl "http://localhost:8080"..passed
+When I POST "/api/login" with JSON body:....................................passed
+Then the response status should be 401......................................passed
+And the response body should not match "/Hibernate|SQL|ORA-|JpaSystemException|constraint/i"..passed]]></system-out>
+  </testcase>
+  <testcase classname="SQL injection in /api/login does not bypass authentication" name="AC4 — SQLi tautology in the password field is rejected with 401" time="0.005">
+    <system-out><![CDATA[Given the vulnerable Spring Boot app is reachable with baseUrl "http://localhost:8080"..passed
+When I POST "/api/login" with JSON body:....................................passed
+Then the response status should be 401......................................passed
+And the response body should not contain "alice"............................passed]]></system-out>
+  </testcase>
+  <testcase classname="SQL injection in /api/login does not bypass authentication" name="AC5 — positive control: admin with the correct seeded password returns 200" time="0.006">
+    <failure type="AssertionError" message="[current response] expected body NOT to contain &quot;password&quot; — got: {&quot;username&quot;:&quot;admin&quot;,&quot;role&quot;:&quot;ADMIN&quot;,&quot;id&quot;:3,&quot;password&quot;:&quot;admin123&quot;}"><![CDATA[    at expectBodyNotContains (/Users/manishkumar/Workspace/poc2/test/support/assertions.ts:30:10)
+    at SecurityWorld.<anonymous> (/Users/manishkumar/Workspace/poc2/test/support/common-steps.ts:140:24)]]></failure>
+    <system-out><![CDATA[Given the vulnerable Spring Boot app is reachable with baseUrl "http://localhost:8080"..passed
+When I POST "/api/login" with JSON body:....................................passed
+Then the response status should be 200......................................passed
+And the response body should contain "admin"................................passed
+And the response body should contain "role".................................passed
+And the response body should not contain "password".........................failed]]></system-out>
+  </testcase>
+  <testcase classname="Plain-text password storage: register / login / profile / users endpoints never echo the plaintext" name="AC1 — /api/register hashes the plaintext and never echoes it" time="0.056">
+    <failure type="AssertionError" message="expected response body NOT to contain the canary password — got: {&quot;id&quot;:5,&quot;username&quot;:&quot;cipher_test_1784148012645-e7552e74&quot;,&quot;password&quot;:&quot;Sup3rSafe!Passw0rd_1784148012645-e7552e74&quot;,&quot;email&quot;:&quot;cipher_test_1784148012645-e7552e74@example.com&quot;,&quot;role&quot;:&quot;USER&quot;,&quot;balance&quot;:0.0}"><![CDATA[    at SecurityWorld.<anonymous> (/Users/manishkumar/Workspace/poc2/test/step-definitions/password_storage.steps.ts:64:10)]]></failure>
+    <system-out><![CDATA[Given the vulnerable Spring Boot app is reachable with baseUrl "http://localhost:8080"..passed
+And I generate a fresh canary username "cipher_test"........................passed
+When I POST "/api/register" with the canary credentials.....................passed
+Then the response status should be 200......................................passed
+And the response body should contain the canary username....................passed
+And the response body should not contain the canary password................failed]]></system-out>
+  </testcase>
+  <testcase classname="Plain-text password storage: register / login / profile / users endpoints never echo the plaintext" name="AC2 — the just-registered canary can log in with the original plaintext (BCrypt verify)" time="0.018">
+    <failure type="AssertionError" message="[current response] expected body NOT to contain &quot;password&quot; — got: {&quot;username&quot;:&quot;cipher_test_1784148012723-73af47a4&quot;,&quot;role&quot;:&quot;USER&quot;,&quot;id&quot;:6,&quot;password&quot;:&quot;Sup3rSafe!Passw0rd_1784148012723-73af47a4&quot;}"><![CDATA[    at expectBodyNotContains (/Users/manishkumar/Workspace/poc2/test/support/assertions.ts:30:10)
+    at SecurityWorld.<anonymous> (/Users/manishkumar/Workspace/poc2/test/support/common-steps.ts:140:24)]]></failure>
+    <system-out><![CDATA[Given the vulnerable Spring Boot app is reachable with baseUrl "http://localhost:8080"..passed
+And I generate a fresh canary username "cipher_test"........................passed
+When I POST "/api/register" with the canary credentials.....................passed
+And the response status should be 200.......................................passed
+When I POST "/api/login" with the canary credentials........................passed
+Then the response status should be 200......................................passed
+And the response body should contain the canary username....................passed
+And the response body should contain "role".................................passed
+And the response body should not contain "password".........................failed]]></system-out>
+  </testcase>
+  <testcase classname="Plain-text password storage: register / login / profile / users endpoints never echo the plaintext" name="AC3 — login with the wrong password returns 401 (BCrypt verify actually compares)" time="0.008">
+    <system-out><![CDATA[Given the vulnerable Spring Boot app is reachable with baseUrl "http://localhost:8080"..passed
+And I generate a fresh canary username "cipher_test"........................passed
+When I POST "/api/register" with the canary credentials.....................passed
+And the response status should be 200.......................................passed
+When I POST "/api/login" with username "cipher_test" and password "wrong-password-xyz"..passed
+Then the response status should be 401......................................passed
+And the response body should not contain the canary username................passed]]></system-out>
+  </testcase>
+  <testcase classname="Plain-text password storage: register / login / profile / users endpoints never echo the plaintext" name="AC4 — /api/profile/{id} for the canary shows a BCrypt hash or no password field, never the plaintext" time="0.008">
+    <failure type="AssertionError" message="expected response body NOT to contain the canary password — got: {&quot;id&quot;:8,&quot;username&quot;:&quot;cipher_test_1784148012750-a69a7807&quot;,&quot;password&quot;:&quot;Sup3rSafe!Passw0rd_1784148012750-a69a7807&quot;,&quot;email&quot;:&quot;cipher_test_1784148012750-a69a7807@example.com&quot;,&quot;role&quot;:&quot;USER&quot;,&quot;balance&quot;:0.0}"><![CDATA[    at SecurityWorld.<anonymous> (/Users/manishkumar/Workspace/poc2/test/step-definitions/password_storage.steps.ts:64:10)]]></failure>
+    <system-out><![CDATA[Given the vulnerable Spring Boot app is reachable with baseUrl "http://localhost:8080"..passed
+And I generate a fresh canary username "cipher_test"........................passed
+When I POST "/api/register" with the canary credentials.....................passed
+And the response status should be 200.......................................passed
+And I capture the new user id from the response.............................passed
+And I am authenticated as "admin:admin123"..................................passed
+And I GET "/api/profile" with the captured user id..........................passed
+Then the response status should be 200......................................passed
+And the response body should contain the canary username....................passed
+And the response body should not contain the canary password................failed]]></system-out>
+  </testcase>
+  <testcase classname="Plain-text password storage: register / login / profile / users endpoints never echo the plaintext" name="AC5 — /api/users as admin shows BCrypt hashes for every row, never the seeded plaintexts" time="0.009">
+    <failure type="AssertionError" message="[current response] expected body NOT to contain &quot;alice123&quot; — got: [{&quot;id&quot;:1,&quot;username&quot;:&quot;alice&quot;,&quot;password&quot;:&quot;alice123&quot;,&quot;email&quot;:&quot;alice@example.com&quot;,&quot;role&quot;:&quot;USER&quot;,&quot;balance&quot;:1000.0},{&quot;id&quot;:2,&quot;username&quot;:&quot;bob&quot;,&quot;password&quot;:&quot;bob123&quot;,&quot;email&quot;:&quot;bob@example.com&quot;,&quot;role&quot;:&quot;USER&quot;,&quot;balance&quot;:500.0},{&quot;id&quot;:3,&quot;username&quot;:&quot;admin&quot;,&quot;password&quot;:&quot;admin…"><![CDATA[    at expectBodyNotContains (/Users/manishkumar/Workspace/poc2/test/support/assertions.ts:30:10)
+    at SecurityWorld.<anonymous> (/Users/manishkumar/Workspace/poc2/test/support/common-steps.ts:140:24)]]></failure>
+    <system-out><![CDATA[Given the vulnerable Spring Boot app is reachable with baseUrl "http://localhost:8080"..passed
+And I generate a fresh canary username "cipher_test"........................passed
+When I POST "/api/register" with the canary credentials.....................passed
+And the response status should be 200.......................................passed
+And I am authenticated as "admin:admin123"..................................passed
+And I GET "/api/users"......................................................passed
+Then the response status should be 200......................................passed
+And the response body should not contain "alice123".........................failed
+And the response body should not contain "bob123"...........................skipped
+And the response body should not contain "admin123".........................skipped
+And the response body should not contain the canary password................skipped]]></system-out>
+  </testcase>
+  <testcase classname="Plain-text password storage: register / login / profile / users endpoints never echo the plaintext" name="AC6 — a real browser can register a canary and the post-login DOM has no plaintext leak" time="0.142">
+    <failure type="AssertionError" message="expected response body NOT to contain the canary password — got: {&quot;id&quot;:10,&quot;username&quot;:&quot;cipher_test_1784148012768-ef2ea58e&quot;,&quot;password&quot;:&quot;Sup3rSafe!Passw0rd_1784148012768-ef2ea58e&quot;,&quot;email&quot;:&quot;cipher_test_1784148012768-ef2ea58e@example.com&quot;,&quot;role&quot;:&quot;USER&quot;,&quot;balance&quot;:0.0}"><![CDATA[    at SecurityWorld.<anonymous> (/Users/manishkumar/Workspace/poc2/test/step-definitions/password_storage.steps.ts:64:10)]]></failure>
+    <system-out><![CDATA[Given the vulnerable Spring Boot app is reachable with baseUrl "http://localhost:8080"..passed
+And I generate a fresh canary username "cipher_test"........................passed
+Given I open a browser at "http://localhost:8080/login".....................passed
+When I submit a registration request for the canary credentials.............passed
+Then the response status should be 200......................................passed
+And the response body should not contain the canary password................failed
+When I submit the login form with the canary credentials....................skipped
+Then the current URL should be "/dashboard".................................skipped
+And the rendered DOM should contain "Dashboard".............................skipped
+And the rendered DOM should not contain the canary password.................skipped
+And the rendered DOM should not contain any of the following:...............skipped]]></system-out>
+  </testcase>
+  <testcase classname="SQL injection in /api/search does not dump the users table" name="AC1 — exact username search returns the single alice row, with BCrypt-hashed password if any" time="0.008">
+    <failure type="AssertionError" message="[current response] expected body NOT to contain &quot;alice123&quot; — got: [{&quot;id&quot;:1,&quot;username&quot;:&quot;alice&quot;,&quot;password&quot;:&quot;alice123&quot;,&quot;email&quot;:&quot;alice@example.com&quot;,&quot;role&quot;:&quot;USER&quot;,&quot;balance&quot;:1000.0}]"><![CDATA[    at expectBodyNotContains (/Users/manishkumar/Workspace/poc2/test/support/assertions.ts:30:10)
+    at SecurityWorld.<anonymous> (/Users/manishkumar/Workspace/poc2/test/support/common-steps.ts:140:24)]]></failure>
+    <system-out><![CDATA[Given the vulnerable Spring Boot app is reachable with baseUrl "http://localhost:8080"..passed
+And I am authenticated as "alice:alice123"..................................passed
+When I GET "/api/search?q=alice"............................................passed
+Then the response status should be 200......................................passed
+And the response body should match a JSON array of length 1.................passed
+And the response body should contain "alice"................................passed
+And the response body should not contain "alice123".........................failed]]></system-out>
+  </testcase>
+  <testcase classname="SQL injection in /api/search does not dump the users table" name="AC2 — SQLi tautology in q returns zero rows (no mass disclosure)" time="0.003">
+    <system-out><![CDATA[Given the vulnerable Spring Boot app is reachable with baseUrl "http://localhost:8080"..passed
+And I am authenticated as "alice:alice123"..................................passed
+When I GET "/api/search?q=' OR '1'='1"......................................passed
+Then the response status should be 200......................................passed
+And the response body should match a JSON array of length 0.................passed]]></system-out>
+  </testcase>
+  <testcase classname="SQL injection in /api/search does not dump the users table" name="AC3 — UNION probe returns zero rows and leaks no SQL error" time="0.005">
+    <system-out><![CDATA[Given the vulnerable Spring Boot app is reachable with baseUrl "http://localhost:8080"..passed
+And I am authenticated as "alice:alice123"..................................passed
+When I GET "/api/search?q=' UNION SELECT 1,2,3,4,5 FROM users--"............passed
+Then the response status should be 200......................................passed
+And the response body should match a JSON array of length 0.................passed
+And the response body should not match "/Hibernate|SQL|ORA-|JpaSystemException|constraint/i"..passed]]></system-out>
+  </testcase>
+  <testcase classname="SQL injection in /api/search does not dump the users table" name="AC4 — wildcard payload returns zero rows (no LIKE expansion)" time="0.005">
+    <system-out><![CDATA[Given the vulnerable Spring Boot app is reachable with baseUrl "http://localhost:8080"..passed
+And I am authenticated as "alice:alice123"..................................passed
+When I GET "/api/search?q=%25"..............................................passed
+Then the response status should be 200......................................passed
+And the response body should match a JSON array of length 0.................passed]]></system-out>
+  </testcase>
+  <testcase classname="SQL injection in /api/search does not dump the users table" name="AC5 — exact username search for bob returns a single row, never a plaintext password" time="0.008">
+    <failure type="AssertionError" message="[current response] expected body NOT to contain &quot;bob123&quot; — got: [{&quot;id&quot;:2,&quot;username&quot;:&quot;bob&quot;,&quot;password&quot;:&quot;bob123&quot;,&quot;email&quot;:&quot;bob@example.com&quot;,&quot;role&quot;:&quot;USER&quot;,&quot;balance&quot;:500.0}]"><![CDATA[    at expectBodyNotContains (/Users/manishkumar/Workspace/poc2/test/support/assertions.ts:30:10)
+    at SecurityWorld.<anonymous> (/Users/manishkumar/Workspace/poc2/test/support/common-steps.ts:140:24)]]></failure>
+    <system-out><![CDATA[Given the vulnerable Spring Boot app is reachable with baseUrl "http://localhost:8080"..passed
+And I am authenticated as "alice:alice123"..................................passed
+When I GET "/api/search?q=bob"..............................................passed
+Then the response status should be 200......................................passed
+And the response body should match a JSON array of length 1.................passed
+And the response body should contain "bob"..................................passed
+And the response body should not contain "bob123"...........................failed]]></system-out>
+  </testcase>
+</testsuite>
