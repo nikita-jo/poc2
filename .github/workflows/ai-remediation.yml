@@ -1,0 +1,147 @@
+name: AI Review & Remediation
+
+on:
+  workflow_run:
+    workflows:
+      - CI
+    types:
+      - completed
+
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: read
+  checks: read
+  security-events: read
+
+jobs:
+  ai-remediation:
+
+    # Trigger only if CI failed
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'failure'
+
+    runs-on: ubuntu-latest
+
+    env:
+      PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+      REGION: us-central1
+      MODEL_NAME: gemini-2.5-pro
+
+    steps:
+
+      ##############################################################
+      # Checkout Repository
+      ##############################################################
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_branch }}
+
+      ##############################################################
+      # Download CI Reports
+      ##############################################################
+
+      - name: Download Reports
+        uses: dawidd6/action-download-artifact@v6
+        with:
+          workflow: ci.yml
+          run_id: ${{ github.event.workflow_run.id }}
+          name: reports
+          path: reports
+
+      ##############################################################
+      # Setup Python
+      ##############################################################
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r ai-agent/requirements.txt
+
+      ##############################################################
+      # Authenticate to Google Cloud
+      ##############################################################
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+
+      - name: Setup Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      ##############################################################
+      # Verify Authentication
+      ##############################################################
+
+      - name: Verify Auth
+        run: |
+          gcloud auth list
+          gcloud config set project $PROJECT_ID
+
+      ##############################################################
+      # Execute AI Remediation Agent
+      ##############################################################
+
+      - name: Run AI Agent
+        run: |
+          python ai-agent/main.py \
+            --reports reports \
+            --project $PROJECT_ID \
+            --region $REGION \
+            --model $MODEL_NAME
+
+      ##############################################################
+      # Validate Generated Fixes
+      ##############################################################
+
+      - name: Run Unit Tests
+        run: mvn test
+
+      ##############################################################
+      # Create Pull Request
+      ##############################################################
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          commit-message: |
+            AI Remediation: automated code fixes
+
+          title: |
+            AI Remediation: Automated Fixes
+
+          body: |
+            ## AI Review & Remediation
+
+            This PR was automatically generated.
+
+            ### Inputs
+
+            - Build Report
+            - Unit Test Report
+            - Coverage Report
+            - SonarCloud Report
+            - CodeQL Report
+            - Trivy Report
+
+            ### Validation
+
+            - AI-generated fixes
+            - Unit tests executed
+
+            Please review before merging.
+
+          branch: ai/remediation-${{ github.run_id }}
+
+          delete-branch: true
