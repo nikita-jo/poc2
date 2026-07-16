@@ -1108,8 +1108,17 @@ jobs:
           npx playwright install --with-deps chromium
 
       - name: Start Spring Boot app and run Playwright tests
+        # Don't fail the job on test failures — the policy is "publish
+        # results, never block the pipeline on a red cucumber run". The
+        # actual test report still gets uploaded by the next steps
+        # (which run `if: always()`).
+        continue-on-error: true
         run: |
-          set -euo pipefail
+          # NOTE: deliberately NOT using `set -e` here. We want this step
+          # to ALWAYS exit 0 so the pipeline keeps going even when
+          # cucumber-js reports failing scenarios.
+          set -uo pipefail
+
           # Build the runnable JAR once (cached by the maven cache step above).
           mvn -B -ntp -DskipTests -Dmaven.javadoc.skip=true package
 
@@ -1137,18 +1146,36 @@ jobs:
           #   exit 1
           # fi
 
-          # Run the tests in the SAME step so the JVM stays alive.
-          set +e
+          # Run the tests in the SAME step so the JVM stays alive. We
+          # capture the exit code, log it, and intentionally exit 0
+          # so the workflow doesn't fail on a failing scenario.
           ( cd test && npm test )
           TEST_RC=$?
-          set -e
 
           # Always tear down the app before exiting.
           kill "${APP_PID}" 2>/dev/null || true
           wait "${APP_PID}" 2>/dev/null || true
 
-          #exit "${TEST_RC}"
-          continue-on-error: true
+          if [ "${TEST_RC}" -ne 0 ]; then
+            echo "::warning::cucumber-js exited with code ${TEST_RC} — failing scenarios detected. Continuing pipeline so the report + artifacts still upload."
+          else
+            echo "cucumber-js exited with code 0 — all scenarios passed."
+          fi
+
+          # Surface the test result in the run summary so reviewers see
+          # it without having to open the cucumber-report artifact.
+          {
+            if [ "${TEST_RC}" -eq 0 ]; then
+              echo "## ✅ Cucumber tests passed"
+            else
+              echo "## ⚠️ Cucumber tests reported failures (exit ${TEST_RC})"
+            fi
+            echo ""
+            echo "Pipeline is configured to continue on test failures. See the **cucumber-report** artifact for full details."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          # Always exit 0 — never fail this step.
+          exit 0
 
       - name: Publish Cucumber HTML report to run summary
         if: always()
