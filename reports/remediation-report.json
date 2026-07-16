@@ -11,7 +11,7 @@
   ],
   "diff_stat": " .../owasp/lab/controller/CommentController.java    | 43 +++++++++++++++++----\n .../lab/controller/CommentViewController.java      | 44 ++++++++++++++++++---\n .../InsecureDeserializationController.java         | 29 +++++++++++++-\n .../java/com/owasp/lab/service/UserService.java    | 33 ++++++++++++----\n 4 files changed, 126 insertions(+), 23 deletions(-)\n",
   "fixes": [
-    {
+    { 
       "id": "SR-007",
       "file": "src/main/java/com/owasp/lab/controller/InsecureDeserializationController.java",
       "rule": "unsafe-deserialization",
