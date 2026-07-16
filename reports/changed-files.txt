@@ -4,3 +4,6 @@ reports/llm-prompt.txt
 reports/sonar-report.json
 reports/trivy-image.raw.json
 reports/trivy-image.sarif
+reports/trivy-image.sarif.json
+reports/trivy-report.json
+src/main/resources/application.properties

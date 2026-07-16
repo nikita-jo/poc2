@@ -4,8 +4,8 @@
   "project": "vulnerable-spring-app",
   "projectKey": "nikita-jo_poc2",
   "host": "https://sonarcloud.io",
-  "branch": "ai-remediationreport1.1",
-  "commit": "2b62b56d54180336e73696dd0ccfa47c2e742a05",
+  "branch": "ai-remediationreport1.2",
+  "commit": "7be4d601d219b72ae681212cdebcb0313cb9d820",
   "analysisDate": "2026-07-14T09:53:37+0000",
   "qualityGate": "ERROR",
   "bugs": 0,
@@ -36,5 +36,5 @@
     "metrics": {},
     "issues": []
   },
-  "generatedAt": "2026-07-15T15:04:35Z"
+  "generatedAt": "2026-07-16T06:44:43Z"
 }
