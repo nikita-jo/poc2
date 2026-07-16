@@ -19,9 +19,9 @@ name: CI/CD — DevSecOps Pipeline (Build → Test → Scan → AI Review → Re
 
 on:
   push:
-    branches: [main, ai-remediationreport1.1]
+    branches: [main, ai-remediationreport1.2]
   pull_request:
-    branches: [main, ai-remediationreport1.1]
+    branches: [main, ai-remediationreport1.2]
   workflow_dispatch:
     inputs:
       environment:
