@@ -16,7 +16,7 @@ Feature: Authentication enforced globally: anonymous JSON callers get 401 + WWW-
 
   Background:
     Given the vulnerable Spring Boot app is reachable with baseUrl "http://localhost:8080"
-    And I send requests with Accept "application/json"
+    And I send requests with Accept "application/json" 
 
   @negative @api @SEC-005-API
   Scenario: AC1 — anonymous JSON GET /api/users returns 401 + WWW-Authenticate: Basic
