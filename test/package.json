@@ -1,0 +1,20 @@
+{
+  "name": "owasp-lab-qa-automation",
+  "version": "1.0.0",
+  "description": "End-to-end Playwright + Cucumber automation harness for the OWASP VULN-001 (Java Native Deserialization) test contract.",
+  "private": true,
+  "scripts": {
+    "test": "cucumber-js features/security-validation.feature --require step-definitions/security-validation.steps.ts --require support/**/*.ts --require-module ts-node/register --format html:report.html",
+    "test:plain": "cucumber-js features/security-validation.feature --require step-definitions/security-validation.steps.ts --require support/**/*.ts --require-module ts-node/register"
+  },
+  "dependencies": {
+    "@cucumber/cucumber": "^10.0.1",
+    "@playwright/test": "^1.45.0",
+    "playwright": "^1.45.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.7"
+  }
+}
