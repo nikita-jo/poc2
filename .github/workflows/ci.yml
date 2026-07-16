@@ -550,443 +550,443 @@ jobs:
           if-no-files-found: error
           retention-days: 90
 
-  # ---------------------------------------------------------------
-  # 7. AI SECURITY REVIEW (NVIDIA)
-  # ---------------------------------------------------------------
-  security-ai-review:
-    name: "7. AI Security Review (NVIDIA)"
-    runs-on: ubuntu-latest
-    needs: [sonarcloud-scan, trivy-scan, coverage, codeql]
-    permissions:
-      contents: read
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+  # # ---------------------------------------------------------------
+  # # 7. AI SECURITY REVIEW (NVIDIA)
+  # # ---------------------------------------------------------------
+  # security-ai-review:
+  #   name: "7. AI Security Review (NVIDIA)"
+  #   runs-on: ubuntu-latest
+  #   needs: [sonarcloud-scan, trivy-scan, coverage, codeql]
+  #   permissions:
+  #     contents: read
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
+  #     - name: Set up Python
+  #       uses: actions/setup-python@v5
+  #       with:
+  #         python-version: '3.11'
 
-      - name: Download Sonar report
-        uses: actions/download-artifact@v4
-        with:
-          name: sonar-report
-          path: reports/
-        continue-on-error: true
-      - name: Download Trivy report
-        uses: actions/download-artifact@v4
-        with:
-          name: trivy-report
-          path: reports/
-        continue-on-error: true
-      - name: Download coverage artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: coverage-build-output
-          path: target/
+  #     - name: Download Sonar report
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: sonar-report
+  #         path: reports/
+  #       continue-on-error: true
+  #     - name: Download Trivy report
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: trivy-report
+  #         path: reports/
+  #       continue-on-error: true
+  #     - name: Download coverage artifacts
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: coverage-build-output
+  #         path: target/
 
-        continue-on-error: true
-      - name: Stage jacoco + junit for the AI agent
-        run: |
-          set -euo pipefail
-          mkdir -p reports
-          if [ -f target/site/jacoco/jacoco.xml ]; then
-            cp target/site/jacoco/jacoco.xml reports/jacoco.xml
-          fi
-          if [ -f target/site/jacoco/coverage-summary.csv ]; then
-            cp target/site/jacoco/coverage-summary.csv reports/coverage-summary.csv
-          fi
-          if [ -f target/site/jacoco/coverage-summary.json ]; then
-            cp target/site/jacoco/coverage-summary.json reports/coverage-summary.json
-          fi
-          if [ -f target/site/jacoco/coverage-summary.md ]; then
-            cp target/site/jacoco/coverage-summary.md reports/coverage-summary.md
-          fi
-          if compgen -G "target/surefire-reports/*.xml" > /dev/null; then
-            cp target/surefire-reports/*.xml reports/ || true
-            # Provide a junit.xml alias for the AI agent
-            FIRST_REPORT=$(ls target/surefire-reports/TEST-*.xml 2>/dev/null | head -n 1 || echo "")
-            if [ -n "$FIRST_REPORT" ] && [ -f "$FIRST_REPORT" ]; then
-              cp "$FIRST_REPORT" reports/junit.xml
-            fi
-          fi
+  #       continue-on-error: true
+  #     - name: Stage jacoco + junit for the AI agent
+  #       run: |
+  #         set -euo pipefail
+  #         mkdir -p reports
+  #         if [ -f target/site/jacoco/jacoco.xml ]; then
+  #           cp target/site/jacoco/jacoco.xml reports/jacoco.xml
+  #         fi
+  #         if [ -f target/site/jacoco/coverage-summary.csv ]; then
+  #           cp target/site/jacoco/coverage-summary.csv reports/coverage-summary.csv
+  #         fi
+  #         if [ -f target/site/jacoco/coverage-summary.json ]; then
+  #           cp target/site/jacoco/coverage-summary.json reports/coverage-summary.json
+  #         fi
+  #         if [ -f target/site/jacoco/coverage-summary.md ]; then
+  #           cp target/site/jacoco/coverage-summary.md reports/coverage-summary.md
+  #         fi
+  #         if compgen -G "target/surefire-reports/*.xml" > /dev/null; then
+  #           cp target/surefire-reports/*.xml reports/ || true
+  #           # Provide a junit.xml alias for the AI agent
+  #           FIRST_REPORT=$(ls target/surefire-reports/TEST-*.xml 2>/dev/null | head -n 1 || echo "")
+  #           if [ -n "$FIRST_REPORT" ] && [ -f "$FIRST_REPORT" ]; then
+  #             cp "$FIRST_REPORT" reports/junit.xml
+  #           fi
+  #         fi
 
-      - name: Run AI Security Review agent
-        if: always()
-        env:
-          NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
-          # Pass the coverage threshold into the agent so its prompt and
-          # the deterministic fallback both honour the same gate.
-          MIN_COVERAGE: ${{ env.MIN_COVERAGE }}
-        run: |
-          set -euo pipefail
-          python3 scripts/ai-security-review.py --reports reports
+  #     - name: Run AI Security Review agent
+  #       if: always()
+  #       env:
+  #         NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
+  #         # Pass the coverage threshold into the agent so its prompt and
+  #         # the deterministic fallback both honour the same gate.
+  #         MIN_COVERAGE: ${{ env.MIN_COVERAGE }}
+  #       run: |
+  #         set -euo pipefail
+  #         python3 scripts/ai-security-review.py --reports reports
 
-      # Publish the agent's output under the brief's filename
-      # (security-report.json) as well. ai-security-review.py writes
-      # security-review.json internally; this step is a low-cost alias so
-      # downstream consumers can use either name.
-      - name: Alias security-report.json
-        if: always()
-        run: |
-          set -euo pipefail
-          if [ -f reports/security-review.json ]; then
-            cp reports/security-review.json reports/security-report.json
-          fi
+  #     # Publish the agent's output under the brief's filename
+  #     # (security-report.json) as well. ai-security-review.py writes
+  #     # security-review.json internally; this step is a low-cost alias so
+  #     # downstream consumers can use either name.
+  #     - name: Alias security-report.json
+  #       if: always()
+  #       run: |
+  #         set -euo pipefail
+  #         if [ -f reports/security-review.json ]; then
+  #           cp reports/security-review.json reports/security-report.json
+  #         fi
 
-      - name: Upload security review reports
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: security-review
-          path: |
-            reports/security-review.json
-            reports/security-report.json
-            reports/security-review.md
-            reports/security-summary.txt
-          if-no-files-found: error
-          retention-days: 90
+  #     - name: Upload security review reports
+  #       if: always()
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: security-review
+  #         path: |
+  #           reports/security-review.json
+  #           reports/security-report.json
+  #           reports/security-review.md
+  #           reports/security-summary.txt
+  #         if-no-files-found: error
+  #         retention-days: 90
 
-  # ---------------------------------------------------------------
-  # 8. AI REMEDIATION (NVIDIA)
-  # ---------------------------------------------------------------
-  security-ai-remediate:
-    name: "8. AI Remediation Agent (NVIDIA)"
-    runs-on: ubuntu-latest
-    needs: [security-ai-review]
-    if: ${{ always() && needs.security-ai-review.result == 'success' && !inputs.skip_remediation }}
-    permissions:
-      contents: write
-      pull-requests: write
-    outputs:
-      remediation_branch: ${{ steps.remediation.outputs.remediation_branch || '' }}
-      remediation_pr_url: ${{ steps.remediation.outputs.remediation_pr_url || '' }}
-      has_fixes: ${{ steps.remediation.outputs.has_fixes || 'false' }}
-    steps:
-      # For `pull_request` events the default checkout is a temporary
-      # merge ref (refs/pull/N/merge), which is not the actual PR head
-      # and can't be pushed back to. Force a checkout of the trigger
-      # ref so `git push origin <branch>` works.
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.ref || github.ref }}
-          fetch-depth: 0
+  # # ---------------------------------------------------------------
+  # # 8. AI REMEDIATION (NVIDIA)
+  # # ---------------------------------------------------------------
+  # security-ai-remediate:
+  #   name: "8. AI Remediation Agent (NVIDIA)"
+  #   runs-on: ubuntu-latest
+  #   needs: [security-ai-review]
+  #   if: ${{ always() && needs.security-ai-review.result == 'success' && !inputs.skip_remediation }}
+  #   permissions:
+  #     contents: write
+  #     pull-requests: write
+  #   outputs:
+  #     remediation_branch: ${{ steps.remediation.outputs.remediation_branch || '' }}
+  #     remediation_pr_url: ${{ steps.remediation.outputs.remediation_pr_url || '' }}
+  #     has_fixes: ${{ steps.remediation.outputs.has_fixes || 'false' }}
+  #   steps:
+  #     # For `pull_request` events the default checkout is a temporary
+  #     # merge ref (refs/pull/N/merge), which is not the actual PR head
+  #     # and can't be pushed back to. Force a checkout of the trigger
+  #     # ref so `git push origin <branch>` works.
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
+  #       with:
+  #         ref: ${{ github.event.pull_request.head.ref || github.ref }}
+  #         fetch-depth: 0
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
+  #     - name: Set up Python
+  #       uses: actions/setup-python@v5
+  #       with:
+  #         python-version: '3.11'
 
-      - name: Download security review
-        uses: actions/download-artifact@v4
-        with:
-          name: security-review
-          path: reports/
+  #     - name: Download security review
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: security-review
+  #         path: reports/
 
-        continue-on-error: true
-      - name: Download Sonar report
-        uses: actions/download-artifact@v4
-        with:
-          name: sonar-report
-          path: reports/
+  #       continue-on-error: true
+  #     - name: Download Sonar report
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: sonar-report
+  #         path: reports/
 
-        continue-on-error: true
-      - name: Download Trivy report
-        uses: actions/download-artifact@v4
-        with:
-          name: trivy-report
-          path: reports/
+  #       continue-on-error: true
+  #     - name: Download Trivy report
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: trivy-report
+  #         path: reports/
 
-        continue-on-error: true
-      - name: Install GitHub CLI
-        run: |
-          if ! command -v gh >/dev/null 2>&1; then
-            curl -fsSL https://cli.github.com/github-cli-archive-keyring.gpg \
-              | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
-            chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
-            echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
-              > /etc/apt/sources.list.d/github-cli.list
-            apt-get update && apt-get install -y gh
-          fi
-          gh --version
+  #       continue-on-error: true
+  #     - name: Install GitHub CLI
+  #       run: |
+  #         if ! command -v gh >/dev/null 2>&1; then
+  #           curl -fsSL https://cli.github.com/github-cli-archive-keyring.gpg \
+  #             | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+  #           chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
+  #           echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
+  #             > /etc/apt/sources.list.d/github-cli.list
+  #           apt-get update && apt-get install -y gh
+  #         fi
+  #         gh --version
 
-      - name: Run AI Remediation agent
-        id: remediation
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
-          MIN_COVERAGE: ${{ env.MIN_COVERAGE }}
-          # Push fixes back to the trigger ref (main for push, PR head for
-          # pull_request) instead of creating a separate ai-remediation/*
-          # branch. This keeps the rebuild step trivially simple — it just
-          # checks out github.ref and naturally sees the new commit.
-          REMEDIATION_BRANCH: ${{ github.ref_name }}
-          REMEDIATION_TARGET: ${{ github.event.pull_request.base.ref || github.ref_name }}
-          # Don't open a PR: for push triggers REMEDIATION_BRANCH ==
-          # REMEDIATION_TARGET so there is no PR to open. For pull_request
-          # triggers the AI's commit already lives on the PR head.
-          SKIP_PR: 'true'
-        run: |
-          set -euo pipefail
-          python3 scripts/ai-remediation.py --repo-root . --reports reports
-          # Read back the remediation branch + PR URL for downstream jobs
-          if [ -f reports/remediation-report.json ]; then
-            BRANCH=$(python3 -c "import json; r=json.load(open('reports/remediation-report.json')); print(r.get('branch',''))")
-            PR=$(python3 -c "import json; r=json.load(open('reports/remediation-report.json')); print(r.get('pr_url') or '')")
-            HAS_FIXES=$(python3 -c "import json; r=json.load(open('reports/remediation-report.json')); print('true' if r.get('fixes') else 'false')")
-            PUSHED=$(python3 -c "import json; r=json.load(open('reports/remediation-report.json')); print('true' if r.get('pushed') else 'false')")
-          else
-            BRANCH=""
-            PR=""
-            HAS_FIXES="false"
-            PUSHED="false"
-          fi
-          echo "remediation_branch=${BRANCH}" >> "$GITHUB_OUTPUT"
-          echo "remediation_pr_url=${PR}" >> "$GITHUB_OUTPUT"
-          echo "has_fixes=${HAS_FIXES}" >> "$GITHUB_OUTPUT"
-          echo "pushed=${PUSHED}" >> "$GITHUB_OUTPUT"
+  #     - name: Run AI Remediation agent
+  #       id: remediation
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #         NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
+  #         MIN_COVERAGE: ${{ env.MIN_COVERAGE }}
+  #         # Push fixes back to the trigger ref (main for push, PR head for
+  #         # pull_request) instead of creating a separate ai-remediation/*
+  #         # branch. This keeps the rebuild step trivially simple — it just
+  #         # checks out github.ref and naturally sees the new commit.
+  #         REMEDIATION_BRANCH: ${{ github.ref_name }}
+  #         REMEDIATION_TARGET: ${{ github.event.pull_request.base.ref || github.ref_name }}
+  #         # Don't open a PR: for push triggers REMEDIATION_BRANCH ==
+  #         # REMEDIATION_TARGET so there is no PR to open. For pull_request
+  #         # triggers the AI's commit already lives on the PR head.
+  #         SKIP_PR: 'true'
+  #       run: |
+  #         set -euo pipefail
+  #         python3 scripts/ai-remediation.py --repo-root . --reports reports
+  #         # Read back the remediation branch + PR URL for downstream jobs
+  #         if [ -f reports/remediation-report.json ]; then
+  #           BRANCH=$(python3 -c "import json; r=json.load(open('reports/remediation-report.json')); print(r.get('branch',''))")
+  #           PR=$(python3 -c "import json; r=json.load(open('reports/remediation-report.json')); print(r.get('pr_url') or '')")
+  #           HAS_FIXES=$(python3 -c "import json; r=json.load(open('reports/remediation-report.json')); print('true' if r.get('fixes') else 'false')")
+  #           PUSHED=$(python3 -c "import json; r=json.load(open('reports/remediation-report.json')); print('true' if r.get('pushed') else 'false')")
+  #         else
+  #           BRANCH=""
+  #           PR=""
+  #           HAS_FIXES="false"
+  #           PUSHED="false"
+  #         fi
+  #         echo "remediation_branch=${BRANCH}" >> "$GITHUB_OUTPUT"
+  #         echo "remediation_pr_url=${PR}" >> "$GITHUB_OUTPUT"
+  #         echo "has_fixes=${HAS_FIXES}" >> "$GITHUB_OUTPUT"
+  #         echo "pushed=${PUSHED}" >> "$GITHUB_OUTPUT"
 
-      - name: Stage remediation outputs
-        if: always()
-        run: |
-          set -euo pipefail
-          # Make sure all expected files exist (the remediation step may have
-          # not produced any changes; that's fine).
-          touch reports/remediation-summary.md
-          touch reports/remediation-report.json
-          touch reports/changed-files.txt
-          touch reports/ai-patch.diff
-          touch reports/git-diff-stat.txt
-          touch reports/llm-prompt.txt
-          touch reports/llm-response.txt
+  #     - name: Stage remediation outputs
+  #       if: always()
+  #       run: |
+  #         set -euo pipefail
+  #         # Make sure all expected files exist (the remediation step may have
+  #         # not produced any changes; that's fine).
+  #         touch reports/remediation-summary.md
+  #         touch reports/remediation-report.json
+  #         touch reports/changed-files.txt
+  #         touch reports/ai-patch.diff
+  #         touch reports/git-diff-stat.txt
+  #         touch reports/llm-prompt.txt
+  #         touch reports/llm-response.txt
 
-      - name: Generate auto-remediation report
-        if: always()
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NVIDIA_MODEL: ${{ env.NVIDIA_MODEL || 'meta/llama-3.1-70b-instruct' }}
-        run: |
-          set -euo pipefail
-          # Pull the AI fix branch out of the remediation report so the
-          # consolidated report can show "AI Fix Branch" alongside the
-          # trigger branch.
-          AI_FIX_BRANCH=$(python3 -c "import json,os; p='reports/remediation-report.json';
-            print(json.load(open(p)).get('branch','') if os.path.exists(p) else '')" 2>/dev/null || echo "")
-          BUILD_TS=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-          PR_NUMBER="${{ github.event.pull_request.number }}"
-          python3 scripts/generate-auto-remediation-report.py \
-            --reports reports \
-            --repository       "${{ github.repository }}" \
-            --branch           "${{ github.event.pull_request.head.ref || github.ref_name }}" \
-            --ai-fix-branch    "${AI_FIX_BRANCH}" \
-            --commit-sha       "${{ github.sha }}" \
-            --pipeline-run-id  "${{ github.run_id }}" \
-            --workflow         "${{ github.workflow }}" \
-            --build-timestamp  "$BUILD_TS" \
-            --pr-number        "${PR_NUMBER}" \
-            --pre-sonar        reports/sonar-report.json \
-            --post-sonar       reports/sonar-report-after-fix.json \
-            --pre-trivy        reports/trivy-report.json \
-            --post-trivy       reports/trivy-report-after-fix.json \
-            --pre-coverage-summary  reports/coverage-summary.csv \
-            --post-coverage-summary reports/coverage-summary.csv \
-            --codeql-sarif         reports/codeql-results.sarif \
-            --security-review      reports/security-review.json \
-            --remediation-report   reports/remediation-report.json \
-            --deploy-gates         reports/deploy-gates.json \
-            --output-md   reports/AUTO_REMEDIATION_REPORT.md \
-            --output-json reports/auto-remediation-report.json
-        continue-on-error: true
+  #     - name: Generate auto-remediation report
+  #       if: always()
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #         NVIDIA_MODEL: ${{ env.NVIDIA_MODEL || 'meta/llama-3.1-70b-instruct' }}
+  #       run: |
+  #         set -euo pipefail
+  #         # Pull the AI fix branch out of the remediation report so the
+  #         # consolidated report can show "AI Fix Branch" alongside the
+  #         # trigger branch.
+  #         AI_FIX_BRANCH=$(python3 -c "import json,os; p='reports/remediation-report.json';
+  #           print(json.load(open(p)).get('branch','') if os.path.exists(p) else '')" 2>/dev/null || echo "")
+  #         BUILD_TS=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+  #         PR_NUMBER="${{ github.event.pull_request.number }}"
+  #         python3 scripts/generate-auto-remediation-report.py \
+  #           --reports reports \
+  #           --repository       "${{ github.repository }}" \
+  #           --branch           "${{ github.event.pull_request.head.ref || github.ref_name }}" \
+  #           --ai-fix-branch    "${AI_FIX_BRANCH}" \
+  #           --commit-sha       "${{ github.sha }}" \
+  #           --pipeline-run-id  "${{ github.run_id }}" \
+  #           --workflow         "${{ github.workflow }}" \
+  #           --build-timestamp  "$BUILD_TS" \
+  #           --pr-number        "${PR_NUMBER}" \
+  #           --pre-sonar        reports/sonar-report.json \
+  #           --post-sonar       reports/sonar-report-after-fix.json \
+  #           --pre-trivy        reports/trivy-report.json \
+  #           --post-trivy       reports/trivy-report-after-fix.json \
+  #           --pre-coverage-summary  reports/coverage-summary.csv \
+  #           --post-coverage-summary reports/coverage-summary.csv \
+  #           --codeql-sarif         reports/codeql-results.sarif \
+  #           --security-review      reports/security-review.json \
+  #           --remediation-report   reports/remediation-report.json \
+  #           --deploy-gates         reports/deploy-gates.json \
+  #           --output-md   reports/AUTO_REMEDIATION_REPORT.md \
+  #           --output-json reports/auto-remediation-report.json
+  #       continue-on-error: true
 
-      - name: Generate secure remediation report
-        if: always()
-        run: |
-          set -euo pipefail
-          python3 scripts/generate-remediation-report.py \
-            --reports reports \
-            --out reports/SECURE_REMEDIATION_REPORT.md
-        continue-on-error: true
+  #     - name: Generate secure remediation report
+  #       if: always()
+  #       run: |
+  #         set -euo pipefail
+  #         python3 scripts/generate-remediation-report.py \
+  #           --reports reports \
+  #           --out reports/SECURE_REMEDIATION_REPORT.md
+  #       continue-on-error: true
 
-      # ---------------------------------------------------------------
-      # AI SECURE REMEDIATION ASSESSMENT (NVIDIA)
-      # ---------------------------------------------------------------
-      - name: 🤖 Agent 3 - AI Secure Remediation Assessment
-        if: always()
-        continue-on-error: true
-        env:
-          NVDAI_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
-          NVDAI_MODEL: meta/llama-3.1-70b-instruct
-        run: |
-          set -euo pipefail
+  #     # ---------------------------------------------------------------
+  #     # AI SECURE REMEDIATION ASSESSMENT (NVIDIA)
+  #     # ---------------------------------------------------------------
+  #     - name: 🤖 Agent 3 - AI Secure Remediation Assessment
+  #       if: always()
+  #       continue-on-error: true
+  #       env:
+  #         NVDAI_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
+  #         NVDAI_MODEL: meta/llama-3.1-70b-instruct
+  #       run: |
+  #         set -euo pipefail
 
-          mkdir -p reports
+  #         mkdir -p reports
 
-          if [ ! -f reports/SECURE_REMEDIATION_REPORT.md ]; then
-            echo "::warning::SECURE_REMEDIATION_REPORT.md not found."
+  #         if [ ! -f reports/SECURE_REMEDIATION_REPORT.md ]; then
+  #           echo "::warning::SECURE_REMEDIATION_REPORT.md not found."
 
-            cat > reports/AI_SECURE_REMEDIATION_SUMMARY.md <<EOF
-          # AI Secure Remediation Assessment
+  #           cat > reports/AI_SECURE_REMEDIATION_SUMMARY.md <<EOF
+  #         # AI Secure Remediation Assessment
 
-          ## Executive Summary
+  #         ## Executive Summary
 
-          Secure remediation report was not found.
+  #         Secure remediation report was not found.
 
-          ## Deployment Recommendation
+  #         ## Deployment Recommendation
 
-          MANUAL REVIEW REQUIRED
-          EOF
+  #         MANUAL REVIEW REQUIRED
+  #         EOF
 
-            exit 0
-          fi
+  #           exit 0
+  #         fi
 
-          python3 <<'PY'
-          import json
-          import os
+  #         python3 <<'PY'
+  #         import json
+  #         import os
 
-          with open("reports/SECURE_REMEDIATION_REPORT.md", "r", encoding="utf-8") as f:
-              report = f.read()
+  #         with open("reports/SECURE_REMEDIATION_REPORT.md", "r", encoding="utf-8") as f:
+  #             report = f.read()
 
-          system_prompt = """
-          You are an Enterprise DevSecOps AI Security Validation Agent.
+  #         system_prompt = """
+  #         You are an Enterprise DevSecOps AI Security Validation Agent.
 
-          Your responsibility is to analyze the secure remediation report generated by the Sonar-Trivy Auto Remediation Agent.
+  #         Your responsibility is to analyze the secure remediation report generated by the Sonar-Trivy Auto Remediation Agent.
 
-          Use ONLY the information contained in the report.
+  #         Use ONLY the information contained in the report.
 
-          Never invent findings.
+  #         Never invent findings.
 
-          Return ONLY Markdown using the required assessment format.
-          """
+  #         Return ONLY Markdown using the required assessment format.
+  #         """
 
-          payload = {
-              "model": os.environ.get("NVDAI_MODEL", "meta/llama-3.1-70b-instruct"),
-              "max_tokens": 2500,
-              "messages": [
-                  {
-                      "role": "system",
-                      "content": system_prompt
-                  },
-                  {
-                      "role": "user",
-                      "content": report
-                  }
-              ]
-          }
+  #         payload = {
+  #             "model": os.environ.get("NVDAI_MODEL", "meta/llama-3.1-70b-instruct"),
+  #             "max_tokens": 2500,
+  #             "messages": [
+  #                 {
+  #                     "role": "system",
+  #                     "content": system_prompt
+  #                 },
+  #                 {
+  #                     "role": "user",
+  #                     "content": report
+  #                 }
+  #             ]
+  #         }
 
-          with open("payload.json", "w", encoding="utf-8") as f:
-              json.dump(payload, f, ensure_ascii=False)
-          PY
+  #         with open("payload.json", "w", encoding="utf-8") as f:
+  #             json.dump(payload, f, ensure_ascii=False)
+  #         PY
 
-          RESPONSE=$(curl -s https://integrate.api.nvidia.com/v1/chat/completions \
-            -H "Authorization: Bearer $NVDAI_API_KEY" \
-            -H "Content-Type: application/json" \
-            -d @payload.json)
+  #         RESPONSE=$(curl -s https://integrate.api.nvidia.com/v1/chat/completions \
+  #           -H "Authorization: Bearer $NVDAI_API_KEY" \
+  #           -H "Content-Type: application/json" \
+  #           -d @payload.json)
 
-          echo "$RESPONSE" | jq -r '.choices[0].message.content // ""' \
-            > reports/AI_SECURE_REMEDIATION_SUMMARY.md
+  #         echo "$RESPONSE" | jq -r '.choices[0].message.content // ""' \
+  #           > reports/AI_SECURE_REMEDIATION_SUMMARY.md
 
-          echo "=============================="
-          cat reports/AI_SECURE_REMEDIATION_SUMMARY.md
-          echo "=============================="
+  #         echo "=============================="
+  #         cat reports/AI_SECURE_REMEDIATION_SUMMARY.md
+  #         echo "=============================="
 
-          rm -f payload.json
+  #         rm -f payload.json
 
-      - name: Validate build after remediation
-        if: always()
-        run: |
-          set -euo pipefail
-          if [ ! -f target/.rebuild-ok ] && [ ! -d target/classes ]; then
-            echo "::warning::No build output found; the next job will rebuild."
-          fi
+  #     - name: Validate build after remediation
+  #       if: always()
+  #       run: |
+  #         set -euo pipefail
+  #         if [ ! -f target/.rebuild-ok ] && [ ! -d target/classes ]; then
+  #           echo "::warning::No build output found; the next job will rebuild."
+  #         fi
 
-      - name: Upload remediation artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: remediation
-          path: |
-            reports/remediation-summary.md
-            reports/remediation-report.json
-            reports/changed-files.txt
-            reports/ai-patch.diff
-            reports/git-diff-stat.txt
-            reports/llm-prompt.txt
-            reports/llm-response.txt
-          if-no-files-found: error
-          retention-days: 90
+  #     - name: Upload remediation artifacts
+  #       if: always()
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: remediation
+  #         path: |
+  #           reports/remediation-summary.md
+  #           reports/remediation-report.json
+  #           reports/changed-files.txt
+  #           reports/ai-patch.diff
+  #           reports/git-diff-stat.txt
+  #           reports/llm-prompt.txt
+  #           reports/llm-response.txt
+  #         if-no-files-found: error
+  #         retention-days: 90
 
-      - name: Upload auto-remediation report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: auto-remediation-report
-          path: |
-            reports/AUTO_REMEDIATION_REPORT.md
-            reports/auto-remediation-report.json
-          if-no-files-found: warn
-          retention-days: 90
+  #     - name: Upload auto-remediation report
+  #       if: always()
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: auto-remediation-report
+  #         path: |
+  #           reports/AUTO_REMEDIATION_REPORT.md
+  #           reports/auto-remediation-report.json
+  #         if-no-files-found: warn
+  #         retention-days: 90
 
-      - name: Upload secure remediation report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: secure-remediation-report
-          path: reports/SECURE_REMEDIATION_REPORT.md
-          if-no-files-found: warn
-          retention-days: 90
+  #     - name: Upload secure remediation report
+  #       if: always()
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: secure-remediation-report
+  #         path: reports/SECURE_REMEDIATION_REPORT.md
+  #         if-no-files-found: warn
+  #         retention-days: 90
 
-      - name: Upload AI Secure Remediation Assessment
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ai-secure-remediation-summary
-          path: reports/AI_SECURE_REMEDIATION_SUMMARY.md
-          if-no-files-found: warn
-          retention-days: 90
+  #     - name: Upload AI Secure Remediation Assessment
+  #       if: always()
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: ai-secure-remediation-summary
+  #         path: reports/AI_SECURE_REMEDIATION_SUMMARY.md
+  #         if-no-files-found: warn
+  #         retention-days: 90
 
-      # ---------------------------------------------------------------
-      # 8b. JAVA VULNERABILITY REMEDIATION REPORT
-      # ---------------------------------------------------------------
-      # Aggregates the existing ai-patch.diff, remediation-report.json
-      # and security-review.json into a dedicated report that lists
-      # ONLY Java source-file changes with clear before/after code
-      # blocks. Output is written to reports/ AND to the GitHub
-      # Actions run summary so reviewers see it on the run page.
-      - name: ☕ Generate Java vulnerability remediation report
-        if: always()
-        run: |
-          set -euo pipefail
-          mkdir -p reports
-          python3 scripts/generate-java-remediation-report.py \
-            --reports reports \
-            --out      reports/JAVA_VULNERABILITY_REMEDIATION_REPORT.md
-        continue-on-error: true
+  #     # ---------------------------------------------------------------
+  #     # 8b. JAVA VULNERABILITY REMEDIATION REPORT
+  #     # ---------------------------------------------------------------
+  #     # Aggregates the existing ai-patch.diff, remediation-report.json
+  #     # and security-review.json into a dedicated report that lists
+  #     # ONLY Java source-file changes with clear before/after code
+  #     # blocks. Output is written to reports/ AND to the GitHub
+  #     # Actions run summary so reviewers see it on the run page.
+  #     - name: ☕ Generate Java vulnerability remediation report
+  #       if: always()
+  #       run: |
+  #         set -euo pipefail
+  #         mkdir -p reports
+  #         python3 scripts/generate-java-remediation-report.py \
+  #           --reports reports \
+  #           --out      reports/JAVA_VULNERABILITY_REMEDIATION_REPORT.md
+  #       continue-on-error: true
 
-      - name: ☕ Publish Java remediation report to run summary
-        if: always()
-        run: |
-          set -euo pipefail
-          if [ ! -f reports/JAVA_VULNERABILITY_REMEDIATION_REPORT.md ]; then
-            {
-              echo "## ☕ Java Vulnerability Remediation Report"
-              echo ""
-              echo "_Report file not found — the generator did not run successfully._"
-            } >> "$GITHUB_STEP_SUMMARY"
-            exit 0
-          fi
-          cat reports/JAVA_VULNERABILITY_REMEDIATION_REPORT.md >> "$GITHUB_STEP_SUMMARY"
-        continue-on-error: true
+  #     - name: ☕ Publish Java remediation report to run summary
+  #       if: always()
+  #       run: |
+  #         set -euo pipefail
+  #         if [ ! -f reports/JAVA_VULNERABILITY_REMEDIATION_REPORT.md ]; then
+  #           {
+  #             echo "## ☕ Java Vulnerability Remediation Report"
+  #             echo ""
+  #             echo "_Report file not found — the generator did not run successfully._"
+  #           } >> "$GITHUB_STEP_SUMMARY"
+  #           exit 0
+  #         fi
+  #         cat reports/JAVA_VULNERABILITY_REMEDIATION_REPORT.md >> "$GITHUB_STEP_SUMMARY"
+  #       continue-on-error: true
 
-      - name: Upload Java vulnerability remediation report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: java-remediation-report
-          path: reports/JAVA_VULNERABILITY_REMEDIATION_REPORT.md
-          if-no-files-found: warn
-          retention-days: 90
+  #     - name: Upload Java vulnerability remediation report
+  #       if: always()
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: java-remediation-report
+  #         path: reports/JAVA_VULNERABILITY_REMEDIATION_REPORT.md
+  #         if-no-files-found: warn
+  #         retention-days: 90
 
   # ---------------------------------------------------------------
   # 9. Generate Security Testcases JSON
@@ -994,7 +994,7 @@ jobs:
   generate-security-testcases:
     name: "9. Generate Security Testcases JSON"
     runs-on: ubuntu-latest
-    needs: [security-ai-remediate]
+    needs: [trivy-scan]
     if: ${{ always() && (needs.security-ai-remediate.result == 'success' || needs.security-ai-remediate.result == 'skipped') }}
     permissions:
       contents: read
@@ -1528,7 +1528,7 @@ jobs:
   check-deploy-gates:
     name: "Pre-Deploy Gates"
     runs-on: ubuntu-latest
-    needs: [rebuild-and-retest, sonarcloud-rescan, trivy-rescan, security-ai-remediate, codeql]
+    needs: [rebuild-and-retest, sonarcloud-rescan, trivy-rescan, codeql]
     if: ${{ always() }}
     outputs:
       deploy_recommended: ${{ steps.gates.outputs.deploy_recommended }}
