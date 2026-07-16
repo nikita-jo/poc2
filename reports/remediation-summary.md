@@ -1,0 +1,29 @@
+# AI Auto-Remediation Summary
+
+- **Status:** OK
+- **Safe fixes applied:** 1 (deterministic: 1, LLM: 0)
+- **Files changed:** 6
+
+## Fixed (deterministic)
+
+- [outdated-base-image] `Dockerfile` — Added `apt-get upgrade -y` to runtime stage to remediate image-level OS-package CVEs (22 findings, e.g. bsdutils, libblkid1, libc-bin, libc6, libexpat1)
+
+## Diff stat
+
+```
+Dockerfile                   |   1 +
+ reports/SONAR_REPORT.md      |   6 +-
+ reports/llm-prompt.txt       |   9 ++
+ reports/sonar-report.json    |   4 +-
+ reports/trivy-image.raw.json | 344 +++++++++++++++++++++----------------------
+ reports/trivy-image.sarif    |   6 +-
+ 6 files changed, 190 insertions(+), 180 deletions(-)
+```
+
+## Reviewer checklist
+
+- [ ] Confirm no business logic was changed
+- [ ] Run `mvn -B -ntp -Pcoverage verify` locally
+- [ ] Review the unified diff in `ai-patch.diff`
+- [ ] For LLM fixes, sanity-check the new file content end-to-end
+- [ ] Approve the PR if the changes are acceptable
