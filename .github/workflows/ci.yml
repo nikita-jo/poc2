@@ -1,5 +1,6 @@
 name: CI/CD — DevSecOps Pipeline (Build → Test → Scan → AI Review → Remediate → Re-Scan → Deploy)
 
+# test
 # Required repository secrets (Settings → Secrets and variables → Actions):
 #   SONAR_TOKEN         - SonarCloud account token (https://sonarcloud.io/account/security)
 #   SONAR_ORGANIZATION  - SonarCloud organisation key

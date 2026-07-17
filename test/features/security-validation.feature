@@ -15,7 +15,7 @@ Feature: Security validation of the OWASP VULN-001 remediation
     And a registered test user is authenticated via HTTP Basic
 
   # -----------------------------------------------------------------
-  # TC-VULN-001-001 — Deserialization gadget-chain rejection
+  # TC-VULN-001-001 — Deserialization gadget-chain rejections
   # -----------------------------------------------------------------
   @TC-VULN-001-001 @CWE-502 @severity-critical
   Scenario: POST /api/deserialize accepts a benign whitelisted payload
