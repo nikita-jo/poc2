@@ -1152,6 +1152,18 @@ jobs:
 
           exit "${TEST_RC}"
 
+      - name: Prepare Playwright report artifact
+        if: always()
+        run: |
+          set -euo pipefail
+          mkdir -p playwright-report
+          if [ -f test/report.html ]; then
+            cp test/report.html playwright-report/report.html
+          fi
+          if [ -f app.log ]; then
+            cp app.log playwright-report/app.log
+          fi
+
       - name: Upload generated Playwright automation files
         if: always()
         uses: actions/upload-artifact@v4
@@ -1163,6 +1175,16 @@ jobs:
             test/support/
           if-no-files-found: warn
           retention-days: 7
+
+      - name: Upload Playwright test results
+        if: ${{ always() && !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+          if-no-files-found: warn
+          retention-days: 30
   # ---------------------------------------------------------------
   # 11. REBUILD & RETEST
   # ---------------------------------------------------------------
