@@ -7,6 +7,15 @@ import sys
 from pathlib import Path
 
 
+def write_if_missing(path: Path, content: str, description: str, repo_root: Path) -> None:
+    if path.exists():
+        print(f"{description} already exists at {path.relative_to(repo_root)}; leaving it unchanged")
+        return
+
+    path.write_text(content, encoding="utf-8")
+    print(f"Generated {description} at {path.relative_to(repo_root)}")
+
+
 def main() -> int:
     repo_root = Path(__file__).resolve().parent.parent
     input_path = repo_root / "manualtestJSON" / "vulntestcase.json"
@@ -39,21 +48,23 @@ def main() -> int:
             f"    Given the manual test case \"{case_id}\" is available",
             "    Then the automation harness validates the scenario"
         ])
-    feature_path.write_text("\n".join(feature_lines) + "\n", encoding="utf-8")
+    feature_content = "\n".join(feature_lines) + "\n"
 
     steps_path = steps_dir / "security-validation.steps.ts"
-    steps_path.write_text(
+    steps_content = (
         "import { Given, Then } from '@cucumber/cucumber';\n\n"
         "Given('the manual test case {string} is available', function (this: any, _id: string) {\n"
         "  return true;\n"
         "});\n\n"
         "Then('the automation harness validates the scenario', function (this: any) {\n"
         "  return true;\n"
-        "});\n",
-        encoding="utf-8",
+        "});\n"
     )
 
-    print(f"Generated Playwright/Cucumber scaffold from {input_path.relative_to(repo_root)}")
+    write_if_missing(feature_path, feature_content, "Playwright feature file", repo_root)
+    write_if_missing(steps_path, steps_content, "Playwright step definitions", repo_root)
+
+    print(f"Processed Playwright/Cucumber scaffold from {input_path.relative_to(repo_root)}")
     return 0
 
 
