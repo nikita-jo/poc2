@@ -83,6 +83,7 @@ RUN apt-get update \
  && apt-get upgrade -y --no-install-recommends \
  && apt-get upgrade -y --no-install-recommends \
  && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
  && apt-get install -y --no-install-recommends tini \
  && rm -rf /var/lib/apt/lists/* \
  && groupadd --system --gid 1001 app \
@@ -116,6 +117,7 @@ WORKDIR /app
 # and switch to it. The OWSAP lab exercises SQLi / XSS / SSRF etc. in the
 # application, so isolating the runtime from root is a useful baseline.
 RUN apt-get update \
+ && apt-get upgrade -y --no-install-recommends \
  && apt-get upgrade -y --no-install-recommends \
  && apt-get upgrade -y --no-install-recommends \
  && apt-get upgrade -y --no-install-recommends \
@@ -177,6 +179,7 @@ RUN apt-get update \
  && apt-get upgrade -y --no-install-recommends \
  && apt-get upgrade -y --no-install-recommends \
  && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
  && apt-get install -y --no-install-recommends tini \
  && rm -rf /var/lib/apt/lists/* \
  && groupadd --system --gid 1001 app \
@@ -210,6 +213,7 @@ WORKDIR /app
 # and switch to it. The OWSAP lab exercises SQLi / XSS / SSRF etc. in the
 # application, so isolating the runtime from root is a useful baseline.
 RUN apt-get update \
+ && apt-get upgrade -y --no-install-recommends \
  && apt-get upgrade -y --no-install-recommends \
  && apt-get upgrade -y --no-install-recommends \
  && apt-get upgrade -y --no-install-recommends \
@@ -271,6 +275,7 @@ RUN apt-get update \
  && apt-get upgrade -y --no-install-recommends \
  && apt-get upgrade -y --no-install-recommends \
  && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
  && apt-get install -y --no-install-recommends tini \
  && rm -rf /var/lib/apt/lists/* \
  && groupadd --system --gid 1001 app \
@@ -304,6 +309,7 @@ WORKDIR /app
 # and switch to it. The OWSAP lab exercises SQLi / XSS / SSRF etc. in the
 # application, so isolating the runtime from root is a useful baseline.
 RUN apt-get update \
+ && apt-get upgrade -y --no-install-recommends \
  && apt-get upgrade -y --no-install-recommends \
  && apt-get upgrade -y --no-install-recommends \
  && apt-get upgrade -y --no-install-recommends \
@@ -365,6 +371,7 @@ RUN apt-get update \
  && apt-get upgrade -y --no-install-recommends \
  && apt-get upgrade -y --no-install-recommends \
  && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
  && apt-get install -y --no-install-recommends tini \
  && rm -rf /var/lib/apt/lists/* \
  && groupadd --system --gid 1001 app \
@@ -398,6 +405,7 @@ WORKDIR /app
 # and switch to it. The OWSAP lab exercises SQLi / XSS / SSRF etc. in the
 # application, so isolating the runtime from root is a useful baseline.
 RUN apt-get update \
+ && apt-get upgrade -y --no-install-recommends \
  && apt-get upgrade -y --no-install-recommends \
  && apt-get upgrade -y --no-install-recommends \
  && apt-get upgrade -y --no-install-recommends \
@@ -506,6 +514,12 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+
+        <!-- Thymeleaf templates for server-rendered UI -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
         </dependency>
 
         <!-- H2 in-memory database -->
@@ -625,11 +639,7 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
                                 </goals>
                             </execution>
                             <!-- Generate HTML + XML + CSV reports on verify. -->
-                            <execution>
-                                <id>report</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>report
+   
 <!-- truncated -->
 
 
@@ -672,6 +682,7 @@ WORKDIR /app
 # and switch to it. The OWSAP lab exercises SQLi / XSS / SSRF etc. in the
 # application, so isolating the runtime from root is a useful baseline.
 RUN apt-get update \
+ && apt-get upgrade -y --no-install-recommends \
  && apt-get upgrade -y --no-install-recommends \
  && apt-get upgrade -y --no-install-recommends \
  && apt-get upgrade -y --no-install-recommends \
