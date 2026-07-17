@@ -3,8 +3,8 @@
 **Project:** vulnerable-spring-app  
 **Project Key:** `nikita-jo_poc2`  
 **Branch:** `ai-testing1`  
-**Commit SHA:** `6fef6f22a62c9a666e658974ba99348bd4d58ce7`  
-**Analysis Date:** 2026-07-17T10:27:58+0000  
+**Commit SHA:** `e1428c04812acce44b0990eb3768d22d17d0d7ba`  
+**Analysis Date:** 2026-07-17T10:56:54+0000  
 **Quality Gate Status:** ❌ **ERROR**  
 
 ## Quality Gate Status
@@ -41,11 +41,11 @@ The SonarCloud quality gate is **ERROR**.
 
 ## Summary
 
-This SonarCloud Cloud analysis scanned **vulnerable-spring-app** on branch `ai-testing1` at commit `6fef6f22a62c9a666e658974ba99348bd4d58ce7`. The quality gate is **ERROR**, line coverage is **N/A**, with **0** vulnerabilities, **0** bugs, **0** code smells, and **0** security hotspots.
+This SonarCloud Cloud analysis scanned **vulnerable-spring-app** on branch `ai-testing1` at commit `e1428c04812acce44b0990eb3768d22d17d0d7ba`. The quality gate is **ERROR**, line coverage is **N/A**, with **0** vulnerabilities, **0** bugs, **0** code smells, and **0** security hotspots.
 
 ## Recommendations
 
 - Quality gate **ERROR** — review the metrics below and address every failing condition before deploying.
 
 ---
-_Report generated at 2026-07-17T10:28:53Z._  _See `sonar-report.json` for the full machine-readable payload._
+_Report generated at 2026-07-17T10:57:35Z._  _See `sonar-report.json` for the full machine-readable payload._
