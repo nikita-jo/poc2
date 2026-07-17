@@ -11,7 +11,7 @@
 - [plaintext-password] `src/main/java/com/owasp/lab/service/UserService.java` — Replaced String.equals password compare with BCryptPasswordEncoder.matches
 - [missing-csp] `src/main/java/com/owasp/lab/config/SecurityConfig.java` — Added a default Content-Security-Policy header
 
-## Diff stat
+## Diff stat  
 
 ```
  pom.xml                                            |  4 ++--

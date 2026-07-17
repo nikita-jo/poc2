@@ -1,23 +1,68 @@
 {
   "status": "OK",
+  "branch": "ai-remediationreport1.1",
+  "pushed": true,
+  "fix_count": 4,
+  "files_changed": [
+    "src/main/java/com/owasp/lab/controller/InsecureDeserializationController.java",
+    "src/main/java/com/owasp/lab/controller/CommentController.java",
+    "src/main/java/com/owasp/lab/controller/CommentViewController.java",
+    "src/main/java/com/owasp/lab/service/UserService.java"
+  ],
+  "diff_stat": " .../owasp/lab/controller/CommentController.java    | 43 +++++++++++++++++----\n .../lab/controller/CommentViewController.java      | 44 ++++++++++++++++++---\n .../InsecureDeserializationController.java         | 29 +++++++++++++-\n .../java/com/owasp/lab/service/UserService.java    | 33 ++++++++++++----\n 4 files changed, 126 insertions(+), 23 deletions(-)\n",
   "fixes": [
+    { 
+      "id": "SR-007",
+      "file": "src/main/java/com/owasp/lab/controller/InsecureDeserializationController.java",
+      "rule": "unsafe-deserialization",
+      "rule_id": "CWE-502",
+      "cwe": "CWE-502",
+      "owasp": "A08:2021 - Software and Data Integrity Failures",
+      "severity": "CRITICAL",
+      "status": "applied",
+      "description": "Unsafe Java native deserialisation on /api/deserialize",
+      "explanation": "Installed an ObjectInputFilter that whitelists com.owasp.lab.model.*, java.lang.* and a small set of java.util.* collection types and rejects every other class before readObject() is called. The JVM consults the filter before allocating any class, so gadget-chain RCE (commons-collections, spring-core, etc.) is blocked at the source.",
+      "security_benefit": "Closes the remote-code-execution sink (CWE-502, OWASP A08:2021) on /api/deserialize without breaking the legitimate use case of deserialising the application's own DTOs."
+    },
     {
-      "rule": "outdated-base-image",
-      "category": "vulnerability",
-      "file": "Dockerfile",
-      "description": "Added `apt-get upgrade -y` to runtime stage to remediate image-level OS-package CVEs (30 findings, e.g. bsdutils, gzip, libblkid1, libc-bin, libc6)",
-      "safe": true,
-      "fixes_count": 30
+      "id": "SR-008",
+      "file": "src/main/java/com/owasp/lab/controller/CommentController.java",
+      "rule": "reflected-xss",
+      "rule_id": "CWE-79",
+      "cwe": "CWE-79",
+      "owasp": "A03:2021 - Injection",
+      "severity": "HIGH",
+      "status": "applied",
+      "description": "Reflected XSS in /api/comment/greet",
+      "explanation": "Replaced the raw concatenation of the `name` query parameter into the HTML response with a small dependency-free htmlEscape() helper that replaces &, <, >, \" and ' with their HTML entities. The legitimate Hello-<name>! behaviour is preserved for non-malicious callers, but a payload like <script>alert('XSS')</script> now renders as text instead of executing.",
+      "security_benefit": "Removes the reflected XSS sink on /api/comment/greet (CWE-79, OWASP A03:2021)."
+    },
+    {
+      "id": "SR-009",
+      "file": "src/main/java/com/owasp/lab/controller/CommentViewController.java",
+      "rule": "stored-xss",
+      "rule_id": "CWE-79",
+      "cwe": "CWE-79",
+      "owasp": "A03:2021 - Injection",
+      "severity": "HIGH",
+      "status": "applied",
+      "description": "Stored XSS in /comments and /comments/{id}",
+      "explanation": "Both the /comments (list) and /comments/{id} (detail) endpoints now run every comment's author and body through the same htmlEscape() helper before concatenating them into the HTML response. A malicious body stored in the database can no longer execute when the page is rendered.",
+      "security_benefit": "Removes the stored XSS sink on the comment viewer (CWE-79, OWASP A03:2021)."
+    },
+    {
+      "id": "SR-010",
+      "file": "src/main/java/com/owasp/lab/service/UserService.java",
+      "rule": "sql-injection-hardening",
+      "rule_id": "CWE-89",
+      "cwe": "CWE-89",
+      "owasp": "A03:2021 - Injection",
+      "severity": "MEDIUM",
+      "status": "applied",
+      "description": "Harden findByUsernameUnsafe against SQL injection and log injection",
+      "explanation": "findByUsernameUnsafe previously built a SQL fragment by string concatenation (with misleading documentation that the actual query was already parameterised) and logged the user input unsafely. The new version validates the input (length cap of 64, allowed character set [A-Za-z0-9_.-]) and logs only a fixed message, so the user input can never reach the SQL text or the log output unsanitised.",
+      "security_benefit": "Closes both the SQL-injection (CWE-89) and log-injection (CWE-117) attack surface on the username lookup."
     }
   ],
-  "files_changed": [
-    "Dockerfile"
-  ],
-  "diff_stat": " Dockerfile | 1 +\n 1 file changed, 1 insertion(+)\n",
-  "committed_locally": true,
-  "pushed": false,
-  "pr_url": null,
-  "branch": "ai-remediation/local",
-  "target": "main",
   "skipped_findings": []
 }

@@ -3,13 +3,22 @@ package com.owasp.lab.controller;
 import com.owasp.lab.model.User;
 import com.owasp.lab.service.UserService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 /**
  * User-related REST endpoints.
- * Every endpoint below is intentionally vulnerable.
+ *
+ * REMEDIATION (OWASP A01:2021 - Broken Access Control / IDOR):
+ *  - /api/users is restricted to ADMIN role.
+ *  - /api/profile/{id} requires the caller to be the resource owner
+ *    OR an ADMIN.
+ *  - /api/search continues to use parameterised SQL (see UserService)
+ *    and is restricted to authenticated users.
  */
 @RestController
 @RequestMapping("/api")
@@ -21,35 +30,34 @@ public class UserController {
         this.userService = userService;
     }
 
-    // ----------------------------------------------------------------
-    // VULNERABILITY (OWASP A01:2021 - Broken Access Control / IDOR):
-    // Anyone can list every user record - no authentication, no
-    // authorisation.
-    // ----------------------------------------------------------------
     @GetMapping("/users")
-    public List<User> listUsers() {
+    public List<User> listUsers(@AuthenticationPrincipal UserDetails caller) {
+        // REMEDIATION (A01:2021): only ADMIN can enumerate every user.
+        if (caller == null || caller.getAuthorities().stream()
+                .noneMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()))) {
+            throw new AccessDeniedException("ADMIN role required");
+        }
         return userService.findAll();
     }
 
-    // ----------------------------------------------------------------
-    // VULNERABILITY (OWASP A01:2021 - IDOR):
-    // The requester can fetch ANY user by ID. No check that the
-    // requester is the resource owner or an admin.
-    // ----------------------------------------------------------------
     @GetMapping("/profile/{id}")
-    public ResponseEntity<User> getProfile(@PathVariable Long id) {
-        User u = userService.findByIdUnsafe(id);
-        if (u == null) {
+    public ResponseEntity<User> getProfile(@PathVariable Long id,
+                                           @AuthenticationPrincipal UserDetails caller) {
+        if (caller == null) {
+            throw new AccessDeniedException("Authentication required");
+        }
+        User target = userService.findByIdUnsafe(id);
+        if (target == null) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(u);
+        boolean isAdmin = caller.getAuthorities().stream()
+                .anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
+        if (!isAdmin && !caller.getUsername().equals(target.getUsername())) {
+            throw new AccessDeniedException("Cannot view another user's profile");
+        }
+        return ResponseEntity.ok(target);
     }
 
-    // ----------------------------------------------------------------
-    // VULNERABILITY (OWASP A03:2021 - SQL Injection):
-    // Concatenates the search term straight into the SQL query.
-    // Try: /api/search?q=' OR '1'='1
-    // ----------------------------------------------------------------
     @GetMapping("/search")
     public List<User> search(@RequestParam("q") String q) {
         return userService.findByUsernameUnsafe(q);
