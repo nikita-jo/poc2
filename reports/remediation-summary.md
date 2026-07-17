@@ -2,7 +2,7 @@
 
 - **Status:** OK
 - **Safe fixes applied:** 1 (deterministic: 1, LLM: 0)
-- **Files changed:** 9
+- **Files changed:** 6
 
 ## Fixed (deterministic)
 
@@ -11,16 +11,13 @@
 ## Diff stat
 
 ```
-Dockerfile                     |   1 +
- reports/SONAR_REPORT.md        |  10 +-
- reports/llm-prompt.txt         |  21 +-
- reports/sonar-report.json      |   8 +-
- reports/trivy-image.raw.json   | 464 +++++++++++++++++++++++++----------------
- reports/trivy-image.sarif      |  80 +++++--
- reports/trivy-image.sarif.json |  15 ++
- reports/trivy-report.json      |  16 ++
- reports/trivy-report.txt       |  10 +-
- 9 files changed, 414 insertions(+), 211 deletions(-)
+Dockerfile                   |   1 +
+ reports/SONAR_REPORT.md      |   8 +-
+ reports/llm-prompt.txt       |   9 ++
+ reports/sonar-report.json    |   6 +-
+ reports/trivy-image.raw.json | 350 +++++++++++++++++++++----------------------
+ reports/trivy-image.sarif    |   6 +-
+ 6 files changed, 195 insertions(+), 185 deletions(-)
 ```
 
 ## Reviewer checklist
