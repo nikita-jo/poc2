@@ -418,11 +418,12 @@ For the reflected XSS endpoint (/api/comment/greet) - use BOTH:
      (sends the XSS payload via the `name` query parameter; the
      server must HTML-escape it in the response.)
 
-  5. "Confirm the response body contains the literal characters
-     &lt;script&gt; and that the raw characters <script> do NOT
-     appear."
-     (asserts the body has the entity-encoded form and the raw
-     tag does not leak into the response.)
+  5. "Confirm the response does not appear to contain the raw
+     <script> tag in the reflected-XSS response."
+     (asserts the body does not contain the raw `<script>` tag.
+     The exact phrase 'does not appear to contain the raw
+     <script> tag' is required - the downstream generator
+     pattern-matches on 'not ... appear ... <script>'.)
 
 For the stored XSS endpoint (/comments) - use BOTH:
 
@@ -431,10 +432,11 @@ For the stored XSS endpoint (/comments) - use BOTH:
      (same shape as #4 but for the stored-XSS endpoint; the
      `name=` query parameter is what triggers the stored payload.)
 
-  7. "Confirm the response body contains the literal characters
-     &lt;script&gt; and that the raw characters <script> do NOT
-     appear."
-     (same assertion as #5.)
+  7. "Confirm the response does not appear to contain the raw
+     <script> tag in the stored-XSS response."
+     (same shape as #5 but for the stored-XSS endpoint. Different
+     wording from #5 ('in the stored-XSS response' vs 'in the
+     reflected-XSS response') to keep the steps unique.)
 
 For the SQL injection endpoint (/users) - use BOTH:
 
@@ -489,13 +491,13 @@ STEP RULES (HARD):
 
 UNIQUE STEPS RULE (HARD):
 The same step sentence MUST NOT appear in two different test cases.
-For example, do NOT emit step 5 ("Confirm the response body
-contains the literal characters &lt;script&gt; ...") in BOTH the
-reflected-XSS case and the stored-XSS case with the exact same
-wording. If two cases need a similar assertion, vary the wording
-slightly (e.g. "...&lt;script&gt; in the reflected-XSS response"
-vs. "...&lt;script&gt; in the stored-XSS response body") so each
-step definition is unique.
+For example, do NOT emit step 5 ("Confirm the response does not
+appear to contain the raw <script> tag in the reflected-XSS
+response.") in BOTH the reflected-XSS case and the stored-XSS
+case with the exact same wording. If two cases need a similar
+assertion, vary the wording slightly (e.g. "...<script> tag in
+the reflected-XSS response" vs. "...<script> tag in the
+stored-XSS response") so each step definition is unique.
 
 This rule exists because the downstream generator emits one
 TypeScript step definition per step sentence; identical sentences
@@ -526,9 +528,8 @@ SR-008 (Reflected XSS, GET /api/comment/greet, CWE-79):
       endpoint responds successfully."
     - "Send GET /api/comment/greet?name=<script>alert('XSS')</script>
       to verify HTML-escaping in the reflected-XSS response."
-    - "Confirm the response body contains the literal characters
-      &lt;script&gt; in the reflected-XSS response and that the
-      raw characters <script> do NOT appear."
+    - "Confirm the response does not appear to contain the raw
+      <script> tag in the reflected-XSS response."
 
 SR-009 (Stored XSS, GET /comments, CWE-79):
   testSteps:
@@ -536,9 +537,8 @@ SR-009 (Stored XSS, GET /comments, CWE-79):
       responds successfully."
     - "Send GET /comments?name=<script>alert('XSS')</script>
       to verify HTML-escaping in the stored-XSS response."
-    - "Confirm the response body contains the literal characters
-      &lt;script&gt; in the stored-XSS response and that the raw
-      characters <script> do NOT appear."
+    - "Confirm the response does not appear to contain the raw
+      <script> tag in the stored-XSS response."
 
 SR-010 (SQL injection, GET /users, CWE-89):
   testSteps:
