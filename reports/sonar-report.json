@@ -4,9 +4,9 @@
   "project": "vulnerable-spring-app",
   "projectKey": "nikita-jo_poc2",
   "host": "https://sonarcloud.io",
-  "branch": "ai-testing1",
-  "commit": "3dfa105b17c62258189f60447a70682c2013551d",
-  "analysisDate": "2026-07-17T12:34:25+0000",
+  "branch": "aitest21",
+  "commit": "81d78acf8941af798e580dd3bbaf03d24d3d4555",
+  "analysisDate": "2026-07-19T14:55:13+0000",
   "qualityGate": "ERROR",
   "bugs": 0,
   "vulnerabilities": 0,
@@ -36,5 +36,5 @@
     "metrics": {},
     "issues": []
   },
-  "generatedAt": "2026-07-17T12:35:13Z"
+  "generatedAt": "2026-07-19T14:55:59Z"
 }

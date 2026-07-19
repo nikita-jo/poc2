@@ -12,12 +12,12 @@
 
 ```
 Dockerfile                   |   1 +
- reports/SONAR_REPORT.md      |   8 +-
- reports/llm-prompt.txt       |   9 ++
- reports/sonar-report.json    |   6 +-
- reports/trivy-image.raw.json | 350 +++++++++++++++++++++----------------------
+ reports/SONAR_REPORT.md      |  10 +-
+ reports/llm-prompt.txt       |   9 +
+ reports/sonar-report.json    |   8 +-
+ reports/trivy-image.raw.json | 384 ++++++++++++++++++++++---------------------
  reports/trivy-image.sarif    |   6 +-
- 6 files changed, 195 insertions(+), 185 deletions(-)
+ 6 files changed, 222 insertions(+), 196 deletions(-)
 ```
 
 ## Reviewer checklist
