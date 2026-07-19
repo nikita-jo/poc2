@@ -2,7 +2,7 @@
   "testCases": [
     {
       "id": "TC-VULN-001-001",
-      "title": "Verify that the /api/deserialize endpoint rejects gadget-chain deserialisation payloads (ObjectInputFilter whitelisting)",
+      "title": "Verify that the /api/deserialize endpoint accepts only well-formed JSON and rejects the legacy gadget-channel (octet-stream) input",
       "module": "InsecureDeserializationController",
       "cwe": "CWE-502",
       "owasp": "A08:2021 - Software and Data Integrity Failures",
@@ -10,24 +10,18 @@
       "vulnRef": "SR-007",
       "endpoint": "/api/deserialize",
       "method": "POST",
-      "description": "The /api/deserialize endpoint previously used unsafe native Java deserialisation (ObjectInputStream.readObject) without a filter, which allowed attacker-controlled classes to be instantiated on the server (gadget-chain RCE). The fix installs an ObjectInputFilter that whitelists only com.owasp.lab.model.*, java.lang.* primitives/wrappers and a small set of java.util.* collection types, and rejects every other class before readObject() is called. This test confirms the filter is active and blocks non-whitelisted classes.",
+      "description": "The /api/deserialize endpoint previously used unsafe native Java deserialisation (ObjectInputStream.readObject) which was vulnerable to ysoserial gadget-chain RCE. The fix replaces the native deserialiser with a strict JSON parser (Jackson, fail-on-unknown-properties), and binds the controller to application/json only. The endpoint now echoes back the parsed type name and the field count so the lab's API shape is preserved. This contract verifies the post-remediation behaviour: well-formed JSON is accepted, octet-stream (the legacy gadget channel) is rejected at the media-type gate, and malformed JSON is rejected by the parser.",
       "preconditions": [
         "Application is running and the /api/deserialize endpoint is reachable.",
-        "A base64-encoded Java serialised payload can be generated (e.g. using ysoserial or a small Java helper).",
-        "The reviewer has access to a list of known gadget-chain classes (e.g. org.apache.commons.collections.functors.InvokerTransformer, org.springframework.beans.factory.ObjectFactory).",
-        "A legitimate com.owasp.lab.model.* DTO class is available for the positive-path case."
+        "An HTTP Basic credential with access to the /api/deserialize endpoint (e.g. alice/alice123).",
+        "No ysoserial or Java serialisation tooling is required for the post-remediation contract."
       ],
       "testSteps": [
-        "Step 1: Generate a Java serialised object for a whitelisted class (com.owasp.lab.model.*) using a benign DTO, then Base64-encode it.",
-        "Step 2: Send a POST request to /api/deserialize with the Base64 payload in the request body (Content-Type: application/octet-stream or text/plain depending on the controller binding).",
-        "Step 3: Confirm the server responds with HTTP 200 and the deserialised object is processed (positive baseline).",
-        "Step 4: Generate a Java serialised object for a non-whitelisted gadget class (e.g. org.apache.commons.collections.functors.InvokerTransformer) using ysoserial, then Base64-encode it.",
-        "Step 5: Send a POST request to /api/deserialize with the gadget payload.",
-        "Step 6: Observe the response: it MUST be rejected (HTTP 400, 422 or 500 with an InvalidClassException) and MUST NOT execute any constructor or static initialiser of the gadget class.",
-        "Step 7: Repeat steps 4-6 with at least one additional non-whitelisted class (e.g. a spring-core or groovy gadget) to confirm the filter is class-agnostic.",
-        "Step 8: Verify the server logs do NOT contain evidence of a ClassNotFoundException bypass or filter bypass."
+        "Step 1: Send a POST request to /api/deserialize with a well-formed JSON object body (Content-Type: application/json) and confirm the server responds with HTTP 200.",
+        "Step 2: Send a POST request to /api/deserialize with Content-Type: application/octet-stream and a non-empty body and confirm the server responds with HTTP 415 (legacy gadget channel is closed).",
+        "Step 3: Send a POST request to /api/deserialize with Content-Type: application/json and a malformed JSON body and confirm the server responds with HTTP 400 (strict parser rejects invalid input)."
       ],
-      "expectedResult": "The whitelisted DTO payload is accepted and processed normally. Every non-whitelisted (gadget) class payload is rejected by the ObjectInputFilter before readObject() invokes its constructor. No remote code execution occurs. The response for a blocked payload is an error status (e.g. 400/422/500) and never a successful deserialisation of a non-whitelisted class.",
+      "expectedResult": "Well-formed JSON (Content-Type: application/json) is accepted with HTTP 200 and an echo response describing the parsed type and size. Content-Type: application/octet-stream is rejected with HTTP 415, proving the legacy Java-serialisation channel is closed at the framework boundary and no ObjectInputStream readObject() is ever invoked. Malformed JSON is rejected with HTTP 400 by the strict Jackson parser.",
       "actualResult": "",
       "status": "Pending",
       "references": [

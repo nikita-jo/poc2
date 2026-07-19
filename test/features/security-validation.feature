@@ -12,15 +12,10 @@ Feature: Security validation from manual test contract
   # Agent contract: You are an elite QA Automation Engineer -- an autonomous agent specialized in transforming manual test specifications into production-grade end-to-end automation suites. You are an expert in Playwrigh
 
   @security @severity-CRITICAL @CWE_502 @id-TC_VULN_001_001
-  Scenario: [TC-VULN-001-001] Verify that the /api/deserialize endpoint rejects gadget-chain deserialisation payloads (ObjectInputFilter whitelisting) (POST /api/deserialize)
-    Given Generate a Java serialised object for a whitelisted class (com.owasp.lab.model.*) using a benign DTO, then Base64-encode it.
-    When Send a POST request to /api/deserialize with the Base64 payload in the request body (Content-Type: application/octet-stream or text/plain depending on the controller binding).
-    Then Confirm the server responds with HTTP 200 and the deserialised object is processed (positive baseline).
-    When Generate a Java serialised object for a non-whitelisted gadget class (e.g. org.apache.commons.collections.functors.InvokerTransformer) using ysoserial, then Base64-encode it.
-    When Send a POST request to /api/deserialize with the gadget payload.
-    Then Observe the response: it MUST be rejected (HTTP 400, 422 or 500 with an InvalidClassException) and MUST NOT execute any constructor or static initialiser of the gadget class.
-    Then Repeat steps 4-6 with at least one additional non-whitelisted class (e.g. a spring-core or groovy gadget) to confirm the filter is class-agnostic.
-    Then Verify the server logs do NOT contain evidence of a ClassNotFoundException bypass or filter bypass.
+  Scenario: [TC-VULN-001-001] Verify that the /api/deserialize endpoint accepts only well-formed JSON and rejects the legacy gadget-channel (octet-stream) input (POST /api/deserialize)
+    Given Send a POST request to /api/deserialize with a well-formed JSON object body (Content-Type: application/json) and confirm the server responds with HTTP 200.
+    Then Send a POST request to /api/deserialize with Content-Type: application/octet-stream and a non-empty body and confirm the server responds with HTTP 415 (legacy gadget channel is closed).
+    Then Send a POST request to /api/deserialize with Content-Type: application/json and a malformed JSON body and confirm the server responds with HTTP 400 (strict parser rejects invalid input).
 
   @security @severity-HIGH @CWE_79 @id-TC_VULN_001_002
   Scenario: [TC-VULN-001-002] Verify that /api/comment/greet HTML-escapes the 'name' query parameter to prevent reflected XSS (GET /api/comment/greet)

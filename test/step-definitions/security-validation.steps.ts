@@ -54,49 +54,32 @@ Given(/^the OWASP lab application is reachable on (http:\/\/[^\s]+)$/, async fun
 
 
 // ---------------------------------------------------------------------
-// TC-VULN-001-001: Verify that the /api/deserialize endpoint rejects gadget-chain deserialisation payloads (ObjectInputFilter whitelisting)
+// TC-VULN-001-001: Verify that the /api/deserialize endpoint accepts only well-formed JSON and rejects the legacy gadget-channel (octet-stream) input
 // Endpoint: POST /api/deserialize
 // ---------------------------------------------------------------------
-Given(/^Generate\s+a\s+Java\s+serialised\s+object\s+for\s+a\s+whitelisted\s+class\s+\(com\.owasp\.lab\.model\.\*\)\s+using\s+a\s+benign\s+DTO,\s+then\s+Base64\-encode\s+it\.$/, async function (this: LabWorld) {
-      this.pendingStep('manual handling required');
-    });
-
-When(/^Send\s+a\s+POST\s+request\s+to\s+\/api\/deserialize\s+with\s+the\s+Base64\s+payload\s+in\s+the\s+request\s+body\s+\(Content\-Type:\s+application\/octet\-stream\s+or\s+text\/plain\s+depending\s+on\s+the\s+controller\s+binding\)\.$/, async function (this: LabWorld) {
+Given(/^Send\s+a\s+POST\s+request\s+to\s+\/api\/deserialize\s+with\s+a\s+well\-formed\s+JSON\s+object\s+body\s+\(Content\-Type:\s+application\/json\)\s+and\s+confirm\s+the\s+server\s+responds\s+with\s+HTTP\s+200\.$/, async function (this: LabWorld) {
       this.lastResponse = await this.api.post('/api/deserialize', {
-        headers: { Authorization: this.basicAuthHeader },
-        data: '',
+        headers: { Authorization: this.basicAuthHeader, 'Content-Type': 'application/json', 'X-CSRF-TOKEN': this.csrfToken },
+        data: '{"foo":"bar","baz":42}',
       });
+      expect(this.lastResponse.status()).toBe(200);
+      expect(await this.lastResponse.text()).toContain('Map');
     });
 
-Then(/^Confirm\s+the\s+server\s+responds\s+with\s+HTTP\s+200\s+and\s+the\s+deserialised\s+object\s+is\s+processed\s+\(positive\s+baseline\)\.$/, async function (this: LabWorld) {
-      if (this.lastResponse) {
-        expect(this.lastResponse.status()).toBe(200);
-      } else {
-        throw new Error('no response captured for status assertion');
-      }
+Then(/^Send\s+a\s+POST\s+request\s+to\s+\/api\/deserialize\s+with\s+Content\-Type:\s+application\/octet\-stream\s+and\s+a\s+non\-empty\s+body\s+and\s+confirm\s+the\s+server\s+responds\s+with\s+HTTP\s+415\s+\(legacy\s+gadget\s+channel\s+is\s+closed\)\.$/, async function (this: LabWorld) {
+      this.lastResponse = await this.api.post('/api/deserialize', {
+        headers: { Authorization: this.basicAuthHeader, 'Content-Type': 'application/octet-stream', 'X-CSRF-TOKEN': this.csrfToken },
+        data: 'aced0005',
+      });
+      expect(this.lastResponse.status()).toBe(415);
     });
 
-When(/^Generate\s+a\s+Java\s+serialised\s+object\s+for\s+a\s+non\-whitelisted\s+gadget\s+class\s+\(e\.g\.\s+org\.apache\.commons\.collections\.functors\.InvokerTransformer\)\s+using\s+ysoserial,\s+then\s+Base64\-encode\s+it\.$/, async function (this: LabWorld) {
-      this.pendingStep('manual handling required');
-    });
-
-When(/^Send\s+a\s+POST\s+request\s+to\s+\/api\/deserialize\s+with\s+the\s+gadget\s+payload\.$/, async function (this: LabWorld) {
-      this.lastResponse = await postSerializedPayload(this, this.gadgetInvokerTransformerBase64, 'application/octet-stream');
-      expect([400, 422, 500]).toContain(this.lastResponse.status());
-    });
-
-Then(/^Observe\s+the\s+response:\s+it\s+MUST\s+be\s+rejected\s+\(HTTP\s+400,\s+422\s+or\s+500\s+with\s+an\s+InvalidClassException\)\s+and\s+MUST\s+NOT\s+execute\s+any\s+constructor\s+or\s+static\s+initialiser\s+of\s+the\s+gadget\s+class\.$/, async function (this: LabWorld) {
-      this.pendingStep('manual handling required');
-    });
-
-Then(/^Repeat\s+steps\s+4\-6\s+with\s+at\s+least\s+one\s+additional\s+non\-whitelisted\s+class\s+\(e\.g\.\s+a\s+spring\-core\s+or\s+groovy\s+gadget\)\s+to\s+confirm\s+the\s+filter\s+is\s+class\-agnostic\.$/, async function (this: LabWorld) {
-      this.lastResponse = await postSerializedPayload(this, this.gadgetSpringObjectFactoryBase64, 'application/octet-stream');
-      expect([400, 422, 500]).toContain(this.lastResponse.status());
-    });
-
-Then(/^Verify\s+the\s+server\s+logs\s+do\s+NOT\s+contain\s+evidence\s+of\s+a\s+ClassNotFoundException\s+bypass\s+or\s+filter\s+bypass\.$/, async function (this: LabWorld) {
-      // Log-content assertions are out of scope for HTTP-level tests;
-      // they are validated by the separate Trivy/JaCoCo gates in CI.
+Then(/^Send\s+a\s+POST\s+request\s+to\s+\/api\/deserialize\s+with\s+Content\-Type:\s+application\/json\s+and\s+a\s+malformed\s+JSON\s+body\s+and\s+confirm\s+the\s+server\s+responds\s+with\s+HTTP\s+400\s+\(strict\s+parser\s+rejects\s+invalid\s+input\)\.$/, async function (this: LabWorld) {
+      this.lastResponse = await this.api.post('/api/deserialize', {
+        headers: { Authorization: this.basicAuthHeader, 'Content-Type': 'application/json', 'X-CSRF-TOKEN': this.csrfToken },
+        data: '{ this is not valid json',
+      });
+      expect(this.lastResponse.status()).toBe(400);
     });
 
 

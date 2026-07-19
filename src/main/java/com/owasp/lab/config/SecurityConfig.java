@@ -98,12 +98,19 @@ public class SecurityConfig {
             // REMEDIATION (A05:2021): enable CSRF for state-changing
             // flows.  HTTP Basic callers (curl) skip CSRF for the JSON
             // endpoints below; the UI's form POSTs include the token.
+            // /api/deserialize is included in the ignore list because
+            // the endpoint is now strictly JSON (no ObjectInputStream),
+            // stateless (IF_REQUIRED session policy), and per-request
+            // authenticated via HTTP Basic - CSRF adds no value here
+            // and a session-stored token would be unavailable to a
+            // Basic-authed caller.
             .csrf(csrf -> csrf
                     .ignoringRequestMatchers(
                             new AntPathRequestMatcher("/h2-console/**"),
                             new AntPathRequestMatcher("/api/login"),
                             new AntPathRequestMatcher("/api/register"),
-                            new AntPathRequestMatcher("/api/transfer")
+                            new AntPathRequestMatcher("/api/transfer"),
+                            new AntPathRequestMatcher("/api/deserialize")
                     )
             )
 

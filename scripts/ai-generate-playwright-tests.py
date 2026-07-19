@@ -240,7 +240,47 @@ def build_feature(cases: list[dict[str, Any]], agent_description: str) -> str:
 # is emitted verbatim in the generated TypeScript. The single braces
 # are how JS object/block syntax looks; do not double them.
 STEP_PATTERNS: list[tuple[re.Pattern[str], str]] = [
-    # POST a serialised Java payload (deserialization contract)
+    # POST-Remediation deserialize contract (TC-VULN-001-001).
+    # Each new step bundles the action ("send a POST") and the assertion
+    # ("confirm HTTP 200/415/400") into one step body so the contract
+    # is a single composite assertion rather than two half-steps.
+    (
+        # Well-formed JSON body -> 200 (positive baseline)
+        re.compile(
+            r"(?i)send\s+(?:a\s+)?post\s+request\s+to\s+(?P<path>/[^\s]+).*?well[\s\-]?formed\s+json.*?http\s*(?P<status>200)"
+        ),
+        "this.lastResponse = await this.api.post('{path}', {{\n"
+        "        headers: {{ Authorization: this.basicAuthHeader, 'Content-Type': 'application/json', 'X-CSRF-TOKEN': this.csrfToken }},\n"
+        "        data: '{\"foo\":\"bar\",\"baz\":42}',\n"
+        "      }});\n"
+        "      expect(this.lastResponse.status()).toBe({status});\n"
+        "      expect(await this.lastResponse.text()).toContain('Map');",
+    ),
+    (
+        # octet-stream -> 415 (legacy gadget channel closed)
+        re.compile(
+            r"(?i)send\s+(?:a\s+)?post\s+request\s+to\s+(?P<path>/[^\s]+).*?application/octet[\s\-]?stream.*?http\s*(?P<status>415)"
+        ),
+        "this.lastResponse = await this.api.post('{path}', {{\n"
+        "        headers: {{ Authorization: this.basicAuthHeader, 'Content-Type': 'application/octet-stream', 'X-CSRF-TOKEN': this.csrfToken }},\n"
+        "        data: 'aced0005',\n"
+        "      }});\n"
+        "      expect(this.lastResponse.status()).toBe({status});",
+    ),
+    (
+        # Malformed JSON -> 400 (strict parser rejects invalid input)
+        re.compile(
+            r"(?i)send\s+(?:a\s+)?post\s+request\s+to\s+(?P<path>/[^\s]+).*?malformed\s+json.*?http\s*(?P<status>400)"
+        ),
+        "this.lastResponse = await this.api.post('{path}', {{\n"
+        "        headers: {{ Authorization: this.basicAuthHeader, 'Content-Type': 'application/json', 'X-CSRF-TOKEN': this.csrfToken }},\n"
+        "        data: '{ this is not valid json',\n"
+        "      }});\n"
+        "      expect(this.lastResponse.status()).toBe({status});",
+    ),
+    # Legacy pre-remediation deserialization patterns (kept for any
+    # contract that still uses the old wording - they fire only if the
+    # composite patterns above did not match).
     (
         re.compile(
             r"(?i)send\s+(?:a\s+)?post\s+request\s+to\s+(?P<path>/[^\s]+).*?gadget\s+payload"
