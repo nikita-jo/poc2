@@ -1082,6 +1082,14 @@ jobs:
           cache: 'npm'
           cache-dependency-path: test/package-lock.json
 
+      - name: Cache Maven repository
+        uses: actions/cache@v4
+        with:
+          path: .m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
       - name: Download generated testcase JSON
         uses: actions/download-artifact@v4
         with:
@@ -1089,6 +1097,7 @@ jobs:
           path: manualtestJSON/
 
       - name: Generate Playwright + Cucumber automation
+        if: always()
         env:
           NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
           NVIDIA_MODEL: ${{ env.NVIDIA_MODEL || 'meta/llama-3.1-70b-instruct' }}
@@ -1100,7 +1109,32 @@ jobs:
             --agent .claude/agents/qa-automation-engineer.md \
             --input manualtestJSON/vulntestcase.json
 
+      # Guard: if the generator wrote empty files (e.g. it crashed mid-run
+      # and the previous good files were preserved) we want to fail loudly
+      # here rather than letting the npm install / cucumber run silently
+      # produce a "passing" report against no real assertions.
+      - name: Verify generation produced real automation
+        if: always()
+        run: |
+          set -euo pipefail
+          FEATURE=test/features/security-validation.feature
+          STEPS=test/step-definitions/security-validation.steps.ts
+          for f in "$FEATURE" "$STEPS"; do
+            if [ ! -s "$f" ]; then
+              echo "::error::Generation produced an empty file: $f"
+              exit 1
+            fi
+          done
+          # The legacy stub `return true;` body must never reappear -
+          # if it does, the script has regressed and the suite will
+          # silently rubber-stamp a pass.
+          if grep -q 'return true' "$STEPS"; then
+            echo "::error::Generated step definitions contain 'return true' stubs - generator has regressed"
+            exit 1
+          fi
+
       - name: Install Playwright dependencies
+        if: always()
         run: |
           set -euo pipefail
           cd test
@@ -1108,6 +1142,7 @@ jobs:
           npx playwright install --with-deps chromium
 
       - name: Start Spring Boot app and run Playwright tests
+        if: always()
         run: |
           set -euo pipefail
           # Build the runnable JAR once (cached by the Maven cache step above).
