@@ -368,7 +368,7 @@ fences):
   ]
 }
 
-RULES:
+GLOBAL RULES:
 - Do not invent vulnerabilities. Only translate findings present
   in the report.
 - Preserve stable IDs: TC-VULN-001-NNN mirrors SR-NNN from the
@@ -377,21 +377,192 @@ RULES:
   (>= 1 step).
 - Every test case MUST have a non-empty `expectedResult`
   describing the post-remediation secure behaviour.
-- `testSteps` strings are consumed verbatim by a downstream
-  generator. Write each step as ONE imperative sentence (no line
-  breaks). The supported step patterns are:
-    * "Send a POST request to /path ..."
-    * "Send GET /path?param=value ..."
-    * "Confirm the server responds with HTTP NNN"
-    * "Confirm the response body contains '...'"
-    * "Inspect the raw response body and confirm the literal
-       characters '...' are present and that the raw characters
-       '...' do NOT appear"
-    * "Repeat steps N-M with at least one additional payload"
-    * "Verify the server logs do not contain ..."
-    * "Render the response in a real browser and confirm ..."
 - Return ONLY valid JSON. No commentary, no markdown fences, no
   trailing prose.
+
+MANDATORY STEP VOCABULARY:
+The strings in `testSteps` are consumed VERBATIM by a downstream
+Playwright + Cucumber code generator that pattern-matches each
+sentence against a fixed set of regexes. If your wording does not
+match, the step is recorded as "manual handling required" and the
+scenario fails in CI.
+
+Therefore, every step MUST be one of the exact phrasings below.
+Do NOT invent new wording. Do NOT paraphrase. Do NOT add extra
+prose after the phrasing. Copy the sentence character-for-character,
+only substituting the {path}, {payload}, {http_status}, and
+{expected_text} placeholders.
+
+For the deserialization endpoint (/api/deserialize) - use ALL THREE:
+
+  1. "Send a POST request to /api/deserialize with a well-formed
+     json body and confirm the server responds with HTTP 200."
+     (positive baseline; verifies the strict parser accepts valid
+     JSON; expects HTTP 200.)
+
+  2. "Send a POST request to /api/deserialize with
+     Content-Type: application/octet-stream and a gadget payload
+     and confirm the server responds with HTTP 415."
+     (attack scenario; verifies the legacy gadget channel is
+     closed; expects HTTP 415.)
+
+  3. "Send a POST request to /api/deserialize with a malformed
+     json body and confirm the server responds with HTTP 400."
+     (negative; verifies the strict parser rejects invalid input;
+     expects HTTP 400.)
+
+For the reflected XSS endpoint (/api/comment/greet) - use BOTH:
+
+  4. "Send GET /api/comment/greet?name=<script>alert('XSS')</script>
+     to verify HTML-escaping."
+     (sends the XSS payload via the `name` query parameter; the
+     server must HTML-escape it in the response.)
+
+  5. "Confirm the response body contains the literal characters
+     &lt;script&gt; and that the raw characters <script> do NOT
+     appear."
+     (asserts the body has the entity-encoded form and the raw
+     tag does not leak into the response.)
+
+For the stored XSS endpoint (/comments) - use BOTH:
+
+  6. "Send GET /comments?name=<script>alert('XSS')</script>
+     to verify HTML-escaping."
+     (same shape as #4 but for the stored-XSS endpoint; the
+     `name=` query parameter is what triggers the stored payload.)
+
+  7. "Confirm the response body contains the literal characters
+     &lt;script&gt; and that the raw characters <script> do NOT
+     appear."
+     (same assertion as #5.)
+
+For the SQL injection endpoint (/users) - use BOTH:
+
+  8. "Send GET /users?name=' OR '1'='1 to verify the parameterized
+     query rejects SQL injection."
+     (sends the SQLi payload via the `name` query parameter; the
+     server must treat the entire string as a single literal
+     parameter and return safe data.)
+
+  9. "Verify the server logs do not contain evidence of SQL
+     injection."
+     (audit step; recorded but not asserted by the HTTP-level
+     generator.)
+
+For ALL findings - use this positive baseline FIRST:
+
+  10. "Send GET /{path}?name=baseline to confirm the endpoint
+      responds successfully."
+      where {path} is the endpoint of the finding
+      (e.g. /api/comment/greet, /comments, /users, /api/deserialize).
+      For POST endpoints like /api/deserialize, substitute:
+      "Send a POST request to /{path} with a well-formed json body
+      to confirm the endpoint responds successfully."
+      This is a positive-baseline step that precedes the negative
+      attack steps.
+
+OPTIONAL (only if the finding specifically calls for it):
+
+  11. "Render the response in a real browser and confirm the
+      payload is not executed."
+      (recorded for manual browser-side verification; not
+      automated.)
+
+  12. "Repeat steps 1-3 with at least one additional payload to
+      confirm the protection is general."
+      (parameterised re-run; recorded for future expansion.)
+
+STEP RULES (HARD):
+- Every step must be ONE of the 12 phrasings above. No new
+  wording. No paraphrasing.
+- Do NOT prefix a step with "Step 1:" - the generator strips that
+  prefix. (You may include it in the JSON string if you wish; the
+  generator will normalise it. But the wording AFTER the prefix
+  must be one of the 12 phrasings.)
+- Every step must be ONE imperative sentence on a single line.
+  No embedded line breaks.
+- For an XSS finding, use steps 4+5 (or 6+7 for stored XSS).
+- For a SQLi finding, use steps 8+9.
+- For a deserialization finding, use steps 1+2+3.
+- For every finding, also emit step 10 (positive baseline) as the
+  FIRST step in the testSteps array.
+
+UNIQUE STEPS RULE (HARD):
+The same step sentence MUST NOT appear in two different test cases.
+For example, do NOT emit step 5 ("Confirm the response body
+contains the literal characters &lt;script&gt; ...") in BOTH the
+reflected-XSS case and the stored-XSS case with the exact same
+wording. If two cases need a similar assertion, vary the wording
+slightly (e.g. "...&lt;script&gt; in the reflected-XSS response"
+vs. "...&lt;script&gt; in the stored-XSS response body") so each
+step definition is unique.
+
+This rule exists because the downstream generator emits one
+TypeScript step definition per step sentence; identical sentences
+in two cases cause "Multiple step definitions match" errors at
+runtime.
+
+PER-FINDING TEMPLATES:
+For each finding in the report, emit exactly the testSteps array
+shown below. Substitute only the {id}, {title}, {module}, {cwe},
+{owasp}, {severity}, {vulnRef}, {endpoint}, {method} placeholders
+in the surrounding JSON object.
+
+SR-007 (Deserialization, POST /api/deserialize, CWE-502):
+  testSteps:
+    - "Send GET /api/deserialize?name=baseline to confirm the
+      endpoint responds successfully."
+    - "Send a POST request to /api/deserialize with a well-formed
+      json body and confirm the server responds with HTTP 200."
+    - "Send a POST request to /api/deserialize with
+      Content-Type: application/octet-stream and a gadget payload
+      and confirm the server responds with HTTP 415."
+    - "Send a POST request to /api/deserialize with a malformed
+      json body and confirm the server responds with HTTP 400."
+
+SR-008 (Reflected XSS, GET /api/comment/greet, CWE-79):
+  testSteps:
+    - "Send GET /api/comment/greet?name=baseline to confirm the
+      endpoint responds successfully."
+    - "Send GET /api/comment/greet?name=<script>alert('XSS')</script>
+      to verify HTML-escaping in the reflected-XSS response."
+    - "Confirm the response body contains the literal characters
+      &lt;script&gt; in the reflected-XSS response and that the
+      raw characters <script> do NOT appear."
+
+SR-009 (Stored XSS, GET /comments, CWE-79):
+  testSteps:
+    - "Send GET /comments?name=baseline to confirm the endpoint
+      responds successfully."
+    - "Send GET /comments?name=<script>alert('XSS')</script>
+      to verify HTML-escaping in the stored-XSS response."
+    - "Confirm the response body contains the literal characters
+      &lt;script&gt; in the stored-XSS response and that the raw
+      characters <script> do NOT appear."
+
+SR-010 (SQL injection, GET /users, CWE-89):
+  testSteps:
+    - "Send GET /users?name=baseline to confirm the endpoint
+      responds successfully."
+    - "Send GET /users?name=' OR '1'='1 to verify the parameterized
+      query rejects SQL injection."
+    - "Verify the server logs do not contain evidence of SQL
+      injection."
+
+For any finding NOT listed above, infer the closest template from
+the same family (deserialization -> SR-007 template; XSS -> SR-008
+or SR-009 template; injection -> SR-010 template) and apply the
+same wording style.
+
+FINAL CHECK before returning JSON:
+- Every test case has testSteps with 3-4 entries, each one of the
+  12 phrasings above (verbatim, with only the documented
+  placeholders substituted).
+- No step sentence appears in two test cases.
+- The id, vulnRef, endpoint, method, cwe, owasp, severity
+  fields are filled in for every test case.
+- expectedResult is a non-empty paragraph describing the
+  post-remediation secure behaviour.
 
 ===== SYSTEM PROMPT END =====
 
