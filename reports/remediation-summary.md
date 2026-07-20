@@ -2,7 +2,7 @@
 
 - **Status:** OK
 - **Safe fixes applied:** 1 (deterministic: 1, LLM: 0)
-- **Files changed:** 6
+- **Files changed:** 10
 
 ## Fixed (deterministic)
 
@@ -13,11 +13,15 @@
 ```
 Dockerfile                   |   1 +
  reports/SONAR_REPORT.md      |   8 +-
- reports/llm-prompt.txt       |   9 ++
+ reports/llm-prompt.txt       | 535 ++-----------------------------------------
+ reports/security-report.json | 204 +++++------------
+ reports/security-review.json | 204 +++++------------
+ reports/security-review.md   | 137 ++++-------
+ reports/security-summary.txt |  20 +-
  reports/sonar-report.json    |   6 +-
- reports/trivy-image.raw.json | 350 +++++++++++++++++++++----------------------
+ reports/trivy-image.raw.json | 350 ++++++++++++++--------------
  reports/trivy-image.sarif    |   6 +-
- 6 files changed, 195 insertions(+), 185 deletions(-)
+ 10 files changed, 361 insertions(+), 1110 deletions(-)
 ```
 
 ## Reviewer checklist
