@@ -1,11 +1,11 @@
  Dockerfile                   |   1 +
  reports/SONAR_REPORT.md      |   8 +-
- reports/llm-prompt.txt       | 535 ++-----------------------------------------
- reports/security-report.json | 204 +++++------------
- reports/security-review.json | 204 +++++------------
- reports/security-review.md   | 137 ++++-------
+ reports/llm-prompt.txt       | 551 +++++++++++++++++++++++++++++++++++++++++--
+ reports/security-report.json | 204 ++++++++++++----
+ reports/security-review.json | 204 ++++++++++++----
+ reports/security-review.md   | 137 ++++++++---
  reports/security-summary.txt |  20 +-
  reports/sonar-report.json    |   6 +-
- reports/trivy-image.raw.json | 350 ++++++++++++++--------------
+ reports/trivy-image.raw.json | 350 +++++++++++++--------------
  reports/trivy-image.sarif    |   6 +-
- 10 files changed, 361 insertions(+), 1110 deletions(-)
+ 10 files changed, 1128 insertions(+), 359 deletions(-)

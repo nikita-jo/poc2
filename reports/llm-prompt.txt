@@ -8,22 +8,40 @@ each finding and emit a `patches[].file` path that matches it
 exactly (the validator will reject any other path).
 
 ===== FINDINGS (sorted by severity, capped at 20) =====
-- id=SR-001 sev=HIGH class=maven file=com.fasterxml.jackson.core:jackson-databind@2.21.2 line=None rule_id=CVE-2026-54512
-  evidence: com.fasterxml.jackson.core:jackson-databind@2.21.2 -> 2.18.8, 3.1.4, 2.21.4
+- id=SR-001 sev=HIGH class=maven file=com.fasterxml.jackson.core:jackson-databind line=1 rule_id=CVE-2026-54512
+  evidence: 
   suggested_fix: Upgrade com.fasterxml.jackson.core:jackson-databind to 2.18.8, 3.1.4, 2.21.4
-- id=SR-002 sev=HIGH class=maven file=com.fasterxml.jackson.core:jackson-databind@2.21.2 line=None rule_id=CVE-2026-54513
-  evidence: com.fasterxml.jackson.core:jackson-databind@2.21.2 -> 2.18.8, 2.21.4, 3.1.4
+- id=SR-002 sev=HIGH class=maven file=com.fasterxml.jackson.core:jackson-databind line=1 rule_id=CVE-2026-54513
+  evidence: 
   suggested_fix: Upgrade com.fasterxml.jackson.core:jackson-databind to 2.18.8, 2.21.4, 3.1.4
-- id=SR-004 sev=HIGH class=unknown file=com.example.vulnerable-spring-app line=None rule_id=None
-  evidence: Overall line coverage: 0%
-  suggested_fix: Increase test coverage to at least 80%
-- id=SR-003 sev=MEDIUM class=maven file=org.springframework.security:spring-security-web@6.5.10 line=None rule_id=CVE-2026-47838
-  evidence: org.springframework.security:spring-security-web@6.5.10 -> 6.5.11
-  suggested_fix: Upgrade org.springframework.security:spring-security-web to 6.5.11
+- id=SR-003 sev=MEDIUM class=os file=bsdutils line=1 rule_id=CVE-2026-27456
+  evidence: 
+  suggested_fix: Upgrade bsdutils to Link: [CVE-2026-27456](https://avd.aquasec.com/nvd/cve-2026-27456)
+- id=SR-004 sev=MEDIUM class=os file=libblkid1 line=1 rule_id=CVE-2026-27456
+  evidence: 
+  suggested_fix: Upgrade libblkid1 to Link: [CVE-2026-27456](https://avd.aquasec.com/nvd/cve-2026-27456)
+- id=SR-005 sev=MEDIUM class=os file=libc-bin line=1 rule_id=CVE-2026-4046
+  evidence: 
+  suggested_fix: Upgrade libc-bin to Link: [CVE-2026-4046](https://avd.aquasec.com/nvd/cve-2026-4046)
+- id=SR-006 sev=MEDIUM class=os file=libc-bin line=1 rule_id=CVE-2026-5435
+  evidence: 
+  suggested_fix: Upgrade libc-bin to Link: [CVE-2026-5435](https://avd.aquasec.com/nvd/cve-2026-5435)
+- id=SR-007 sev=MEDIUM class=os file=libc-bin line=1 rule_id=CVE-2026-6238
+  evidence: 
+  suggested_fix: Upgrade libc-bin to Link: [CVE-2026-6238](https://avd.aquasec.com/nvd/cve-2026-6238)
+- id=SR-008 sev=MEDIUM class=os file=libc6 line=1 rule_id=CVE-2026-4046
+  evidence: 
+  suggested_fix: Upgrade libc6 to Link: [CVE-2026-4046](https://avd.aquasec.com/nvd/cve-2026-4046)
+- id=SR-009 sev=MEDIUM class=os file=libc6 line=1 rule_id=CVE-2026-5435
+  evidence: 
+  suggested_fix: Upgrade libc6 to Link: [CVE-2026-5435](https://avd.aquasec.com/nvd/cve-2026-5435)
+- id=SR-010 sev=MEDIUM class=os file=libc6 line=1 rule_id=CVE-2026-6238
+  evidence: 
+  suggested_fix: Upgrade libc6 to Link: [CVE-2026-6238](https://avd.aquasec.com/nvd/cve-2026-6238)
 
 ===== FINDING CONTEXT (one block per finding) =====
 
------ SR-001 (MAVEN: com.fasterxml.jackson.core:jackson-databind@2.21.2) — fix in pom.xml -----
+----- SR-001 (MAVEN: com.fasterxml.jackson.core:jackson-databind) — fix in pom.xml -----
 --- <parent> block ---
 <parent>
         <groupId>org.springframework.boot</groupId>
@@ -31,9 +49,9 @@ exactly (the validator will reject any other path).
         <version>3.5.14</version>
         <relativePath/>
     </parent>
---- (no explicit <dependency> block for com.fasterxml.jackson.core:jackson-databind@2.21.2; the artifact is BOM-managed) ---
+--- (no explicit <dependency> block for com.fasterxml.jackson.core:jackson-databind; the artifact is BOM-managed) ---
 
------ SR-002 (MAVEN: com.fasterxml.jackson.core:jackson-databind@2.21.2) — fix in pom.xml -----
+----- SR-002 (MAVEN: com.fasterxml.jackson.core:jackson-databind) — fix in pom.xml -----
 --- <parent> block ---
 <parent>
         <groupId>org.springframework.boot</groupId>
@@ -41,19 +59,503 @@ exactly (the validator will reject any other path).
         <version>3.5.14</version>
         <relativePath/>
     </parent>
---- (no explicit <dependency> block for com.fasterxml.jackson.core:jackson-databind@2.21.2; the artifact is BOM-managed) ---
+--- (no explicit <dependency> block for com.fasterxml.jackson.core:jackson-databind; the artifact is BOM-managed) ---
 
------ SR-004 (UNKNOWN: com.example.vulnerable-spring-app) — no file content; either fix in pom.xml / Dockerfile based on the suggested_fix, or skip -----
+----- SR-003 (OS: bsdutils) — fix in Dockerfile -----
+FROM eclipse-temurin:21-jre-jammy
+WORKDIR /app
 
------ SR-003 (MAVEN: org.springframework.security:spring-security-web@6.5.10) — fix in pom.xml -----
---- <parent> block ---
-<parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.14</version>
-        <relativePath/>
-    </parent>
---- (no explicit <dependency> block for org.springframework.security:spring-security-web@6.5.10; the artifact is BOM-managed) ---
+# OS-level hygiene: keep the image small, then create an unprivileged user
+# and switch to it. The OWSAP lab exercises SQLi / XSS / SSRF etc. in the
+# application, so isolating the runtime from root is a useful baseline.
+RUN apt-get update \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get install -y --no-install-recommends tini \
+ && rm -rf /var/lib/apt/lists/* \
+ && groupadd --system --gid 1001 app \
+ && useradd  --system --uid 1001 --gid app --home /app --shell /usr/sbin/nologin app
+
+COPY --from=builder /build/app.jar /app/app.jar
+RUN chown -R app:app /app
+
+USER app
+
+# tini reaps zombie processes and forwards signals cleanly; without it
+# `docker stop` doesn't get a chance to flush the JVM.
+ENTRYPOINT ["/usr/bin/tini", "--", "java", "-jar", "/app/app.jar"]
+
+EXPOSE 8080
+
+# TCP liveness probe — confirms the JVM is listening on the application
+# port. (An HTTP probe to /actuator/health would be nicer, but this
+# project does not include spring-boot-starter-actuator, and a curl
+# against / would hit the security chain and return a non-2xx. A raw
+# TCP open is the right primitive for "is the JVM up?".)
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+  CMD bash -c 'exec 3<>/dev/tcp/127.0.0.1/8080' || exit 1
+
+
+----- SR-004 (OS: libblkid1) — fix in Dockerfile -----
+FROM eclipse-temurin:21-jre-jammy
+WORKDIR /app
+
+# OS-level hygiene: keep the image small, then create an unprivileged user
+# and switch to it. The OWSAP lab exercises SQLi / XSS / SSRF etc. in the
+# application, so isolating the runtime from root is a useful baseline.
+RUN apt-get update \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get install -y --no-install-recommends tini \
+ && rm -rf /var/lib/apt/lists/* \
+ && groupadd --system --gid 1001 app \
+ && useradd  --system --uid 1001 --gid app --home /app --shell /usr/sbin/nologin app
+
+COPY --from=builder /build/app.jar /app/app.jar
+RUN chown -R app:app /app
+
+USER app
+
+# tini reaps zombie processes and forwards signals cleanly; without it
+# `docker stop` doesn't get a chance to flush the JVM.
+ENTRYPOINT ["/usr/bin/tini", "--", "java", "-jar", "/app/app.jar"]
+
+EXPOSE 8080
+
+# TCP liveness probe — confirms the JVM is listening on the application
+# port. (An HTTP probe to /actuator/health would be nicer, but this
+# project does not include spring-boot-starter-actuator, and a curl
+# against / would hit the security chain and return a non-2xx. A raw
+# TCP open is the right primitive for "is the JVM up?".)
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+  CMD bash -c 'exec 3<>/dev/tcp/127.0.0.1/8080' || exit 1
+
+
+----- SR-005 (OS: libc-bin) — fix in Dockerfile -----
+FROM eclipse-temurin:21-jre-jammy
+WORKDIR /app
+
+# OS-level hygiene: keep the image small, then create an unprivileged user
+# and switch to it. The OWSAP lab exercises SQLi / XSS / SSRF etc. in the
+# application, so isolating the runtime from root is a useful baseline.
+RUN apt-get update \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get install -y --no-install-recommends tini \
+ && rm -rf /var/lib/apt/lists/* \
+ && groupadd --system --gid 1001 app \
+ && useradd  --system --uid 1001 --gid app --home /app --shell /usr/sbin/nologin app
+
+COPY --from=builder /build/app.jar /app/app.jar
+RUN chown -R app:app /app
+
+USER app
+
+# tini reaps zombie processes and forwards signals cleanly; without it
+# `docker stop` doesn't get a chance to flush the JVM.
+ENTRYPOINT ["/usr/bin/tini", "--", "java", "-jar", "/app/app.jar"]
+
+EXPOSE 8080
+
+# TCP liveness probe — confirms the JVM is listening on the application
+# port. (An HTTP probe to /actuator/health would be nicer, but this
+# project does not include spring-boot-starter-actuator, and a curl
+# against / would hit the security chain and return a non-2xx. A raw
+# TCP open is the right primitive for "is the JVM up?".)
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+  CMD bash -c 'exec 3<>/dev/tcp/127.0.0.1/8080' || exit 1
+
+
+----- SR-006 (OS: libc-bin) — fix in Dockerfile -----
+FROM eclipse-temurin:21-jre-jammy
+WORKDIR /app
+
+# OS-level hygiene: keep the image small, then create an unprivileged user
+# and switch to it. The OWSAP lab exercises SQLi / XSS / SSRF etc. in the
+# application, so isolating the runtime from root is a useful baseline.
+RUN apt-get update \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get install -y --no-install-recommends tini \
+ && rm -rf /var/lib/apt/lists/* \
+ && groupadd --system --gid 1001 app \
+ && useradd  --system --uid 1001 --gid app --home /app --shell /usr/sbin/nologin app
+
+COPY --from=builder /build/app.jar /app/app.jar
+RUN chown -R app:app /app
+
+USER app
+
+# tini reaps zombie processes and forwards signals cleanly; without it
+# `docker stop` doesn't get a chance to flush the JVM.
+ENTRYPOINT ["/usr/bin/tini", "--", "java", "-jar", "/app/app.jar"]
+
+EXPOSE 8080
+
+# TCP liveness probe — confirms the JVM is listening on the application
+# port. (An HTTP probe to /actuator/health would be nicer, but this
+# project does not include spring-boot-starter-actuator, and a curl
+# against / would hit the security chain and return a non-2xx. A raw
+# TCP open is the right primitive for "is the JVM up?".)
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+  CMD bash -c 'exec 3<>/dev/tcp/127.0.0.1/8080' || exit 1
+
+
+----- SR-007 (OS: libc-bin) — fix in Dockerfile -----
+FROM eclipse-temurin:21-jre-jammy
+WORKDIR /app
+
+# OS-level hygiene: keep the image small, then create an unprivileged user
+# and switch to it. The OWSAP lab exercises SQLi / XSS / SSRF etc. in the
+# application, so isolating the runtime from root is a useful baseline.
+RUN apt-get update \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get install -y --no-install-recommends tini \
+ && rm -rf /var/lib/apt/lists/* \
+ && groupadd --system --gid 1001 app \
+ && useradd  --system --uid 1001 --gid app --home /app --shell /usr/sbin/nologin app
+
+COPY --from=builder /build/app.jar /app/app.jar
+RUN chown -R app:app /app
+
+USER app
+
+# tini reaps zombie processes and forwards signals cleanly; without it
+# `docker stop` doesn't get a chance to flush the JVM.
+ENTRYPOINT ["/usr/bin/tini", "--", "java", "-jar", "/app/app.jar"]
+
+EXPOSE 8080
+
+# TCP liveness probe — confirms the JVM is listening on the application
+# port. (An HTTP probe to /actuator/health would be nicer, but this
+# project does not include spring-boot-starter-actuator, and a curl
+# against / would hit the security chain and return a non-2xx. A raw
+# TCP open is the right primitive for "is the JVM up?".)
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+  CMD bash -c 'exec 3<>/dev/tcp/127.0.0.1/8080' || exit 1
+
+
+----- SR-008 (OS: libc6) — fix in Dockerfile -----
+FROM eclipse-temurin:21-jre-jammy
+WORKDIR /app
+
+# OS-level hygiene: keep the image small, then create an unprivileged user
+# and switch to it. The OWSAP lab exercises SQLi / XSS / SSRF etc. in the
+# application, so isolating the runtime from root is a useful baseline.
+RUN apt-get update \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get install -y --no-install-recommends tini \
+ && rm -rf /var/lib/apt/lists/* \
+ && groupadd --system --gid 1001 app \
+ && useradd  --system --uid 1001 --gid app --home /app --shell /usr/sbin/nologin app
+
+COPY --from=builder /build/app.jar /app/app.jar
+RUN chown -R app:app /app
+
+USER app
+
+# tini reaps zombie processes and forwards signals cleanly; without it
+# `docker stop` doesn't get a chance to flush the JVM.
+ENTRYPOINT ["/usr/bin/tini", "--", "java", "-jar", "/app/app.jar"]
+
+EXPOSE 8080
+
+# TCP liveness probe — confirms the JVM is listening on the application
+# port. (An HTTP probe to /actuator/health would be nicer, but this
+# project does not include spring-boot-starter-actuator, and a curl
+# against / would hit the security chain and return a non-2xx. A raw
+# TCP open is the right primitive for "is the JVM up?".)
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+  CMD bash -c 'exec 3<>/dev/tcp/127.0.0.1/8080' || exit 1
+
+
+----- SR-009 (OS: libc6) — fix in Dockerfile -----
+FROM eclipse-temurin:21-jre-jammy
+WORKDIR /app
+
+# OS-level hygiene: keep the image small, then create an unprivileged user
+# and switch to it. The OWSAP lab exercises SQLi / XSS / SSRF etc. in the
+# application, so isolating the runtime from root is a useful baseline.
+RUN apt-get update \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get install -y --no-install-recommends tini \
+ && rm -rf /var/lib/apt/lists/* \
+ && groupadd --system --gid 1001 app \
+ && useradd  --system --uid 1001 --gid app --home /app --shell /usr/sbin/nologin app
+
+COPY --from=builder /build/app.jar /app/app.jar
+RUN chown -R app:app /app
+
+USER app
+
+# tini reaps zombie processes and forwards signals cleanly; without it
+# `docker stop` doesn't get a chance to flush the JVM.
+ENTRYPOINT ["/usr/bin/tini", "--", "java", "-jar", "/app/app.jar"]
+
+EXPOSE 8080
+
+# TCP liveness probe — confirms the JVM is listening on the application
+# port. (An HTTP probe to /actuator/health would be nicer, but this
+# project does not include spring-boot-starter-actuator, and a curl
+# against / would hit the security chain and return a non-2xx. A raw
+# TCP open is the right primitive for "is the JVM up?".)
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+  CMD bash -c 'exec 3<>/dev/tcp/127.0.0.1/8080' || exit 1
+
+
+----- SR-010 (OS: libc6) — fix in Dockerfile -----
+FROM eclipse-temurin:21-jre-jammy
+WORKDIR /app
+
+# OS-level hygiene: keep the image small, then create an unprivileged user
+# and switch to it. The OWSAP lab exercises SQLi / XSS / SSRF etc. in the
+# application, so isolating the runtime from root is a useful baseline.
+RUN apt-get update \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get install -y --no-install-recommends tini \
+ && rm -rf /var/lib/apt/lists/* \
+ && groupadd --system --gid 1001 app \
+ && useradd  --system --uid 1001 --gid app --home /app --shell /usr/sbin/nologin app
+
+COPY --from=builder /build/app.jar /app/app.jar
+RUN chown -R app:app /app
+
+USER app
+
+# tini reaps zombie processes and forwards signals cleanly; without it
+# `docker stop` doesn't get a chance to flush the JVM.
+ENTRYPOINT ["/usr/bin/tini", "--", "java", "-jar", "/app/app.jar"]
+
+EXPOSE 8080
+
+# TCP liveness probe — confirms the JVM is listening on the application
+# port. (An HTTP probe to /actuator/health would be nicer, but this
+# project does not include spring-boot-starter-actuator, and a curl
+# against / would hit the security chain and return a non-2xx. A raw
+# TCP open is the right primitive for "is the JVM up?".)
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+  CMD bash -c 'exec 3<>/dev/tcp/127.0.0.1/8080' || exit 1
+
 
 ===== PROJECT CONTEXT (use these as patch targets) =====
 
@@ -292,6 +794,7 @@ WORKDIR /app
 # and switch to it. The OWSAP lab exercises SQLi / XSS / SSRF etc. in the
 # application, so isolating the runtime from root is a useful baseline.
 RUN apt-get update \
+ && apt-get upgrade -y --no-install-recommends \
  && apt-get upgrade -y --no-install-recommends \
  && apt-get upgrade -y --no-install-recommends \
  && apt-get upgrade -y --no-install-recommends \

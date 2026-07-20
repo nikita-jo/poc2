@@ -3,10 +3,10 @@
   "Trivy": {
     "Version": "0.72.0"
   },
-  "ReportID": "019f7e06-03e7-7f08-a697-9fb634552366",
-  "CreatedAt": "2026-07-20T05:35:51.271986209Z",
-  "ArtifactID": "sha256:c3322161e14557f247288979e2fbdc8274b6867e5f282f5a22692c77f3cd1049",
-  "ArtifactName": "vulnerable-spring-app:ci-2927145806ce2ab8594aaf251cb739be1fe2867f",
+  "ReportID": "019f7e28-61d7-71b5-8e79-b8ed226ea9ce",
+  "CreatedAt": "2026-07-20T06:13:23.543112777Z",
+  "ArtifactID": "sha256:3d01c436650a61c40f1e956c4fff9737ee46cdb0fbdaa2699be82ec61e171a23",
+  "ArtifactName": "vulnerable-spring-app:ci-f53f49dad7dee52873dc6a94e05553874463cbb3",
   "ArtifactType": "container_image",
   "Metadata": {
     "Size": 421286400,
@@ -14,25 +14,25 @@
       "Family": "ubuntu",
       "Name": "22.04"
     },
-    "ImageID": "sha256:0742fdee39bd2fa2d10ab3de631a6c8789ee9d565cb3269c806c363d5fa9f2c9",
+    "ImageID": "sha256:981fdd860fd5d504378f3ed81ab2e692b8899eaa9506d2fa958e6ef613060f23",
     "DiffIDs": [
       "sha256:10f9108f6cebf96e05cadfab3c188071f3c6d084abe680fd0bc9f61c268e854d",
       "sha256:d1a7723a69d79c7d2861953101a46691b6c9bfeabc05b8b0318e3b625fd4ef20",
       "sha256:d03cbe8e742104425831c363d1c8d22a8cf6b0d78a38cf59163bd4829f440e17",
       "sha256:27013f95b0923d235d71c2540f61a8bf38a3fb4dedad1418427a2728bbef4d5d",
       "sha256:5ba08cb246ff1469aad493e2b6b3f04ea23825113e909c99ca321fd514c194e6",
-      "sha256:db797ce864a0e48e62eee60e5c5b27843158ab1c70be13c1ef875a226fb70a1e",
-      "sha256:033f3b72f7b7cddf336e1ece10b53d700159ec45b5960b8c45bb3b5abde44bb8",
-      "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e",
-      "sha256:862d68c431d8c8b9bd32b8da75dee527680b8acacff7956b852c221d7426b416"
+      "sha256:4ada91d1044b359a8e26014fceaf378a133798c1f6319e90576b4ddc24c06d92",
+      "sha256:1e2a7575868f21603a0d1df846d4c44c68ca8ddc7afab75fb9d1d44b0dbfaa1f",
+      "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732",
+      "sha256:2703255d0f41de838d6083c208244d753fe2e387dff0dbac09b93e290207ca8e"
     ],
     "RepoTags": [
-      "vulnerable-spring-app:ci-2927145806ce2ab8594aaf251cb739be1fe2867f"
+      "vulnerable-spring-app:ci-f53f49dad7dee52873dc6a94e05553874463cbb3"
     ],
-    "Reference": "vulnerable-spring-app:ci-2927145806ce2ab8594aaf251cb739be1fe2867f",
+    "Reference": "vulnerable-spring-app:ci-f53f49dad7dee52873dc6a94e05553874463cbb3",
     "ImageConfig": {
       "architecture": "amd64",
-      "created": "2026-07-20T05:35:05.025335238Z",
+      "created": "2026-07-20T06:12:48.573702445Z",
       "history": [
         {
           "created": "2026-06-29T11:07:30Z",
@@ -109,45 +109,45 @@
           "empty_layer": true
         },
         {
-          "created": "2026-07-20T05:34:09Z",
+          "created": "2026-07-20T06:11:54Z",
           "created_by": "WORKDIR /app",
           "comment": "buildkit.dockerfile.v0"
         },
         {
-          "created": "2026-07-20T05:35:04Z",
-          "created_by": "RUN /bin/sh -c apt-get update  \u0026\u0026 apt-get upgrade -y --no-install-recommends  \u0026\u0026 apt-get upgrade -y --no-install-recommends  \u0026\u0026 apt-get upgrade -y --no-install-recommends  \u0026\u0026 apt-get upgrade -y --no-install-recommends  \u0026\u0026 apt-get upgrade -y --no-install-recommends  \u0026\u0026 apt-get upgrade -y --no-install-recommends  \u0026\u0026 apt-get upgrade -y --no-install-recommends  \u0026\u0026 apt-get upgrade -y --no-install-recommends  \u0026\u0026 apt-get upgrade -y --no-install-recommends  \u0026\u0026 apt-get upgrade -y --no-install-recommends  \u0026\u0026 apt-get upgrade -y --no-install-recommends  \u0026\u0026 apt-get upgrade -y --no-install-recommends  \u0026\u0026 apt-get upgrade -y --no-install-recommends  \u0026\u0026 apt-get upgrade -y --no-install-recommends  \u0026\u0026 apt-get upgrade -y --no-install-recommends  \u0026\u0026 apt-get upgrade -y --no-install-recommends  \u0026\u0026 apt-get upgrade -y --no-install-recommends  \u0026\u0026 apt-get upgrade -y --no-install-recommends  \u0026\u0026 apt-get upgrade -y --no-install-recommends  \u0026\u0026 apt-get upgrade -y --no-install-recommends  \u0026\u0026 apt-get upgrade -y --no-install-recommends  \u0026\u0026 apt-get upgrade -y --no-install-recommends  \u0026\u0026 apt-get upgrade -y --no-install-recommends  \u0026\u0026 apt-get upgrade -y --no-install-recommends  \u0026\u0026 apt-get upgrade -y --no-install-recommends  \u0026\u0026 apt-get upgrade -y --no-install-recommends  \u0026\u0026 apt-get upgrade -y --no-install-recommends  \u0026\u0026 apt-get install -y --no-install-recommends tini  \u0026\u0026 rm -rf /var/lib/apt/lists/*  \u0026\u0026 groupadd --system --gid 1001 app  \u0026\u0026 useradd  --system --uid 1001 --gid app --home /app --shell /usr/sbin/nologin app # buildkit",
+          "created": "2026-07-20T06:12:48Z",
+          "created_by": "RUN /bin/sh -c apt-get update  \u0026\u0026 apt-get upgrade -y --no-install-recommends  \u0026\u0026 apt-get upgrade -y --no-install-recommends  \u0026\u0026 apt-get upgrade -y --no-install-recommends  \u0026\u0026 apt-get upgrade -y --no-install-recommends  \u0026\u0026 apt-get upgrade -y --no-install-recommends  \u0026\u0026 apt-get upgrade -y --no-install-recommends  \u0026\u0026 apt-get upgrade -y --no-install-recommends  \u0026\u0026 apt-get upgrade -y --no-install-recommends  \u0026\u0026 apt-get upgrade -y --no-install-recommends  \u0026\u0026 apt-get upgrade -y --no-install-recommends  \u0026\u0026 apt-get upgrade -y --no-install-recommends  \u0026\u0026 apt-get upgrade -y --no-install-recommends  \u0026\u0026 apt-get upgrade -y --no-install-recommends  \u0026\u0026 apt-get upgrade -y --no-install-recommends  \u0026\u0026 apt-get upgrade -y --no-install-recommends  \u0026\u0026 apt-get upgrade -y --no-install-recommends  \u0026\u0026 apt-get upgrade -y --no-install-recommends  \u0026\u0026 apt-get upgrade -y --no-install-recommends  \u0026\u0026 apt-get upgrade -y --no-install-recommends  \u0026\u0026 apt-get upgrade -y --no-install-recommends  \u0026\u0026 apt-get upgrade -y --no-install-recommends  \u0026\u0026 apt-get upgrade -y --no-install-recommends  \u0026\u0026 apt-get upgrade -y --no-install-recommends  \u0026\u0026 apt-get upgrade -y --no-install-recommends  \u0026\u0026 apt-get upgrade -y --no-install-recommends  \u0026\u0026 apt-get upgrade -y --no-install-recommends  \u0026\u0026 apt-get upgrade -y --no-install-recommends  \u0026\u0026 apt-get upgrade -y --no-install-recommends  \u0026\u0026 apt-get install -y --no-install-recommends tini  \u0026\u0026 rm -rf /var/lib/apt/lists/*  \u0026\u0026 groupadd --system --gid 1001 app  \u0026\u0026 useradd  --system --uid 1001 --gid app --home /app --shell /usr/sbin/nologin app # buildkit",
           "comment": "buildkit.dockerfile.v0"
         },
         {
-          "created": "2026-07-20T05:35:04Z",
+          "created": "2026-07-20T06:12:48Z",
           "created_by": "COPY /build/app.jar /app/app.jar # buildkit",
           "comment": "buildkit.dockerfile.v0"
         },
         {
-          "created": "2026-07-20T05:35:05Z",
+          "created": "2026-07-20T06:12:48Z",
           "created_by": "RUN /bin/sh -c chown -R app:app /app # buildkit",
           "comment": "buildkit.dockerfile.v0"
         },
         {
-          "created": "2026-07-20T05:35:05Z",
+          "created": "2026-07-20T06:12:48Z",
           "created_by": "USER app",
           "comment": "buildkit.dockerfile.v0",
           "empty_layer": true
         },
         {
-          "created": "2026-07-20T05:35:05Z",
+          "created": "2026-07-20T06:12:48Z",
           "created_by": "ENTRYPOINT [\"/usr/bin/tini\" \"--\" \"java\" \"-jar\" \"/app/app.jar\"]",
           "comment": "buildkit.dockerfile.v0",
           "empty_layer": true
         },
         {
-          "created": "2026-07-20T05:35:05Z",
+          "created": "2026-07-20T06:12:48Z",
           "created_by": "EXPOSE map[8080/tcp:{}]",
           "comment": "buildkit.dockerfile.v0",
           "empty_layer": true
         },
         {
-          "created": "2026-07-20T05:35:05Z",
+          "created": "2026-07-20T06:12:48Z",
           "created_by": "HEALTHCHECK \u0026{[\"CMD-SHELL\" \"bash -c 'exec 3\u003c\u003e/dev/tcp/127.0.0.1/8080' || exit 1\"] \"30s\" \"5s\" \"20s\" \"0s\" '\\x03'}",
           "comment": "buildkit.dockerfile.v0",
           "empty_layer": true
@@ -162,10 +162,10 @@
           "sha256:d03cbe8e742104425831c363d1c8d22a8cf6b0d78a38cf59163bd4829f440e17",
           "sha256:27013f95b0923d235d71c2540f61a8bf38a3fb4dedad1418427a2728bbef4d5d",
           "sha256:5ba08cb246ff1469aad493e2b6b3f04ea23825113e909c99ca321fd514c194e6",
-          "sha256:db797ce864a0e48e62eee60e5c5b27843158ab1c70be13c1ef875a226fb70a1e",
-          "sha256:033f3b72f7b7cddf336e1ece10b53d700159ec45b5960b8c45bb3b5abde44bb8",
-          "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e",
-          "sha256:862d68c431d8c8b9bd32b8da75dee527680b8acacff7956b852c221d7426b416"
+          "sha256:4ada91d1044b359a8e26014fceaf378a133798c1f6319e90576b4ddc24c06d92",
+          "sha256:1e2a7575868f21603a0d1df846d4c44c68ca8ddc7afab75fb9d1d44b0dbfaa1f",
+          "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732",
+          "sha256:2703255d0f41de838d6083c208244d753fe2e387dff0dbac09b93e290207ca8e"
         ]
       },
       "config": {
@@ -227,25 +227,25 @@
       },
       {
         "Size": 1536,
-        "DiffID": "sha256:db797ce864a0e48e62eee60e5c5b27843158ab1c70be13c1ef875a226fb70a1e"
+        "DiffID": "sha256:4ada91d1044b359a8e26014fceaf378a133798c1f6319e90576b4ddc24c06d92"
       },
       {
         "Size": 10593792,
-        "DiffID": "sha256:033f3b72f7b7cddf336e1ece10b53d700159ec45b5960b8c45bb3b5abde44bb8"
+        "DiffID": "sha256:1e2a7575868f21603a0d1df846d4c44c68ca8ddc7afab75fb9d1d44b0dbfaa1f"
       },
       {
         "Size": 59574784,
-        "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+        "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
       },
       {
         "Size": 59574784,
-        "DiffID": "sha256:862d68c431d8c8b9bd32b8da75dee527680b8acacff7956b852c221d7426b416"
+        "DiffID": "sha256:2703255d0f41de838d6083c208244d753fe2e387dff0dbac09b93e290207ca8e"
       }
     ]
   },
   "Results": [
     {
-      "Target": "vulnerable-spring-app:ci-2927145806ce2ab8594aaf251cb739be1fe2867f (ubuntu 22.04)",
+      "Target": "vulnerable-spring-app:ci-f53f49dad7dee52873dc6a94e05553874463cbb3 (ubuntu 22.04)",
       "Class": "os-pkgs",
       "Type": "ubuntu",
       "Packages": [
@@ -2790,7 +2790,7 @@
             "dpkg@1.21.1ubuntu2.6"
           ],
           "Layer": {
-            "DiffID": "sha256:033f3b72f7b7cddf336e1ece10b53d700159ec45b5960b8c45bb3b5abde44bb8"
+            "DiffID": "sha256:1e2a7575868f21603a0d1df846d4c44c68ca8ddc7afab75fb9d1d44b0dbfaa1f"
           },
           "InstalledFiles": [
             "/bin/gunzip",
@@ -4801,7 +4801,7 @@
             "libtinfo6@6.3-2ubuntu0.2"
           ],
           "Layer": {
-            "DiffID": "sha256:033f3b72f7b7cddf336e1ece10b53d700159ec45b5960b8c45bb3b5abde44bb8"
+            "DiffID": "sha256:1e2a7575868f21603a0d1df846d4c44c68ca8ddc7afab75fb9d1d44b0dbfaa1f"
           },
           "InstalledFiles": [
             "/lib/x86_64-linux-gnu/libncurses.so.6.3",
@@ -4833,7 +4833,7 @@
             "libtinfo6@6.3-2ubuntu0.2"
           ],
           "Layer": {
-            "DiffID": "sha256:033f3b72f7b7cddf336e1ece10b53d700159ec45b5960b8c45bb3b5abde44bb8"
+            "DiffID": "sha256:1e2a7575868f21603a0d1df846d4c44c68ca8ddc7afab75fb9d1d44b0dbfaa1f"
           },
           "InstalledFiles": [
             "/lib/x86_64-linux-gnu/libncursesw.so.6.3",
@@ -4916,7 +4916,7 @@
             "libc6@2.35-0ubuntu3.13"
           ],
           "Layer": {
-            "DiffID": "sha256:033f3b72f7b7cddf336e1ece10b53d700159ec45b5960b8c45bb3b5abde44bb8"
+            "DiffID": "sha256:1e2a7575868f21603a0d1df846d4c44c68ca8ddc7afab75fb9d1d44b0dbfaa1f"
           },
           "InstalledFiles": [
             "/usr/lib/x86_64-linux-gnu/libnghttp2.so.14.20.1",
@@ -6207,7 +6207,7 @@
             "libc6@2.35-0ubuntu3.13"
           ],
           "Layer": {
-            "DiffID": "sha256:033f3b72f7b7cddf336e1ece10b53d700159ec45b5960b8c45bb3b5abde44bb8"
+            "DiffID": "sha256:1e2a7575868f21603a0d1df846d4c44c68ca8ddc7afab75fb9d1d44b0dbfaa1f"
           },
           "InstalledFiles": [
             "/lib/x86_64-linux-gnu/libtinfo.so.6.3",
@@ -7463,7 +7463,7 @@
             "Class": "official"
           },
           "Layer": {
-            "DiffID": "sha256:033f3b72f7b7cddf336e1ece10b53d700159ec45b5960b8c45bb3b5abde44bb8"
+            "DiffID": "sha256:1e2a7575868f21603a0d1df846d4c44c68ca8ddc7afab75fb9d1d44b0dbfaa1f"
           },
           "InstalledFiles": [
             "/lib/terminfo/E/Eterm",
@@ -7542,7 +7542,7 @@
             "Class": "official"
           },
           "Layer": {
-            "DiffID": "sha256:033f3b72f7b7cddf336e1ece10b53d700159ec45b5960b8c45bb3b5abde44bb8"
+            "DiffID": "sha256:1e2a7575868f21603a0d1df846d4c44c68ca8ddc7afab75fb9d1d44b0dbfaa1f"
           },
           "InstalledFiles": [
             "/usr/bin/clear",
@@ -9245,7 +9245,7 @@
             "Class": "official"
           },
           "Layer": {
-            "DiffID": "sha256:033f3b72f7b7cddf336e1ece10b53d700159ec45b5960b8c45bb3b5abde44bb8"
+            "DiffID": "sha256:1e2a7575868f21603a0d1df846d4c44c68ca8ddc7afab75fb9d1d44b0dbfaa1f"
           },
           "InstalledFiles": [
             "/bin/tar",
@@ -9288,7 +9288,7 @@
             "libc6@2.35-0ubuntu3.13"
           ],
           "Layer": {
-            "DiffID": "sha256:033f3b72f7b7cddf336e1ece10b53d700159ec45b5960b8c45bb3b5abde44bb8"
+            "DiffID": "sha256:1e2a7575868f21603a0d1df846d4c44c68ca8ddc7afab75fb9d1d44b0dbfaa1f"
           },
           "InstalledFiles": [
             "/usr/bin/tini",
@@ -9322,7 +9322,7 @@
             "debconf@1.5.79ubuntu1"
           ],
           "Layer": {
-            "DiffID": "sha256:033f3b72f7b7cddf336e1ece10b53d700159ec45b5960b8c45bb3b5abde44bb8"
+            "DiffID": "sha256:1e2a7575868f21603a0d1df846d4c44c68ca8ddc7afab75fb9d1d44b0dbfaa1f"
           },
           "InstalledFiles": [
             "/usr/sbin/tzconfig",
@@ -11194,7 +11194,7 @@
             "zlib1g@1:1.2.11.dfsg-2ubuntu9.2"
           ],
           "Layer": {
-            "DiffID": "sha256:033f3b72f7b7cddf336e1ece10b53d700159ec45b5960b8c45bb3b5abde44bb8"
+            "DiffID": "sha256:1e2a7575868f21603a0d1df846d4c44c68ca8ddc7afab75fb9d1d44b0dbfaa1f"
           },
           "InstalledFiles": [
             "/usr/bin/wget",
@@ -11266,7 +11266,7 @@
             "Name": "Ubuntu CVE Tracker",
             "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
           },
-          "Fingerprint": "sha256:b472bdc48ef4b5cf15e487760d9d56d28b3c8ec0e287143f207446839c382d25",
+          "Fingerprint": "sha256:cfb6850febe902df0743291bcb64f67fa8be2336ec782a9856ad1387c67de5d1",
           "Title": "util-linux: TOCTOU in the mount program when setting up loop devices",
           "Description": "util-linux is a random collection of Linux utilities. Prior to version 2.41.4, a TOCTOU (Time-of-Check-Time-of-Use) vulnerability has been identified in the SUID binary /usr/bin/mount from util-linux. The mount binary, when setting up loop devices, validates the source file path with user privileges via fork() + setuid() + realpath(), but subsequently re-canonicalizes and opens it with root privileges (euid=0) without verifying that the path has not been replaced between both operations. Neither O_NOFOLLOW, nor inode comparison, nor post-open fstat() are employed. This allows a local unprivileged user to replace the source file with a symlink pointing to any root-owned file or device during the race window, causing the SUID binary to open and mount it as root. Exploitation requires an /etc/fstab entry with user,loop options whose path points to a directory where the attacker has write permission, and that /usr/bin/mount has the SUID bit set (the default configuration on virtually all Linux distributions). The impact is unauthorized read access to root-protected files and block devices, including backup images, disk volumes, and any file containing a valid filesystem. This issue has been patched in version 2.41.4.",
           "Severity": "MEDIUM",
@@ -11325,7 +11325,7 @@
             "Name": "Ubuntu CVE Tracker",
             "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
           },
-          "Fingerprint": "sha256:5c9c9ab8914777542d7afd2478821cf968f35b5464066c0e6049ff5f2ff52eff",
+          "Fingerprint": "sha256:518f0e0b673a23e31473d99e3ce2f5379dfb1077d5830e7471358d8f61b0bf9c",
           "Title": "binutils: libiberty/rust-demangle.c in GNU GCC 11.2 allows stack exhaustion in demangle_const",
           "Description": "libiberty/rust-demangle.c in GNU GCC 11.2 allows stack consumption in demangle_const, as demonstrated by nm-new.",
           "Severity": "LOW",
@@ -11385,7 +11385,7 @@
             "Name": "Ubuntu CVE Tracker",
             "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
           },
-          "Fingerprint": "sha256:db66029ca30f4f58026cda1420324cec0f31adb0621cf52daf4ee051f201f947",
+          "Fingerprint": "sha256:756ea48f6897d89d0ea349a5e61fc2b6c54674038fca2e955d81c3d7b391d8d1",
           "Title": "util-linux: TOCTOU in the mount program when setting up loop devices",
           "Description": "util-linux is a random collection of Linux utilities. Prior to version 2.41.4, a TOCTOU (Time-of-Check-Time-of-Use) vulnerability has been identified in the SUID binary /usr/bin/mount from util-linux. The mount binary, when setting up loop devices, validates the source file path with user privileges via fork() + setuid() + realpath(), but subsequently re-canonicalizes and opens it with root privileges (euid=0) without verifying that the path has not been replaced between both operations. Neither O_NOFOLLOW, nor inode comparison, nor post-open fstat() are employed. This allows a local unprivileged user to replace the source file with a symlink pointing to any root-owned file or device during the race window, causing the SUID binary to open and mount it as root. Exploitation requires an /etc/fstab entry with user,loop options whose path points to a directory where the attacker has write permission, and that /usr/bin/mount has the SUID bit set (the default configuration on virtually all Linux distributions). The impact is unauthorized read access to root-protected files and block devices, including backup images, disk volumes, and any file containing a valid filesystem. This issue has been patched in version 2.41.4.",
           "Severity": "MEDIUM",
@@ -11444,7 +11444,7 @@
             "Name": "Ubuntu CVE Tracker",
             "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
           },
-          "Fingerprint": "sha256:0ebfc89e959e3496ce078652af1503074ad5ac41c7ed184d0c9b60dc48b89c86",
+          "Fingerprint": "sha256:0a1f767f772d1a0f4d274f0d33a45b4351a6f6e1c40ef31bfe0b4d4bb88d7924",
           "Title": "glibc: glibc: Denial of Service via iconv() function with specific character sets",
           "Description": "The iconv() function in the GNU C Library versions 2.43 and earlier may crash due to an assertion failure when converting inputs from the IBM1390 or IBM1399 character sets, which may be used to remotely crash an application.\n\n\n\nThis vulnerability can be trivially mitigated by removing the IBM1390 and IBM1399 character sets from systems that do not need them.",
           "Severity": "MEDIUM",
@@ -11515,7 +11515,7 @@
             "Name": "Ubuntu CVE Tracker",
             "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
           },
-          "Fingerprint": "sha256:bcef0853f5f8618f18d9fab3fb60a3dc7d8eff6488144f754881bfb27ddd83eb",
+          "Fingerprint": "sha256:a7669bd4a76942f0a6b3f10c243d8f63e92d42ac15cc262438183651fb7f49ee",
           "Title": "glibc: glibc: Out-of-bounds write via TSIG record processing",
           "Description": "The deprecated functions ns_printrrf, ns_printrr and fp_nquery in the GNU C Library version 2.2 and newer fail to enforce the caller-supplied buffer length, and can result in an out-of-bounds write when printing TSIG records.",
           "Severity": "MEDIUM",
@@ -11565,7 +11565,7 @@
             "Name": "Ubuntu CVE Tracker",
             "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
           },
-          "Fingerprint": "sha256:cd26a1506551b25eb4b2c101ea5cd09263f95e42dc18a5fe40a8842f40d7a6e8",
+          "Fingerprint": "sha256:352a2334815eaf7dd0015b663868dc07255c3ea3ac848eff7629527a778a81d9",
           "Title": "glibc: glibc: Application crash or uninitialized memory read via crafted DNS response",
           "Description": "The deprecated functions ns_printrrf, ns_printrr and fp_nquery in the GNU C Library version 2.0.1 to version 2.43 fail to validate the RDATA content against the RDATA length in a DNS response when processing A6, CERT, LOC, TKEY or TSIG records, which may allow an attacker to craft a DNS response, causing a target application to crash or read uninitialized memory.\n\nThese functions are for application debugging only and hence not in the path of code executed by the DNS resolver.  Further, they have been deprecated since version 2.34 and should not be used by any new applications.  Applications should consider porting away from these interfaces since they may be removed in future versions.",
           "Severity": "MEDIUM",
@@ -11615,7 +11615,7 @@
             "Name": "Ubuntu CVE Tracker",
             "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
           },
-          "Fingerprint": "sha256:3fd9395380b952ccddd90e52a82fae1292e3ca10644618f0cff700887e93a91f",
+          "Fingerprint": "sha256:e1b8077ec100475ad4211a1058f94bc49c2b040a193db400a3d22ffbbc0c25d7",
           "Title": "glibc: glibc: Denial of Service via iconv() function with specific character sets",
           "Description": "The iconv() function in the GNU C Library versions 2.43 and earlier may crash due to an assertion failure when converting inputs from the IBM1390 or IBM1399 character sets, which may be used to remotely crash an application.\n\n\n\nThis vulnerability can be trivially mitigated by removing the IBM1390 and IBM1399 character sets from systems that do not need them.",
           "Severity": "MEDIUM",
@@ -11686,7 +11686,7 @@
             "Name": "Ubuntu CVE Tracker",
             "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
           },
-          "Fingerprint": "sha256:fa6f70cce1078b27d635252e3587350ed4459225cc442740c321494ab99b39de",
+          "Fingerprint": "sha256:d4a1665ddfd29adbb1bca9206ac88d5ea017f6f81d854904722bc5b2de5b43ba",
           "Title": "glibc: glibc: Out-of-bounds write via TSIG record processing",
           "Description": "The deprecated functions ns_printrrf, ns_printrr and fp_nquery in the GNU C Library version 2.2 and newer fail to enforce the caller-supplied buffer length, and can result in an out-of-bounds write when printing TSIG records.",
           "Severity": "MEDIUM",
@@ -11736,7 +11736,7 @@
             "Name": "Ubuntu CVE Tracker",
             "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
           },
-          "Fingerprint": "sha256:3a65460c84896c90e5f13c20d412ac334c78ba4cd1f2c7e849e6d15452dd87ed",
+          "Fingerprint": "sha256:c6c2c408683cdaf808bdda69924ca003619dc9a5e853dc86be970e5de86c46f2",
           "Title": "glibc: glibc: Application crash or uninitialized memory read via crafted DNS response",
           "Description": "The deprecated functions ns_printrrf, ns_printrr and fp_nquery in the GNU C Library version 2.0.1 to version 2.43 fail to validate the RDATA content against the RDATA length in a DNS response when processing A6, CERT, LOC, TKEY or TSIG records, which may allow an attacker to craft a DNS response, causing a target application to crash or read uninitialized memory.\n\nThese functions are for application debugging only and hence not in the path of code executed by the DNS resolver.  Further, they have been deprecated since version 2.34 and should not be used by any new applications.  Applications should consider porting away from these interfaces since they may be removed in future versions.",
           "Severity": "MEDIUM",
@@ -11786,7 +11786,7 @@
             "Name": "Ubuntu CVE Tracker",
             "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
           },
-          "Fingerprint": "sha256:f69a5e0bab5118ebc80041d07ae4fbd309238e2db073badd6b85e668201e6ffb",
+          "Fingerprint": "sha256:5d5bb96e032f69130df0319aba63389fe4ce16fb545bedaac6bc972866a9a824",
           "Title": "libexpat: libexpat: Denial of service via crafted file processing",
           "Description": "In libexpat through 2.7.3, a crafted file with an approximate size of 2 MiB can lead to dozens of seconds of processing time.",
           "Severity": "MEDIUM",
@@ -11846,7 +11846,7 @@
             "Name": "Ubuntu CVE Tracker",
             "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
           },
-          "Fingerprint": "sha256:40ae4491b08ac2cdb049a3f6be21db670d20a9d1a0541ad01d335ee9b2122571",
+          "Fingerprint": "sha256:3e8dd905d95d77e28d1b6c2913a1ee440a67c64c4b5cb785a573de59193bdb8f",
           "Title": "binutils: libiberty/rust-demangle.c in GNU GCC 11.2 allows stack exhaustion in demangle_const",
           "Description": "libiberty/rust-demangle.c in GNU GCC 11.2 allows stack consumption in demangle_const, as demonstrated by nm-new.",
           "Severity": "LOW",
@@ -11906,7 +11906,7 @@
             "Name": "Ubuntu CVE Tracker",
             "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
           },
-          "Fingerprint": "sha256:67cfafd7090d4dd2b3dd8d33c38a7d423185471b58a949428ec88bdcf53b7b82",
+          "Fingerprint": "sha256:55d436e370cc42d02caf3ddc6d31e5fe991e5121f93b24e39b5234dc9dc96913",
           "Title": "libgcrypt: vulnerable to Marvin Attack",
           "Description": "A timing-based side-channel flaw was found in libgcrypt's RSA implementation. This issue may allow a remote attacker to initiate a Bleichenbacher-style attack, which can lead to the decryption of RSA ciphertexts.",
           "Severity": "LOW",
@@ -11970,7 +11970,7 @@
             "Name": "Ubuntu CVE Tracker",
             "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
           },
-          "Fingerprint": "sha256:08ba28e89e7bb39c79ee518525cf9cc6b9e11b7678ae2360ff0bacec9b7d9635",
+          "Fingerprint": "sha256:1381837da9c4389d6ca08072aef9b2375d8f15db8190a7471d68cff58b9c4310",
           "Title": "util-linux: TOCTOU in the mount program when setting up loop devices",
           "Description": "util-linux is a random collection of Linux utilities. Prior to version 2.41.4, a TOCTOU (Time-of-Check-Time-of-Use) vulnerability has been identified in the SUID binary /usr/bin/mount from util-linux. The mount binary, when setting up loop devices, validates the source file path with user privileges via fork() + setuid() + realpath(), but subsequently re-canonicalizes and opens it with root privileges (euid=0) without verifying that the path has not been replaced between both operations. Neither O_NOFOLLOW, nor inode comparison, nor post-open fstat() are employed. This allows a local unprivileged user to replace the source file with a symlink pointing to any root-owned file or device during the race window, causing the SUID binary to open and mount it as root. Exploitation requires an /etc/fstab entry with user,loop options whose path points to a directory where the attacker has write permission, and that /usr/bin/mount has the SUID bit set (the default configuration on virtually all Linux distributions). The impact is unauthorized read access to root-protected files and block devices, including backup images, disk volumes, and any file containing a valid filesystem. This issue has been patched in version 2.41.4.",
           "Severity": "MEDIUM",
@@ -12020,7 +12020,7 @@
           "InstalledVersion": "6.3-2ubuntu0.2",
           "Status": "affected",
           "Layer": {
-            "DiffID": "sha256:033f3b72f7b7cddf336e1ece10b53d700159ec45b5960b8c45bb3b5abde44bb8"
+            "DiffID": "sha256:1e2a7575868f21603a0d1df846d4c44c68ca8ddc7afab75fb9d1d44b0dbfaa1f"
           },
           "SeveritySource": "ubuntu",
           "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2023-50495",
@@ -12029,7 +12029,7 @@
             "Name": "Ubuntu CVE Tracker",
             "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
           },
-          "Fingerprint": "sha256:9ff3bd1a093d80549393c85dd0d8ac41963b36180f94878b2fc1b7c60c187a32",
+          "Fingerprint": "sha256:07276a310c78dcf79d6a6a561f7886395b36cba91c8b462ed01292ba7a3f082f",
           "Title": "ncurses: segmentation fault via _nc_wrap_entry()",
           "Description": "NCurse v6.4-20230418 was discovered to contain a segmentation fault via the component _nc_wrap_entry().",
           "Severity": "LOW",
@@ -12074,7 +12074,7 @@
           "InstalledVersion": "6.3-2ubuntu0.2",
           "Status": "affected",
           "Layer": {
-            "DiffID": "sha256:033f3b72f7b7cddf336e1ece10b53d700159ec45b5960b8c45bb3b5abde44bb8"
+            "DiffID": "sha256:1e2a7575868f21603a0d1df846d4c44c68ca8ddc7afab75fb9d1d44b0dbfaa1f"
           },
           "SeveritySource": "ubuntu",
           "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2023-50495",
@@ -12083,7 +12083,7 @@
             "Name": "Ubuntu CVE Tracker",
             "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
           },
-          "Fingerprint": "sha256:b31b44061fb35e5e95a7d14ba6bdc93a7942027a109eb51b6bfa20c3fb0e23ee",
+          "Fingerprint": "sha256:ddc8b9d5796615f016cee9853fcf6c1cb6580e223afe5179661ec57311508cc3",
           "Title": "ncurses: segmentation fault via _nc_wrap_entry()",
           "Description": "NCurse v6.4-20230418 was discovered to contain a segmentation fault via the component _nc_wrap_entry().",
           "Severity": "LOW",
@@ -12137,7 +12137,7 @@
             "Name": "Ubuntu CVE Tracker",
             "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
           },
-          "Fingerprint": "sha256:4abcccaa51555bb026a2eecb3adb81ca21a15c310bd989c78dfa830ca8ae89d8",
+          "Fingerprint": "sha256:ae8846d30108f6828ed6e4ed0251aa30f000116926f499ffccaa3bce55466890",
           "Title": "p11-kit: Stack exhaustion via unbounded recursion in RPC attribute parsing",
           "Description": "A flaw was found in p11-kit. The RPC message attribute parsing functions p11_rpc_message_get_attribute() and p11_rpc_message_get_attribute_array_value() form a mutually-recursive call chain with no recursion depth limit when processing nested CKA_WRAP_TEMPLATE, CKA_UNWRAP_TEMPLATE, and CKA_DERIVE_TEMPLATE attributes. An unauthenticated attacker with local access to the p11-kit RPC Unix domain socket can send a specially crafted request with deeply nested template attributes, causing stack exhaustion and crashing the p11-kit server process and its dependent services.",
           "Severity": "MEDIUM",
@@ -12186,7 +12186,7 @@
             "Name": "Ubuntu CVE Tracker",
             "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
           },
-          "Fingerprint": "sha256:1fadab2c120a87ffb9888732a2a6945d220f3701131323bf5d146b1329b065c2",
+          "Fingerprint": "sha256:736d32a53661f7418eca69d525612cc477f439ffba11e1e5e2c2d3f2ff56fba3",
           "Title": "pcre2: negative repeat value in a pcre2test subject line leads to inifinite loop",
           "Description": "Integer overflow vulnerability in pcre2test before 10.41 allows attackers to cause a denial of service or other unspecified impacts via negative input.",
           "Severity": "LOW",
@@ -12247,7 +12247,7 @@
             "Name": "Ubuntu CVE Tracker",
             "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
           },
-          "Fingerprint": "sha256:b0f25672bc9123d35d9b6f1ab8fd4f0537d4b64338b4956004b93a21ca8bf8ac",
+          "Fingerprint": "sha256:3d09d4096e3191512146473d7652ef13081a443a9912e3a10217a3f45cfdfab5",
           "Title": "pcre: OP_KETRMAX feature in the match function in pcre_exec.c",
           "Description": "In PCRE 8.41, the OP_KETRMAX feature in the match function in pcre_exec.c allows stack exhaustion (uncontrolled recursion) when processing a crafted regular expression.",
           "Severity": "LOW",
@@ -12305,7 +12305,7 @@
             "Name": "Ubuntu CVE Tracker",
             "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
           },
-          "Fingerprint": "sha256:7d4e9b90eaabd28c2a8b020de194d118a51acd61157a22822740b41c7ec77968",
+          "Fingerprint": "sha256:25a7b77139b8eb36fa9cc96451cb77e99e3162fdb377611ac60aacffb5be1654",
           "Title": "LIBPNG is a reference library for use in applications that process PNG ...",
           "Description": "LIBPNG is a reference library for use in applications that process PNG (Portable Network Graphics) raster image files. In version 1.8.0, three inter-frame chunk discard paths in the push-mode APNG parser clear the chunk-header flag without consuming the chunk body and CRC, allowing attacker-controlled bytes inside an ignored ancillary chunk to be reinterpreted as a fresh chunk header on the next call to `png_process_data`. Commit faf06924688b62d7c1654b5ceddedbde66ffadb4 fixes the issue.",
           "Severity": "MEDIUM",
@@ -12345,7 +12345,7 @@
             "Name": "Ubuntu CVE Tracker",
             "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
           },
-          "Fingerprint": "sha256:b6b31c8d0e54332ada9cfae0d10f4b872f54363e1b327d32cc729645d2d28ea4",
+          "Fingerprint": "sha256:6cb8e4ead1f0c3f595747ba871aebc2d0c1f098c61bc7a18cba227d769fec9eb",
           "Title": "util-linux: TOCTOU in the mount program when setting up loop devices",
           "Description": "util-linux is a random collection of Linux utilities. Prior to version 2.41.4, a TOCTOU (Time-of-Check-Time-of-Use) vulnerability has been identified in the SUID binary /usr/bin/mount from util-linux. The mount binary, when setting up loop devices, validates the source file path with user privileges via fork() + setuid() + realpath(), but subsequently re-canonicalizes and opens it with root privileges (euid=0) without verifying that the path has not been replaced between both operations. Neither O_NOFOLLOW, nor inode comparison, nor post-open fstat() are employed. This allows a local unprivileged user to replace the source file with a symlink pointing to any root-owned file or device during the race window, causing the SUID binary to open and mount it as root. Exploitation requires an /etc/fstab entry with user,loop options whose path points to a directory where the attacker has write permission, and that /usr/bin/mount has the SUID bit set (the default configuration on virtually all Linux distributions). The impact is unauthorized read access to root-protected files and block devices, including backup images, disk volumes, and any file containing a valid filesystem. This issue has been patched in version 2.41.4.",
           "Severity": "MEDIUM",
@@ -12404,7 +12404,7 @@
             "Name": "Ubuntu CVE Tracker",
             "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
           },
-          "Fingerprint": "sha256:cfc274f07eebbbeb0198c145973fb148c01820ffa5d37b8a5ddc9b6485600eca",
+          "Fingerprint": "sha256:1f219cf0509122c341f3c2511f3949a7cc9256fdf674cb6db3eabf1089bcbb83",
           "Title": "binutils: libiberty/rust-demangle.c in GNU GCC 11.2 allows stack exhaustion in demangle_const",
           "Description": "libiberty/rust-demangle.c in GNU GCC 11.2 allows stack consumption in demangle_const, as demonstrated by nm-new.",
           "Severity": "LOW",
@@ -12464,7 +12464,7 @@
             "Name": "Ubuntu CVE Tracker",
             "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
           },
-          "Fingerprint": "sha256:36efeefe4a0dd78c44ab67316fd75259e3573cf7c1cfc26c545b7ebb495f1ef9",
+          "Fingerprint": "sha256:ad7af484efd32011d7287dcfeb689dd611ad98a1cf58f55e4b6e93e0a54d8963",
           "Title": "systemd: systemd-journald: Unintended output to user terminals via logger command",
           "Description": "In systemd 259, systemd-journald can send ANSI escape sequences to the terminals of arbitrary users when a \"logger -p emerg\" command is executed, if ForwardToWall=yes is set.",
           "Severity": "LOW",
@@ -12507,7 +12507,7 @@
           "InstalledVersion": "6.3-2ubuntu0.2",
           "Status": "affected",
           "Layer": {
-            "DiffID": "sha256:033f3b72f7b7cddf336e1ece10b53d700159ec45b5960b8c45bb3b5abde44bb8"
+            "DiffID": "sha256:1e2a7575868f21603a0d1df846d4c44c68ca8ddc7afab75fb9d1d44b0dbfaa1f"
           },
           "SeveritySource": "ubuntu",
           "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2023-50495",
@@ -12516,7 +12516,7 @@
             "Name": "Ubuntu CVE Tracker",
             "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
           },
-          "Fingerprint": "sha256:e44b3f6f509da706c933c1952c523d37c164463b47e82cc9ebdcf506776aec12",
+          "Fingerprint": "sha256:b6ac7ea3aa0f44d6539992b0f2e45062af982bc7ac34020c077ad7662b0c18ba",
           "Title": "ncurses: segmentation fault via _nc_wrap_entry()",
           "Description": "NCurse v6.4-20230418 was discovered to contain a segmentation fault via the component _nc_wrap_entry().",
           "Severity": "LOW",
@@ -12570,7 +12570,7 @@
             "Name": "Ubuntu CVE Tracker",
             "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
           },
-          "Fingerprint": "sha256:b90f04316f11e4dcfe90a45b4d9b5d342307b7747a297b46eaddacd92b2f4256",
+          "Fingerprint": "sha256:f6e6f5cde01ea72b30d525d6156c5d7b4411ad0e6c238c2e34cfaa57ba0602ff",
           "Title": "systemd: systemd-journald: Unintended output to user terminals via logger command",
           "Description": "In systemd 259, systemd-journald can send ANSI escape sequences to the terminals of arbitrary users when a \"logger -p emerg\" command is executed, if ForwardToWall=yes is set.",
           "Severity": "LOW",
@@ -12622,7 +12622,7 @@
             "Name": "Ubuntu CVE Tracker",
             "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
           },
-          "Fingerprint": "sha256:d6df10880e784e923dd779dc60167911cce27b25e55a2599884aded7da39955d",
+          "Fingerprint": "sha256:1a97e8c0e953fe0ff2d549a7cf286a59939db9b66674120d25d1efb3f0fc0a71",
           "Title": "util-linux: TOCTOU in the mount program when setting up loop devices",
           "Description": "util-linux is a random collection of Linux utilities. Prior to version 2.41.4, a TOCTOU (Time-of-Check-Time-of-Use) vulnerability has been identified in the SUID binary /usr/bin/mount from util-linux. The mount binary, when setting up loop devices, validates the source file path with user privileges via fork() + setuid() + realpath(), but subsequently re-canonicalizes and opens it with root privileges (euid=0) without verifying that the path has not been replaced between both operations. Neither O_NOFOLLOW, nor inode comparison, nor post-open fstat() are employed. This allows a local unprivileged user to replace the source file with a symlink pointing to any root-owned file or device during the race window, causing the SUID binary to open and mount it as root. Exploitation requires an /etc/fstab entry with user,loop options whose path points to a directory where the attacker has write permission, and that /usr/bin/mount has the SUID bit set (the default configuration on virtually all Linux distributions). The impact is unauthorized read access to root-protected files and block devices, including backup images, disk volumes, and any file containing a valid filesystem. This issue has been patched in version 2.41.4.",
           "Severity": "MEDIUM",
@@ -12681,7 +12681,7 @@
             "Name": "Ubuntu CVE Tracker",
             "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
           },
-          "Fingerprint": "sha256:7b250551550a81254dcf69dbf20d39346523be29e768e9f800e987146d75d37e",
+          "Fingerprint": "sha256:12fe2a5391cbddad713609d13f88b1aa216822ba971d94d6bf96d91bb326498f",
           "Title": "zstd: mysql: buffer overrun in util.c",
           "Description": "A vulnerability was found in zstd v1.4.10, where an attacker can supply empty string as an argument to the command line tool to cause buffer overrun.",
           "Severity": "LOW",
@@ -12997,7 +12997,7 @@
             "Name": "Ubuntu CVE Tracker",
             "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
           },
-          "Fingerprint": "sha256:21acab8f107c9e09a78b47a25fe22b920ceef4d0feed77f2d5fca6ced2a8afe9",
+          "Fingerprint": "sha256:ec9bd5fd559fcbd2d054ea11553d3827113650b39f55f04e2f9dbc7e6df6ff64",
           "Title": "glibc: glibc: Denial of Service via iconv() function with specific character sets",
           "Description": "The iconv() function in the GNU C Library versions 2.43 and earlier may crash due to an assertion failure when converting inputs from the IBM1390 or IBM1399 character sets, which may be used to remotely crash an application.\n\n\n\nThis vulnerability can be trivially mitigated by removing the IBM1390 and IBM1399 character sets from systems that do not need them.",
           "Severity": "MEDIUM",
@@ -13068,7 +13068,7 @@
             "Name": "Ubuntu CVE Tracker",
             "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
           },
-          "Fingerprint": "sha256:821585aa7842ea4ff5ac92f996ee8000a919098fe9fe3bd1017eb76cf6871ffd",
+          "Fingerprint": "sha256:a531f8cb5e245d8e7946c207dd65aea25307708b5dd562103a38ce2daaa3b234",
           "Title": "glibc: glibc: Out-of-bounds write via TSIG record processing",
           "Description": "The deprecated functions ns_printrrf, ns_printrr and fp_nquery in the GNU C Library version 2.2 and newer fail to enforce the caller-supplied buffer length, and can result in an out-of-bounds write when printing TSIG records.",
           "Severity": "MEDIUM",
@@ -13118,7 +13118,7 @@
             "Name": "Ubuntu CVE Tracker",
             "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
           },
-          "Fingerprint": "sha256:9f3a75c0a344f080a2d5adc96d06622b49a8fa4bd46b75b25469c9281a986f72",
+          "Fingerprint": "sha256:38b4b9aa167d3b652c55d4322ba6c3fec96fa7549db79de46ce5c146128d654b",
           "Title": "glibc: glibc: Application crash or uninitialized memory read via crafted DNS response",
           "Description": "The deprecated functions ns_printrrf, ns_printrr and fp_nquery in the GNU C Library version 2.0.1 to version 2.43 fail to validate the RDATA content against the RDATA length in a DNS response when processing A6, CERT, LOC, TKEY or TSIG records, which may allow an attacker to craft a DNS response, causing a target application to crash or read uninitialized memory.\n\nThese functions are for application debugging only and hence not in the path of code executed by the DNS resolver.  Further, they have been deprecated since version 2.34 and should not be used by any new applications.  Applications should consider porting away from these interfaces since they may be removed in future versions.",
           "Severity": "MEDIUM",
@@ -13168,7 +13168,7 @@
             "Name": "Ubuntu CVE Tracker",
             "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
           },
-          "Fingerprint": "sha256:c63617403a0fd953e7120ba3ae754f9aeb71407547283e2efd39f48a6144e38a",
+          "Fingerprint": "sha256:188c613f465449f10195f1feadc1c40f7e331f665bfbf4b93be741adda0d887d",
           "Title": "shadow: Improper input validation in shadow-utils package utility chfn",
           "Description": "In Shadow 4.13, it is possible to inject control characters into fields provided to the SUID program chfn (change finger). Although it is not possible to exploit this directly (e.g., adding a new user fails because \\n is in the block list), it is possible to misrepresent the /etc/passwd file when viewed. Use of \\r manipulations and Unicode characters to work around blocking of the : character make it possible to give the impression that a new user has been added. In other words, an adversary may be able to convince a system administrator to take the system offline (an indirect, social-engineered denial of service) by demonstrating that \"cat /etc/passwd\" shows a rogue user account.",
           "Severity": "LOW",
@@ -13226,7 +13226,7 @@
             "Name": "Ubuntu CVE Tracker",
             "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
           },
-          "Fingerprint": "sha256:fe9b69717da8353af58c3dd26a54c2cabd981500274a7586526df6dda064d0d9",
+          "Fingerprint": "sha256:149a554b6234849e7e97e639edd3034f20a3bd51fa4f9f0895928ef94be17a5b",
           "Title": "shadow-utils: Default subordinate ID configuration in /etc/login.defs could lead to compromise",
           "Description": "shadow-utils (aka shadow) 4.4 through 4.17.0 establishes a default /etc/subuid behavior (e.g., uid 100000 through 165535 for the first user account) that can realistically conflict with the uids of users defined on locally administered networks, potentially leading to account takeover, e.g., by leveraging newuidmap for access to an NFS home directory (or same-host resources in the case of remote logins by these local network users). NOTE: it may also be argued that system administrators should not have assigned uids, within local networks, that are within the range that can occur in /etc/subuid.",
           "Severity": "LOW",
@@ -13286,7 +13286,7 @@
             "Name": "Ubuntu CVE Tracker",
             "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
           },
-          "Fingerprint": "sha256:33cf9aea5e9a8946f3fbf3d1a823b46f3813523a66b120e1ee12d8112ab256ed",
+          "Fingerprint": "sha256:07ed6ee87b316d8f3f967ad1784e98c145761ecedc1faedec8919800e5492145",
           "Title": "util-linux: TOCTOU in the mount program when setting up loop devices",
           "Description": "util-linux is a random collection of Linux utilities. Prior to version 2.41.4, a TOCTOU (Time-of-Check-Time-of-Use) vulnerability has been identified in the SUID binary /usr/bin/mount from util-linux. The mount binary, when setting up loop devices, validates the source file path with user privileges via fork() + setuid() + realpath(), but subsequently re-canonicalizes and opens it with root privileges (euid=0) without verifying that the path has not been replaced between both operations. Neither O_NOFOLLOW, nor inode comparison, nor post-open fstat() are employed. This allows a local unprivileged user to replace the source file with a symlink pointing to any root-owned file or device during the race window, causing the SUID binary to open and mount it as root. Exploitation requires an /etc/fstab entry with user,loop options whose path points to a directory where the attacker has write permission, and that /usr/bin/mount has the SUID bit set (the default configuration on virtually all Linux distributions). The impact is unauthorized read access to root-protected files and block devices, including backup images, disk volumes, and any file containing a valid filesystem. This issue has been patched in version 2.41.4.",
           "Severity": "MEDIUM",
@@ -13336,7 +13336,7 @@
           "InstalledVersion": "6.3-2ubuntu0.2",
           "Status": "affected",
           "Layer": {
-            "DiffID": "sha256:033f3b72f7b7cddf336e1ece10b53d700159ec45b5960b8c45bb3b5abde44bb8"
+            "DiffID": "sha256:1e2a7575868f21603a0d1df846d4c44c68ca8ddc7afab75fb9d1d44b0dbfaa1f"
           },
           "SeveritySource": "ubuntu",
           "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2023-50495",
@@ -13345,7 +13345,7 @@
             "Name": "Ubuntu CVE Tracker",
             "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
           },
-          "Fingerprint": "sha256:7c8c7536d09d609390ed76d1c00a0e1c63bb24a7f0b6e3b2fe7d4b79d7fc9a30",
+          "Fingerprint": "sha256:b90cc45a56bfff8a16da4b777f1a60238d51cdfbfea6102f6d845cc7c60217f0",
           "Title": "ncurses: segmentation fault via _nc_wrap_entry()",
           "Description": "NCurse v6.4-20230418 was discovered to contain a segmentation fault via the component _nc_wrap_entry().",
           "Severity": "LOW",
@@ -13390,7 +13390,7 @@
           "InstalledVersion": "6.3-2ubuntu0.2",
           "Status": "affected",
           "Layer": {
-            "DiffID": "sha256:033f3b72f7b7cddf336e1ece10b53d700159ec45b5960b8c45bb3b5abde44bb8"
+            "DiffID": "sha256:1e2a7575868f21603a0d1df846d4c44c68ca8ddc7afab75fb9d1d44b0dbfaa1f"
           },
           "SeveritySource": "ubuntu",
           "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2023-50495",
@@ -13399,7 +13399,7 @@
             "Name": "Ubuntu CVE Tracker",
             "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
           },
-          "Fingerprint": "sha256:fa9f2a1eb5c4342559b7bb28b82dcd174019976f97bb94d7193366a22bb32be6",
+          "Fingerprint": "sha256:afc9b4bb686e8843aaef57a43f592b77bfaca6f138d0100989f7f0dfd6aed465",
           "Title": "ncurses: segmentation fault via _nc_wrap_entry()",
           "Description": "NCurse v6.4-20230418 was discovered to contain a segmentation fault via the component _nc_wrap_entry().",
           "Severity": "LOW",
@@ -13453,7 +13453,7 @@
             "Name": "Ubuntu CVE Tracker",
             "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
           },
-          "Fingerprint": "sha256:d51c9067adde267ea371c766e954515ee565ba5cd75cad0f4579c8e843ac8ea7",
+          "Fingerprint": "sha256:985756c9b526d38803ad6f4ef811665f5fa77e1f33ca0ad82c21a2641af440a5",
           "Title": "p11-kit: Stack exhaustion via unbounded recursion in RPC attribute parsing",
           "Description": "A flaw was found in p11-kit. The RPC message attribute parsing functions p11_rpc_message_get_attribute() and p11_rpc_message_get_attribute_array_value() form a mutually-recursive call chain with no recursion depth limit when processing nested CKA_WRAP_TEMPLATE, CKA_UNWRAP_TEMPLATE, and CKA_DERIVE_TEMPLATE attributes. An unauthenticated attacker with local access to the p11-kit RPC Unix domain socket can send a specially crafted request with deeply nested template attributes, causing stack exhaustion and crashing the p11-kit server process and its dependent services.",
           "Severity": "MEDIUM",
@@ -13502,7 +13502,7 @@
             "Name": "Ubuntu CVE Tracker",
             "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
           },
-          "Fingerprint": "sha256:10035c3f14a9558dcf68701579ba0b094aad2f3d1b19080c4ab131b2eab7414d",
+          "Fingerprint": "sha256:6b59f83c31e4219075d081626e17727dbf02cb81c93949c0b45a7b28caa50fbe",
           "Title": "p11-kit: Stack exhaustion via unbounded recursion in RPC attribute parsing",
           "Description": "A flaw was found in p11-kit. The RPC message attribute parsing functions p11_rpc_message_get_attribute() and p11_rpc_message_get_attribute_array_value() form a mutually-recursive call chain with no recursion depth limit when processing nested CKA_WRAP_TEMPLATE, CKA_UNWRAP_TEMPLATE, and CKA_DERIVE_TEMPLATE attributes. An unauthenticated attacker with local access to the p11-kit RPC Unix domain socket can send a specially crafted request with deeply nested template attributes, causing stack exhaustion and crashing the p11-kit server process and its dependent services.",
           "Severity": "MEDIUM",
@@ -13551,7 +13551,7 @@
             "Name": "Ubuntu CVE Tracker",
             "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
           },
-          "Fingerprint": "sha256:6623a9347af69a136a59d7e82e4fedf6eafd9cc1a279efe1da9e5d70a7128845",
+          "Fingerprint": "sha256:cc19172487aa08b5608ed38e3db8fe65c71ac5f5a66a0776d916d70e628c0fd3",
           "Title": "shadow: Improper input validation in shadow-utils package utility chfn",
           "Description": "In Shadow 4.13, it is possible to inject control characters into fields provided to the SUID program chfn (change finger). Although it is not possible to exploit this directly (e.g., adding a new user fails because \\n is in the block list), it is possible to misrepresent the /etc/passwd file when viewed. Use of \\r manipulations and Unicode characters to work around blocking of the : character make it possible to give the impression that a new user has been added. In other words, an adversary may be able to convince a system administrator to take the system offline (an indirect, social-engineered denial of service) by demonstrating that \"cat /etc/passwd\" shows a rogue user account.",
           "Severity": "LOW",
@@ -13609,7 +13609,7 @@
             "Name": "Ubuntu CVE Tracker",
             "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
           },
-          "Fingerprint": "sha256:bed1908dce1e2c3c549d2bbfe79076a651dda9f72ddbc83217bf570f0298363e",
+          "Fingerprint": "sha256:c99626a5aa0f746882eaebcd683772d59a63668130c7d79ae7442851739edef2",
           "Title": "shadow-utils: Default subordinate ID configuration in /etc/login.defs could lead to compromise",
           "Description": "shadow-utils (aka shadow) 4.4 through 4.17.0 establishes a default /etc/subuid behavior (e.g., uid 100000 through 165535 for the first user account) that can realistically conflict with the uids of users defined on locally administered networks, potentially leading to account takeover, e.g., by leveraging newuidmap for access to an NFS home directory (or same-host resources in the case of remote logins by these local network users). NOTE: it may also be argued that system administrators should not have assigned uids, within local networks, that are within the range that can occur in /etc/subuid.",
           "Severity": "LOW",
@@ -13669,7 +13669,7 @@
             "Name": "Ubuntu CVE Tracker",
             "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
           },
-          "Fingerprint": "sha256:5cd67660d01ff7d69681c34b3e00d8e3f005caf93cae957bd6e2330fd396addb",
+          "Fingerprint": "sha256:5a1315ed9eb314fb9afa653d11cb9857a5a4f771d56a634b1ceb67cbeb0e3acb",
           "Title": "util-linux: TOCTOU in the mount program when setting up loop devices",
           "Description": "util-linux is a random collection of Linux utilities. Prior to version 2.41.4, a TOCTOU (Time-of-Check-Time-of-Use) vulnerability has been identified in the SUID binary /usr/bin/mount from util-linux. The mount binary, when setting up loop devices, validates the source file path with user privileges via fork() + setuid() + realpath(), but subsequently re-canonicalizes and opens it with root privileges (euid=0) without verifying that the path has not been replaced between both operations. Neither O_NOFOLLOW, nor inode comparison, nor post-open fstat() are employed. This allows a local unprivileged user to replace the source file with a symlink pointing to any root-owned file or device during the race window, causing the SUID binary to open and mount it as root. Exploitation requires an /etc/fstab entry with user,loop options whose path points to a directory where the attacker has write permission, and that /usr/bin/mount has the SUID bit set (the default configuration on virtually all Linux distributions). The impact is unauthorized read access to root-protected files and block devices, including backup images, disk volumes, and any file containing a valid filesystem. This issue has been patched in version 2.41.4.",
           "Severity": "MEDIUM",
@@ -13719,7 +13719,7 @@
           "InstalledVersion": "1.21.2-2ubuntu1.3",
           "Status": "affected",
           "Layer": {
-            "DiffID": "sha256:033f3b72f7b7cddf336e1ece10b53d700159ec45b5960b8c45bb3b5abde44bb8"
+            "DiffID": "sha256:1e2a7575868f21603a0d1df846d4c44c68ca8ddc7afab75fb9d1d44b0dbfaa1f"
           },
           "SeveritySource": "ubuntu",
           "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2021-31879",
@@ -13728,7 +13728,7 @@
             "Name": "Ubuntu CVE Tracker",
             "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
           },
-          "Fingerprint": "sha256:af61df88ff03c39fb795fcb90c1e1f349164e3fb2045eaef348e1c5e29f8a398",
+          "Fingerprint": "sha256:088bdda015c5f1b6256783648b11cbaaccdcc744529f388ab4b7b51715f4c78c",
           "Title": "wget: authorization header disclosure on redirect",
           "Description": "GNU Wget through 1.21.1 does not omit the Authorization header upon a redirect to a different origin, a related issue to CVE-2018-1000007.",
           "Severity": "MEDIUM",
@@ -13782,7 +13782,7 @@
           "InstalledVersion": "1.21.2-2ubuntu1.3",
           "Status": "affected",
           "Layer": {
-            "DiffID": "sha256:033f3b72f7b7cddf336e1ece10b53d700159ec45b5960b8c45bb3b5abde44bb8"
+            "DiffID": "sha256:1e2a7575868f21603a0d1df846d4c44c68ca8ddc7afab75fb9d1d44b0dbfaa1f"
           },
           "SeveritySource": "ubuntu",
           "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-15146",
@@ -13791,7 +13791,7 @@
             "Name": "Ubuntu CVE Tracker",
             "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
           },
-          "Fingerprint": "sha256:4435fc9400f8180a9e68fe9bf2b155ecf3f3bbce74173aba51f1ff2deb330581",
+          "Fingerprint": "sha256:04f35c14ce9dda38dbc412423399157ee626ba0d46353888eb33221e5f4b065b",
           "Title": "wget: Wget: Server-Side Request Forgery via FTP PASV response IP address validation bypass",
           "Description": "GNU Wget does not validate the IP address provided by an FTP PASV response while operating in FTP passive mode. A malicious FTP server, or an HTTP server that redirects to an FTP URL, can exploit this behavior to redirect Wget’s data connection to an arbitrary IP address and port. This allows an attacker to forge server-side requests (SSRF) from the machine running Wget, potentially accessing localhost services or internal network resources.",
           "Severity": "MEDIUM",
@@ -13831,7 +13831,7 @@
           },
           "Version": "1.5.32",
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/logback-classic-1.5.32.jar",
           "AnalyzedBy": "jar"
@@ -13844,7 +13844,7 @@
           },
           "Version": "1.5.32",
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/logback-core-1.5.32.jar",
           "AnalyzedBy": "jar"
@@ -13860,7 +13860,7 @@
             "Apache-2.0"
           ],
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/jackson-annotations-2.21.jar",
           "AnalyzedBy": "jar"
@@ -13876,7 +13876,7 @@
             "Apache-2.0"
           ],
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/jackson-core-2.21.2.jar",
           "AnalyzedBy": "jar"
@@ -13892,7 +13892,7 @@
             "Apache-2.0"
           ],
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/jackson-databind-2.21.2.jar",
           "AnalyzedBy": "jar"
@@ -13905,7 +13905,7 @@
           },
           "Version": "2.21.2",
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/jackson-datatype-jdk8-2.21.2.jar",
           "AnalyzedBy": "jar"
@@ -13918,7 +13918,7 @@
           },
           "Version": "2.21.2",
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/jackson-datatype-jsr310-2.21.2.jar",
           "AnalyzedBy": "jar"
@@ -13931,7 +13931,7 @@
           },
           "Version": "2.21.2",
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/jackson-module-parameter-names-2.21.2.jar",
           "AnalyzedBy": "jar"
@@ -13947,7 +13947,7 @@
             "Apache-2.0"
           ],
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/classmate-1.7.3.jar",
           "AnalyzedBy": "jar"
@@ -13960,7 +13960,7 @@
           },
           "Version": "2.3.232",
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/h2-2.3.232.jar",
           "AnalyzedBy": "jar"
@@ -13973,7 +13973,7 @@
           },
           "Version": "1.0.0",
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar",
           "AnalyzedBy": "jar"
@@ -13986,7 +13986,7 @@
           },
           "Version": "4.1.2",
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/istack-commons-runtime-4.1.2.jar",
           "AnalyzedBy": "jar"
@@ -14002,7 +14002,7 @@
             "Apache-2.0"
           ],
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/HikariCP-6.3.3.jar",
           "AnalyzedBy": "jar"
@@ -14018,7 +14018,7 @@
             "Apache-2.0"
           ],
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/micrometer-commons-1.15.11.jar",
           "AnalyzedBy": "jar"
@@ -14034,7 +14034,7 @@
             "Apache-2.0"
           ],
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/micrometer-observation-1.15.11.jar",
           "AnalyzedBy": "jar"
@@ -14047,7 +14047,7 @@
           },
           "Version": "3.2.0",
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/jandex-3.2.0.jar",
           "AnalyzedBy": "jar"
@@ -14063,7 +14063,7 @@
             "BSD-3-Clause"
           ],
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/jakarta.activation-api-2.1.4.jar",
           "AnalyzedBy": "jar"
@@ -14080,7 +14080,7 @@
             "GPL-2.0-with-classpath-exception"
           ],
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/jakarta.annotation-api-2.1.1.jar",
           "AnalyzedBy": "jar"
@@ -14096,7 +14096,7 @@
             "Apache-2.0"
           ],
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/jakarta.inject-api-2.0.1.jar",
           "AnalyzedBy": "jar"
@@ -14113,7 +14113,7 @@
             "BSD-3-Clause"
           ],
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/jakarta.persistence-api-3.1.0.jar",
           "AnalyzedBy": "jar"
@@ -14130,7 +14130,7 @@
             "GPL-2.0-with-classpath-exception"
           ],
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/jakarta.transaction-api-2.0.1.jar",
           "AnalyzedBy": "jar"
@@ -14146,7 +14146,7 @@
             "BSD-3-Clause"
           ],
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/jakarta.xml.bind-api-4.0.4.jar",
           "AnalyzedBy": "jar"
@@ -14162,7 +14162,7 @@
             "Apache-2.0"
           ],
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/byte-buddy-1.17.8.jar",
           "AnalyzedBy": "jar"
@@ -14175,7 +14175,7 @@
           },
           "Version": "4.13.0",
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/antlr4-runtime-4.13.0.jar",
           "AnalyzedBy": "jar"
@@ -14191,7 +14191,7 @@
             "Apache-2.0"
           ],
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/log4j-api-2.24.3.jar",
           "AnalyzedBy": "jar"
@@ -14207,7 +14207,7 @@
             "Apache-2.0"
           ],
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/log4j-to-slf4j-2.24.3.jar",
           "AnalyzedBy": "jar"
@@ -14225,7 +14225,7 @@
             "EPL-2.0"
           ],
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/tomcat-embed-core-11.0.22.jar",
           "AnalyzedBy": "jar"
@@ -14241,7 +14241,7 @@
             "Apache-2.0"
           ],
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/tomcat-embed-el-10.1.54.jar",
           "AnalyzedBy": "jar"
@@ -14257,7 +14257,7 @@
             "Apache-2.0"
           ],
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/tomcat-embed-websocket-10.1.54.jar",
           "AnalyzedBy": "jar"
@@ -14273,7 +14273,7 @@
             "Apache-2.0"
           ],
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/tomcat-annotations-api-10.1.54.jar",
           "AnalyzedBy": "jar"
@@ -14286,7 +14286,7 @@
           },
           "Version": "1.9.25.1",
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/aspectjweaver-1.9.25.1.jar",
           "AnalyzedBy": "jar"
@@ -14302,7 +14302,7 @@
             "Apache-2.0"
           ],
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/attoparser-2.0.7.RELEASE.jar",
           "AnalyzedBy": "jar"
@@ -14318,7 +14318,7 @@
             "BSD-3-Clause"
           ],
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/angus-activation-2.0.3.jar",
           "AnalyzedBy": "jar"
@@ -14334,7 +14334,7 @@
             "BSD-3-Clause"
           ],
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/jaxb-core-4.0.6.jar",
           "AnalyzedBy": "jar"
@@ -14350,7 +14350,7 @@
             "BSD-3-Clause"
           ],
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/jaxb-runtime-4.0.6.jar",
           "AnalyzedBy": "jar"
@@ -14366,7 +14366,7 @@
             "BSD-3-Clause"
           ],
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/txw2-4.0.6.jar",
           "AnalyzedBy": "jar"
@@ -14379,7 +14379,7 @@
           },
           "Version": "7.0.3.Final",
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/hibernate-commons-annotations-7.0.3.Final.jar",
           "AnalyzedBy": "jar"
@@ -14392,7 +14392,7 @@
           },
           "Version": "6.6.49.Final",
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/hibernate-core-6.6.49.Final.jar",
           "AnalyzedBy": "jar"
@@ -14408,7 +14408,7 @@
             "Apache-2.0"
           ],
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/jboss-logging-3.6.3.Final.jar",
           "AnalyzedBy": "jar"
@@ -14424,7 +14424,7 @@
             "MIT"
           ],
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/jul-to-slf4j-2.0.17.jar",
           "AnalyzedBy": "jar"
@@ -14440,7 +14440,7 @@
             "MIT"
           ],
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/slf4j-api-2.0.17.jar",
           "AnalyzedBy": "jar"
@@ -14456,7 +14456,7 @@
             "Apache-2.0"
           ],
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/spring-boot-3.5.14.jar",
           "AnalyzedBy": "jar"
@@ -14472,7 +14472,7 @@
             "Apache-2.0"
           ],
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/spring-boot-autoconfigure-3.5.14.jar",
           "AnalyzedBy": "jar"
@@ -14488,7 +14488,7 @@
             "Apache-2.0"
           ],
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/spring-boot-jarmode-tools-3.5.14.jar",
           "AnalyzedBy": "jar"
@@ -14504,7 +14504,7 @@
             "Apache-2.0"
           ],
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/spring-data-commons-3.5.11.jar",
           "AnalyzedBy": "jar"
@@ -14520,7 +14520,7 @@
             "Apache-2.0"
           ],
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/spring-data-jpa-3.5.11.jar",
           "AnalyzedBy": "jar"
@@ -14536,7 +14536,7 @@
             "Apache-2.0"
           ],
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/spring-security-config-6.5.10.jar",
           "AnalyzedBy": "jar"
@@ -14552,7 +14552,7 @@
             "Apache-2.0"
           ],
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/spring-security-core-6.5.10.jar",
           "AnalyzedBy": "jar"
@@ -14568,7 +14568,7 @@
             "Apache-2.0"
           ],
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/spring-security-crypto-6.5.10.jar",
           "AnalyzedBy": "jar"
@@ -14584,7 +14584,7 @@
             "Apache-2.0"
           ],
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/spring-security-web-6.5.10.jar",
           "AnalyzedBy": "jar"
@@ -14601,7 +14601,7 @@
             "BSD-3-Clause"
           ],
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/spring-aop-6.2.18.jar",
           "AnalyzedBy": "jar"
@@ -14618,7 +14618,7 @@
             "BSD-3-Clause"
           ],
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/spring-aspects-6.2.18.jar",
           "AnalyzedBy": "jar"
@@ -14635,7 +14635,7 @@
             "BSD-3-Clause"
           ],
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/spring-beans-6.2.18.jar",
           "AnalyzedBy": "jar"
@@ -14652,7 +14652,7 @@
             "BSD-3-Clause"
           ],
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/spring-context-6.2.18.jar",
           "AnalyzedBy": "jar"
@@ -14669,7 +14669,7 @@
             "BSD-3-Clause"
           ],
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/spring-core-6.2.18.jar",
           "AnalyzedBy": "jar"
@@ -14686,7 +14686,7 @@
             "BSD-3-Clause"
           ],
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/spring-expression-6.2.18.jar",
           "AnalyzedBy": "jar"
@@ -14703,7 +14703,7 @@
             "BSD-3-Clause"
           ],
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/spring-jcl-6.2.18.jar",
           "AnalyzedBy": "jar"
@@ -14720,7 +14720,7 @@
             "BSD-3-Clause"
           ],
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/spring-jdbc-6.2.18.jar",
           "AnalyzedBy": "jar"
@@ -14737,7 +14737,7 @@
             "BSD-3-Clause"
           ],
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/spring-orm-6.2.18.jar",
           "AnalyzedBy": "jar"
@@ -14754,7 +14754,7 @@
             "BSD-3-Clause"
           ],
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/spring-tx-6.2.18.jar",
           "AnalyzedBy": "jar"
@@ -14771,7 +14771,7 @@
             "BSD-3-Clause"
           ],
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/spring-web-6.2.18.jar",
           "AnalyzedBy": "jar"
@@ -14788,7 +14788,7 @@
             "BSD-3-Clause"
           ],
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/spring-webmvc-6.2.18.jar",
           "AnalyzedBy": "jar"
@@ -14801,7 +14801,7 @@
           },
           "Version": "3.1.5.RELEASE",
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/thymeleaf-3.1.5.RELEASE.jar",
           "AnalyzedBy": "jar"
@@ -14817,7 +14817,7 @@
             "Apache-2.0"
           ],
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/thymeleaf-spring6-3.1.5.RELEASE.jar",
           "AnalyzedBy": "jar"
@@ -14833,7 +14833,7 @@
             "Apache-2.0"
           ],
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/unbescape-1.1.6.RELEASE.jar",
           "AnalyzedBy": "jar"
@@ -14849,7 +14849,7 @@
             "Apache-2.0"
           ],
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "FilePath": "app/app.jar/BOOT-INF/lib/snakeyaml-2.4.jar",
           "AnalyzedBy": "jar"
@@ -14871,7 +14871,7 @@
           "FixedVersion": "1.5.34",
           "Status": "fixed",
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "SeveritySource": "ghsa",
           "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-10532",
@@ -14880,7 +14880,7 @@
             "Name": "GitHub Security Advisory Maven",
             "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
           },
-          "Fingerprint": "sha256:dc8600d1a0af2c0af2bd1809ba84de13711f5483924b42ec1cfe0c26b4f2084a",
+          "Fingerprint": "sha256:f48bb3d5b89f4523e1df25a4369b5e2f546a44a94d7cc6ba9bdc0e5489f20ba3",
           "Title": "Deserialization of untrusted data vulnerability in QOS.CH Sarl logback ...",
           "Description": "Deserialization of untrusted data vulnerability in QOS.CH Sarl logback logback-core (HardenedObjectInputStream (logback-core) modules) allows Object Injection, albeit heavily restricted.\n\nMore precisely, an attacker able to influence serialized data sent to \nSimpleSocketServer or SimpleSSLSocketServer can instantiate Proxy objects.\n\n\nAlthough deserialization is heavily restricted by HardenedObjectInputStream and no \npractical way to achieve remote code execution or significant privilege \nescalation has been identified, this issue constitutes a bypass of the \nintended security restrictions.\n\n\n\nThis issue affects logback: through 1.5.33 inclusive.",
           "Severity": "LOW",
@@ -14920,7 +14920,7 @@
           "FixedVersion": "1.5.33",
           "Status": "fixed",
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "SeveritySource": "ghsa",
           "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-9828",
@@ -14929,7 +14929,7 @@
             "Name": "GitHub Security Advisory Maven",
             "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
           },
-          "Fingerprint": "sha256:1671e61bd66828038c795d9b51e06005404d9d2420a3ed5dac5ea6238cbeec5d",
+          "Fingerprint": "sha256:9fee587ed3213fab627b4bc33eb25290feed1ddf0f26c47fc051347c3ed9308a",
           "Title": "Deserialization of untrusted data vulnerability in QOS.CH Sarl logback ...",
           "Description": "Deserialization of untrusted data vulnerability in QOS.CH Sarl logback logback-core (HardenedObjectInputStream (logback-core) modules) allows Object Injection albeit heavily restricted.\n\nMore precisely, an attacker able to influence serialized data sent to \nSimpleSocketServer or SimpleSSLSocketServer can instantiate objects from\n classes in the java.lang and java.util packages that are not explicitly\n blocked.\n\nAlthough deserialization is heavily restricted by HardenedObjectInputStream and no \npractical way to achieve remote code execution or significant privilege \nescalation has been identified, this issue constitutes a bypass of the \nintended security restrictions.\n\n\n\nThis issue affects logback: through 1.5.32 inclusive.",
           "Severity": "LOW",
@@ -14968,7 +14968,7 @@
           "FixedVersion": "2.18.8, 3.1.4, 2.21.4",
           "Status": "fixed",
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "SeveritySource": "ghsa",
           "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-54512",
@@ -14977,7 +14977,7 @@
             "Name": "GitHub Security Advisory Maven",
             "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
           },
-          "Fingerprint": "sha256:c6502ff8af1ef990d71e29131fb6cb13dc149466f6a407382a27efeeb55a612e",
+          "Fingerprint": "sha256:1485ac9027919c16ce1dba3a164464f617682336138cc8b6c5db9150521cec13",
           "Title": "jackson-databind: jackson-databind: Arbitrary code execution via PolymorphicTypeValidator bypass",
           "Description": "jackson-databind contains the general-purpose data-binding functionality and tree-model for Jackson Data Processor. From 2.10.0 until 2.18.8, 2.21.4, and 3.1.4, jackson-databind's PolymorphicTypeValidator (PTV) is the primary safety mechanism guarding polymorphic deserialization. When polymorphic typing is enabled and a type identifier contains generic parameters (i.e. the type ID string contains \u003c), DatabindContext._resolveAndValidateGeneric() validates only the raw container class name (the substring before \u003c) against the configured PTV. If the container type is approved, the method parses the full canonical type string via TypeFactory.constructFromCanonical() and returns the fully parameterized type without ever validating the nested type arguments against the PTV. The nested type arguments are then resolved, instantiated, and populated as beans during deserialization. An attacker who controls the type ID can therefore place a denied class as a generic type parameter of an allowed container — for example java.util.ArrayList\u003ccom.evil.Gadget\u003e when only java.util.ArrayList is allow-listed. The container passes the PTV check; com.evil.Gadget is loaded via Class.forName(name, true, loader), instantiated, and its properties are set from attacker-controlled JSON. This completely bypasses an explicitly configured PTV allow-list. This vulnerability is fixed in 2.18.8, 2.21.4, and 3.1.4.",
           "Severity": "HIGH",
@@ -15026,7 +15026,7 @@
           "FixedVersion": "2.18.8, 2.21.4, 3.1.4",
           "Status": "fixed",
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "SeveritySource": "ghsa",
           "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-54513",
@@ -15035,7 +15035,7 @@
             "Name": "GitHub Security Advisory Maven",
             "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
           },
-          "Fingerprint": "sha256:4b5eea69bce20e7b52df9337aed834faa1fac7ed1260674488b81503b0e13654",
+          "Fingerprint": "sha256:feb977f8dde9a3c706d8d37b31d5dca516b466cca93bf39b8ad4d3135380d4a7",
           "Title": "jackson-databind: Jackson-databind: Security bypass allows arbitrary code execution",
           "Description": "jackson-databind contains the general-purpose data-binding functionality and tree-model for Jackson Data Processor. From 2.10.0 until 2.18.8, 2.21.4, and 3.1.4, BasicPolymorphicTypeValidator.Builder.allowIfSubTypeIsArray() allowlists any array type based only on clazz.isArray(), without validating the array's component (element) type against the configured allowlist. A PTV built with allowIfSubTypeIsArray() plus an explicit concrete-type allowlist therefore still permits EvilType[] even though EvilType is not allowlisted. When Jackson deserializes the elements and no per-element type IDs are present, it instantiates the component type directly with no further PTV check, bypassing the allowlist. This vulnerability is fixed in 2.18.8, 2.21.4, and 3.1.4.",
           "Severity": "HIGH",
@@ -15090,7 +15090,7 @@
           "FixedVersion": "2.18.8, 2.21.4, 3.1.4",
           "Status": "fixed",
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "SeveritySource": "ghsa",
           "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-54514",
@@ -15099,7 +15099,7 @@
             "Name": "GitHub Security Advisory Maven",
             "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
           },
-          "Fingerprint": "sha256:c6f4283f3870237583e5e5e44089b146037194700546c4600cbd6b5ce579a8c9",
+          "Fingerprint": "sha256:c4ba5422d4876dee23225c51c007fc1a752ac16de503c176f4eda0956d210cd3",
           "Title": "jackson-databind: jackson-databind: Information Disclosure via Eager DNS Resolution",
           "Description": "jackson-databind contains the general-purpose data-binding functionality and tree-model for Jackson Data Processor. From 2.0.0 until 2.18.8, 2.21.4, and 3.1.4, JDKFromStringDeserializer constructed InetSocketAddress with new InetSocketAddress(host, port), which performs eager DNS name resolution for hostname inputs at deserialization time. An application that binds untrusted JSON into a type containing an InetSocketAddress field issues an attacker-chosen DNS query during readValue, before any application-level validation or connect logic. The fix uses InetSocketAddress.createUnresolved(host, port), deferring DNS to an explicit connect. This vulnerability is fixed in 2.18.8, 2.21.4, and 3.1.4.",
           "Severity": "MEDIUM",
@@ -15147,7 +15147,7 @@
           "FixedVersion": "3.1.4, 2.18.9, 2.21.5, 2.22.1",
           "Status": "fixed",
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "SeveritySource": "ghsa",
           "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-54515",
@@ -15156,7 +15156,7 @@
             "Name": "GitHub Security Advisory Maven",
             "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
           },
-          "Fingerprint": "sha256:4d81ac0c7879074c4bea2bdbd97da975307ee497c8fa03193c921939334c3e65",
+          "Fingerprint": "sha256:91f3c26b77467a4a25bf20a48fcad95afb69f7af937be9323597cba30bf66ee5",
           "Title": "jackson-databind: jackson-databind: Ignored properties can be unexpectedly modified",
           "Description": "jackson-databind contains the general-purpose data-binding functionality and tree-model for Jackson Data Processor. From 2.8.0 until 2.18.9, 2.21.5, and 3.1.4, in BeanDeserializerBase.createContextual(), per-property @JsonIgnoreProperties exclusions are applied by _handleByNameInclusion(), producing a contextual deserializer whose BeanPropertyMap has the ignored properties removed. The subsequent per-property case-insensitivity block (triggered by @JsonFormat(ACCEPT_CASE_INSENSITIVE_PROPERTIES)) rebuilds from this._beanProperties (the original, unfiltered map) instead of contextual._beanProperties, then overwrites the filtered map — restoring every property _handleByNameInclusion had just removed. The ignored property becomes writable again. This vulnerability is fixed in 2.18.9, 2.21.5, and 3.1.4.",
           "Severity": "MEDIUM",
@@ -15205,7 +15205,7 @@
           "FixedVersion": "2.21.4, 3.1.4",
           "Status": "fixed",
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "SeveritySource": "ghsa",
           "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-54516",
@@ -15214,7 +15214,7 @@
             "Name": "GitHub Security Advisory Maven",
             "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
           },
-          "Fingerprint": "sha256:233f4716e5239f533ae656629d063006fd885678d66346ca2c398d517161a7b8",
+          "Fingerprint": "sha256:83cc65a242215e01449ebc26ce478e60543d9232504e8a9cce608824f730a7c4",
           "Title": "jackson-databind: jackson-databind: Security bypass due to improper handling of renamed properties",
           "Description": "jackson-databind contains the general-purpose data-binding functionality and tree-model for Jackson Data Processor. From 2.21.0 until 2.21.4 and 3.1.4, POJOPropertiesCollector._renameProperties() allows a property with @JsonProperty(\"renamed\") on the getter and @JsonIgnore on the setter to be renamed rather than dropped. With MapperFeature.INFER_PROPERTY_MUTATORS enabled (default), the private backing field is retained; during deserialization BeanDeserializerFactory.addBeanProps() sees hasField()==true, builds a FieldProperty, and makes the backing field writable. An attacker supplying the renamed JSON key writes the backing field directly, bypassing the @JsonIgnore on the setter. This vulnerability is fixed in 3.1.4.",
           "Severity": "MEDIUM",
@@ -15264,7 +15264,7 @@
           "FixedVersion": "2.21.4, 3.1.4",
           "Status": "fixed",
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "SeveritySource": "ghsa",
           "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-54517",
@@ -15273,7 +15273,7 @@
             "Name": "GitHub Security Advisory Maven",
             "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
           },
-          "Fingerprint": "sha256:9bc51b9aa70d67ac50423b084c995fe06b2fe2a642fe324ad02e437debfa8f2a",
+          "Fingerprint": "sha256:c54d8aa656deba384ec253505899536a3af0eaa5ab213ac1185c4a7fbf359f6b",
           "Title": "jackson-databind: jackson-databind: Information disclosure via improper JsonView filter application",
           "Description": "jackson-databind contains the general-purpose data-binding functionality and tree-model for Jackson Data Processor. From 2.21.0 until 2.21.4 and 3.1.4, in BeanDeserializer._deserializeUsingPropertyBased, the active-view (@JsonView) filter was applied only to creator properties; the regular property-buffering branch performed no prop.visibleInView(activeView) check. A change making SetterlessProperty.isMerging() return true routed setterless Collection/Map properties through this unguarded path, so a setterless collection annotated with a restricted @JsonView is populated from attacker JSON even when the active view excludes it. This vulnerability is fixed in 2.21.4 and 3.1.4.",
           "Severity": "MEDIUM",
@@ -15323,7 +15323,7 @@
           "FixedVersion": "2.21.4",
           "Status": "fixed",
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "SeveritySource": "ghsa",
           "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-54518",
@@ -15332,7 +15332,7 @@
             "Name": "GitHub Security Advisory Maven",
             "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
           },
-          "Fingerprint": "sha256:9e90d25b812977c6b8d63807448a9ef9f230ffe638fbeb3b90103735a117b6e9",
+          "Fingerprint": "sha256:3b79a89c08ac05cbc4d69c5b56c01e2a29190a256f407d5c2552832daf378460",
           "Title": "jackson-databind: jackson-databind: Information disclosure and data manipulation via view-based access control bypass",
           "Description": "jackson-databind contains the general-purpose data-binding functionality and tree-model for Jackson Data Processor. From 2.21.0 until 2.21.4 and 3.1.4, UnwrappedPropertyHandler.processUnwrappedCreatorProperties() replays buffered JSON into creator parameters but never consults prop.visibleInView(activeView). The normal property-based creator path gates creator properties on the active view, but this unwrapped-creator replay path bypasses that check, so a constructor parameter annotated with both @JsonView(AdminView.class) and @JsonUnwrapped is populated from attacker JSON even when a more restrictive view is active. This vulnerability is fixed in 2.21.4 and 3.1.4.",
           "Severity": "MEDIUM",
@@ -15382,7 +15382,7 @@
           "FixedVersion": "6.5.11",
           "Status": "fixed",
           "Layer": {
-            "DiffID": "sha256:e22ab2e2532d0fc52ba4a553bb408f956b5a799609e1820aebcc56773f5d9f2e"
+            "DiffID": "sha256:1d15eea8f1418d26691fa07c9d9be0225169541e3d386bc685996b79488cd732"
           },
           "SeveritySource": "ghsa",
           "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-47838",
@@ -15391,7 +15391,7 @@
             "Name": "GitHub Security Advisory Maven",
             "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
           },
-          "Fingerprint": "sha256:055568a544a94954bfbed5a7417f19f0e52a8e51efe295b50ae5a371238fef4f",
+          "Fingerprint": "sha256:9dd42dcb884c9143c552d32580cbfc3960c73d21a227b2979adc13771da7c060",
           "Title": "Spring Security Vulnerable to Unauthorized User Impersonation when Using X.509 Client Certificates",
           "Description": "SubjectDnX509PrincipalExtractor does not correctly handle certain malformed X.509 certificate CN values, which can lead to reading the wrong value for the username. In a carefully crafted certificate, this can lead to an attacker impersonating another user.\n\nAffected versions:\nSpring Security 5.7.0 through 5.7.24; 5.8.0 through 5.8.26; 6.3.0 through 6.3.17; 6.4.0 through 6.4.17; 6.5.0 through 6.5.10.",
           "Severity": "MEDIUM",
