@@ -1,27 +1,26 @@
 # AI Auto-Remediation Summary
 
 - **Status:** OK
-- **Safe fixes applied:** 2 (deterministic: 2, LLM: 0)
+- **Safe fixes applied:** 1 (deterministic: 1, LLM: 0)
 - **Files changed:** 9
 
 ## Fixed (deterministic)
 
-- [hardcoded-secret] `src/main/resources/application.properties` — Removed hardcoded app.secret.* property
-- [outdated-base-image] `Dockerfile` — Added `apt-get upgrade -y` to runtime stage to remediate image-level OS-package CVEs (22 findings, e.g. bsdutils, libblkid1, libc-bin, libc6, libexpat1)
+- [outdated-base-image] `Dockerfile` — Added `apt-get upgrade -y` to runtime stage to remediate image-level OS-package CVEs (23 findings, e.g. bsdutils, libblkid1, libc-bin, libc6, libexpat1)
 
 ## Diff stat
 
 ```
-Dockerfile                                |   1 +
- reports/SONAR_REPORT.md                   |   8 +-
- reports/llm-prompt.txt                    |   9 +
- reports/sonar-report.json                 |   6 +-
- reports/trivy-image.raw.json              | 364 +++++++++++++++---------------
- reports/trivy-image.sarif                 |  12 +-
- reports/trivy-image.sarif.json            |   4 +-
- reports/trivy-report.json                 |   4 +-
- src/main/resources/application.properties |   6 +-
- 9 files changed, 209 insertions(+), 205 deletions(-)
+Dockerfile                     |   1 +
+ reports/SONAR_REPORT.md        |   8 +-
+ reports/llm-prompt.txt         |   9 +
+ reports/sonar-report.json      |   6 +-
+ reports/trivy-image.raw.json   | 439 ++++++++++++++++++++++++-----------------
+ reports/trivy-image.sarif      |  80 ++++++--
+ reports/trivy-image.sarif.json |  15 ++
+ reports/trivy-report.json      |  16 ++
+ reports/trivy-report.txt       |  10 +-
+ 9 files changed, 373 insertions(+), 211 deletions(-)
 ```
 
 ## Reviewer checklist

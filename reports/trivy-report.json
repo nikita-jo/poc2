@@ -641,6 +641,22 @@
   },
   {
     "tool": "trivy",
+    "ruleId": "CVE-2026-15146",
+    "level": "warning",
+    "severity": "MEDIUM",
+    "cve": "CVE-2026-15146",
+    "pkgName": "wget",
+    "installedVersion": "1.21.2-2ubuntu1.3",
+    "fixedVersion": "Link: [CVE-2026-15146](https://avd.aquasec.com/nvd/cve-2026-15146)",
+    "description": null,
+    "file": "library/vulnerable-spring-app",
+    "line": 1,
+    "recommendation": "Upgrade wget to Link: [CVE-2026-15146](https://avd.aquasec.com/nvd/cve-2026-15146)",
+    "category": "vulnerability",
+    "scanner": "image"
+  },
+  {
+    "tool": "trivy",
     "ruleId": "CVE-2026-10532",
     "level": "note",
     "severity": "LOW",

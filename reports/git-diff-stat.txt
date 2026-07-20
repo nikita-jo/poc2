@@ -1,10 +1,10 @@
- Dockerfile                                |   1 +
- reports/SONAR_REPORT.md                   |   8 +-
- reports/llm-prompt.txt                    |   9 +
- reports/sonar-report.json                 |   6 +-
- reports/trivy-image.raw.json              | 364 +++++++++++++++---------------
- reports/trivy-image.sarif                 |  12 +-
- reports/trivy-image.sarif.json            |   4 +-
- reports/trivy-report.json                 |   4 +-
- src/main/resources/application.properties |   6 +-
- 9 files changed, 209 insertions(+), 205 deletions(-)
+ Dockerfile                     |   1 +
+ reports/SONAR_REPORT.md        |   8 +-
+ reports/llm-prompt.txt         |   9 +
+ reports/sonar-report.json      |   6 +-
+ reports/trivy-image.raw.json   | 439 ++++++++++++++++++++++++-----------------
+ reports/trivy-image.sarif      |  80 ++++++--
+ reports/trivy-image.sarif.json |  15 ++
+ reports/trivy-report.json      |  16 ++
+ reports/trivy-report.txt       |  10 +-
+ 9 files changed, 373 insertions(+), 211 deletions(-)

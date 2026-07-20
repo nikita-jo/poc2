@@ -469,6 +469,33 @@
               }
             },
             {
+              "id": "CVE-2026-15146",
+              "name": "OsPackageVulnerability",
+              "shortDescription": {
+                "text": "wget: Wget: Server-Side Request Forgery via FTP PASV response IP address validation bypass"
+              },
+              "fullDescription": {
+                "text": "GNU Wget does not validate the IP address provided by an FTP PASV response while operating in FTP passive mode. A malicious FTP server, or an HTTP server that redirects to an FTP URL, can exploit this behavior to redirect Wget’s data connection to an arbitrary IP address and port. This allows an attacker to forge server-side requests (SSRF) from the machine running Wget, potentially accessing localhost services or internal network resources."
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "helpUri": "https://avd.aquasec.com/nvd/cve-2026-15146",
+              "help": {
+                "text": "Vulnerability CVE-2026-15146\nSeverity: MEDIUM\nPackage: wget\nFixed Version: \nLink: [CVE-2026-15146](https://avd.aquasec.com/nvd/cve-2026-15146)\nGNU Wget does not validate the IP address provided by an FTP PASV response while operating in FTP passive mode. A malicious FTP server, or an HTTP server that redirects to an FTP URL, can exploit this behavior to redirect Wget’s data connection to an arbitrary IP address and port. This allows an attacker to forge server-side requests (SSRF) from the machine running Wget, potentially accessing localhost services or internal network resources.",
+                "markdown": "**Vulnerability CVE-2026-15146**\n| Severity | Package | Fixed Version | Link |\n| --- | --- | --- | --- |\n|MEDIUM|wget||[CVE-2026-15146](https://avd.aquasec.com/nvd/cve-2026-15146)|\n\nGNU Wget does not validate the IP address provided by an FTP PASV response while operating in FTP passive mode. A malicious FTP server, or an HTTP server that redirects to an FTP URL, can exploit this behavior to redirect Wget’s data connection to an arbitrary IP address and port. This allows an attacker to forge server-side requests (SSRF) from the machine running Wget, potentially accessing localhost services or internal network resources."
+              },
+              "properties": {
+                "precision": "very-high",
+                "security-severity": "5.5",
+                "tags": [
+                  "vulnerability",
+                  "security",
+                  "MEDIUM"
+                ]
+              }
+            },
+            {
               "id": "CVE-2026-10532",
               "name": "LanguageSpecificPackageVulnerability",
               "shortDescription": {
@@ -1844,8 +1871,35 @@
           ]
         },
         {
-          "ruleId": "CVE-2026-10532",
+          "ruleId": "CVE-2026-15146",
           "ruleIndex": 17,
+          "level": "warning",
+          "message": {
+            "text": "Package: wget\nInstalled Version: 1.21.2-2ubuntu1.3\nVulnerability CVE-2026-15146\nSeverity: MEDIUM\nFixed Version: \nLink: [CVE-2026-15146](https://avd.aquasec.com/nvd/cve-2026-15146)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "library/vulnerable-spring-app",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1,
+                  "startColumn": 1,
+                  "endLine": 1,
+                  "endColumn": 1
+                }
+              },
+              "message": {
+                "text": "library/vulnerable-spring-app: wget@1.21.2-2ubuntu1.3"
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CVE-2026-10532",
+          "ruleIndex": 18,
           "level": "note",
           "message": {
             "text": "Package: ch.qos.logback:logback-core\nInstalled Version: 1.5.32\nVulnerability CVE-2026-10532\nSeverity: LOW\nFixed Version: 1.5.34\nLink: [CVE-2026-10532](https://avd.aquasec.com/nvd/cve-2026-10532)"
@@ -1872,7 +1926,7 @@
         },
         {
           "ruleId": "CVE-2026-9828",
-          "ruleIndex": 18,
+          "ruleIndex": 19,
           "level": "note",
           "message": {
             "text": "Package: ch.qos.logback:logback-core\nInstalled Version: 1.5.32\nVulnerability CVE-2026-9828\nSeverity: LOW\nFixed Version: 1.5.33\nLink: [CVE-2026-9828](https://avd.aquasec.com/nvd/cve-2026-9828)"
@@ -1899,7 +1953,7 @@
         },
         {
           "ruleId": "CVE-2026-54512",
-          "ruleIndex": 19,
+          "ruleIndex": 20,
           "level": "error",
           "message": {
             "text": "Package: com.fasterxml.jackson.core:jackson-databind\nInstalled Version: 2.21.2\nVulnerability CVE-2026-54512\nSeverity: HIGH\nFixed Version: 2.18.8, 3.1.4, 2.21.4\nLink: [CVE-2026-54512](https://avd.aquasec.com/nvd/cve-2026-54512)"
@@ -1926,7 +1980,7 @@
         },
         {
           "ruleId": "CVE-2026-54513",
-          "ruleIndex": 20,
+          "ruleIndex": 21,
           "level": "error",
           "message": {
             "text": "Package: com.fasterxml.jackson.core:jackson-databind\nInstalled Version: 2.21.2\nVulnerability CVE-2026-54513\nSeverity: HIGH\nFixed Version: 2.18.8, 2.21.4, 3.1.4\nLink: [CVE-2026-54513](https://avd.aquasec.com/nvd/cve-2026-54513)"
@@ -1953,7 +2007,7 @@
         },
         {
           "ruleId": "CVE-2026-54514",
-          "ruleIndex": 21,
+          "ruleIndex": 22,
           "level": "warning",
           "message": {
             "text": "Package: com.fasterxml.jackson.core:jackson-databind\nInstalled Version: 2.21.2\nVulnerability CVE-2026-54514\nSeverity: MEDIUM\nFixed Version: 2.18.8, 2.21.4, 3.1.4\nLink: [CVE-2026-54514](https://avd.aquasec.com/nvd/cve-2026-54514)"
@@ -1980,7 +2034,7 @@
         },
         {
           "ruleId": "CVE-2026-54515",
-          "ruleIndex": 22,
+          "ruleIndex": 23,
           "level": "warning",
           "message": {
             "text": "Package: com.fasterxml.jackson.core:jackson-databind\nInstalled Version: 2.21.2\nVulnerability CVE-2026-54515\nSeverity: MEDIUM\nFixed Version: 3.1.4, 2.18.9, 2.21.5, 2.22.1\nLink: [CVE-2026-54515](https://avd.aquasec.com/nvd/cve-2026-54515)"
@@ -2007,7 +2061,7 @@
         },
         {
           "ruleId": "CVE-2026-54516",
-          "ruleIndex": 23,
+          "ruleIndex": 24,
           "level": "warning",
           "message": {
             "text": "Package: com.fasterxml.jackson.core:jackson-databind\nInstalled Version: 2.21.2\nVulnerability CVE-2026-54516\nSeverity: MEDIUM\nFixed Version: 2.21.4, 3.1.4\nLink: [CVE-2026-54516](https://avd.aquasec.com/nvd/cve-2026-54516)"
@@ -2034,7 +2088,7 @@
         },
         {
           "ruleId": "CVE-2026-54517",
-          "ruleIndex": 24,
+          "ruleIndex": 25,
           "level": "warning",
           "message": {
             "text": "Package: com.fasterxml.jackson.core:jackson-databind\nInstalled Version: 2.21.2\nVulnerability CVE-2026-54517\nSeverity: MEDIUM\nFixed Version: 2.21.4, 3.1.4\nLink: [CVE-2026-54517](https://avd.aquasec.com/nvd/cve-2026-54517)"
@@ -2061,7 +2115,7 @@
         },
         {
           "ruleId": "CVE-2026-54518",
-          "ruleIndex": 25,
+          "ruleIndex": 26,
           "level": "warning",
           "message": {
             "text": "Package: com.fasterxml.jackson.core:jackson-databind\nInstalled Version: 2.21.2\nVulnerability CVE-2026-54518\nSeverity: MEDIUM\nFixed Version: 2.21.4\nLink: [CVE-2026-54518](https://avd.aquasec.com/nvd/cve-2026-54518)"
@@ -2088,7 +2142,7 @@
         },
         {
           "ruleId": "CVE-2026-47838",
-          "ruleIndex": 26,
+          "ruleIndex": 27,
           "level": "warning",
           "message": {
             "text": "Package: org.springframework.security:spring-security-web\nInstalled Version: 6.5.10\nVulnerability CVE-2026-47838\nSeverity: MEDIUM\nFixed Version: 6.5.11\nLink: [CVE-2026-47838](https://avd.aquasec.com/nvd/cve-2026-47838)"
@@ -2116,11 +2170,11 @@
       ],
       "columnKind": "utf16CodeUnits",
       "properties": {
-        "imageID": "sha256:abd001e6bd329b42d891a10a35e4e157dcd05769a345f4c2bc1813432eb5831a",
-        "imageName": "vulnerable-spring-app:ci-7be4d601d219b72ae681212cdebcb0313cb9d820",
+        "imageID": "sha256:6ff0c4c204140c6d02a41d0b769d6a1322dd38f2d8a360113e3ec2d8791723c6",
+        "imageName": "vulnerable-spring-app:ci-8041d0e958b6913404d013d2a20ac6b1b940cbf6",
         "repoDigests": [],
         "repoTags": [
-          "vulnerable-spring-app:ci-7be4d601d219b72ae681212cdebcb0313cb9d820"
+          "vulnerable-spring-app:ci-8041d0e958b6913404d013d2a20ac6b1b940cbf6"
         ]
       }
     }

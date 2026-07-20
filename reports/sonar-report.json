@@ -5,8 +5,8 @@
   "projectKey": "nikita-jo_poc2",
   "host": "https://sonarcloud.io",
   "branch": "ai-remediationreport1.2",
-  "commit": "7be4d601d219b72ae681212cdebcb0313cb9d820",
-  "analysisDate": "2026-07-14T09:53:37+0000",
+  "commit": "8041d0e958b6913404d013d2a20ac6b1b940cbf6",
+  "analysisDate": "2026-07-20T11:42:52+0000",
   "qualityGate": "ERROR",
   "bugs": 0,
   "vulnerabilities": 0,
@@ -36,5 +36,5 @@
     "metrics": {},
     "issues": []
   },
-  "generatedAt": "2026-07-16T06:44:43Z"
+  "generatedAt": "2026-07-20T11:43:42Z"
 }
