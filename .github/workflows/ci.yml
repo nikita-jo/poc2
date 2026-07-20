@@ -1392,6 +1392,7 @@ jobs:
     name: "11. Rebuild & Retest (post-remediation)"
     runs-on: ubuntu-latest
     needs: [security-ai-remediate]
+           [generate-playwright-automation]
     if: ${{ always() && (needs.security-ai-remediate.result == 'success' || needs.security-ai-remediate.result == 'skipped') }}
     steps:
       # The AI remediation agent pushes its commit back to the trigger ref
@@ -1603,6 +1604,7 @@ jobs:
     name: "13. Trivy Re-Scan"
     runs-on: ubuntu-latest
     needs: [rebuild-and-retest]
+           [sonarcloud-rescan]
     permissions:
       contents: read
       security-events: write
