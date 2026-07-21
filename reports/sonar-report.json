@@ -5,8 +5,8 @@
   "projectKey": "nikita-jo_poc2",
   "host": "https://sonarcloud.io",
   "branch": "main",
-  "commit": "e4efea838ff01a63715e647737c2fa44ba5eb914",
-  "analysisDate": "2026-07-14T09:45:37+0000",
+  "commit": "2909961550bcb060a8954203963006ae9edf695f",
+  "analysisDate": "2026-07-21T07:58:12+0000",
   "qualityGate": "ERROR",
   "bugs": 0,
   "vulnerabilities": 0,
@@ -36,5 +36,5 @@
     "metrics": {},
     "issues": []
   },
-  "generatedAt": "2026-07-14T09:46:18Z"
+  "generatedAt": "2026-07-21T07:58:57Z"
 }

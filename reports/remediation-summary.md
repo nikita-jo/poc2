@@ -2,23 +2,25 @@
 
 - **Status:** OK
 - **Safe fixes applied:** 1 (deterministic: 1, LLM: 0)
-- **Files changed:** 7
+- **Files changed:** 9
 
 ## Fixed (deterministic)
 
-- [outdated-base-image] `Dockerfile` — Added `apt-get upgrade -y` to runtime stage to remediate image-level OS-package CVEs (26 findings, e.g. bsdutils, libblkid1, libc-bin, libc6, libexpat1)
+- [outdated-base-image] `Dockerfile` — Added `apt-get upgrade -y` to runtime stage to remediate image-level OS-package CVEs (22 findings, e.g. bsdutils, libblkid1, libc-bin, libc6, libexpat1)
 
 ## Diff stat
 
 ```
-Dockerfile                   |   1 +
- reports/SONAR_REPORT.md      |  16 +-
- reports/llm-prompt.txt       |   9 ++
- reports/sonar-report.json    |  20 +--
- reports/sonar-report.txt     |   2 +-
- reports/trivy-image.raw.json | 360 +++++++++++++++++++++----------------------
- reports/trivy-image.sarif    |   6 +-
- 7 files changed, 209 insertions(+), 205 deletions(-)
+Dockerfile                     |   1 +
+ reports/SONAR_REPORT.md        |   8 +-
+ reports/llm-prompt.txt         |   9 +
+ reports/sonar-report.json      |   6 +-
+ reports/trivy-image.raw.json   | 623 ++++++++++++++++-------------------------
+ reports/trivy-image.sarif      | 252 ++---------------
+ reports/trivy-image.sarif.json |  66 +----
+ reports/trivy-report.json      |  70 +----
+ reports/trivy-report.txt       |  12 +-
+ 9 files changed, 291 insertions(+), 756 deletions(-)
 ```
 
 ## Reviewer checklist
